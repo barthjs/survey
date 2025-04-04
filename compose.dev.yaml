@@ -1,0 +1,29 @@
+services:
+  survey:
+    build:
+      context: .docker
+      dockerfile: Dockerfile-dev
+    pull_policy: never
+    image: barthjs/survey:dev
+    container_name: survey
+    ports:
+      - 80:80
+      - 5173:5173
+    volumes:
+      - ./:/app
+    extra_hosts:
+      - host.docker.internal:host-gateway
+
+  survey-db:
+    image: mariadb:11.4
+    container_name: survey-db
+    ports:
+      - 3306:3306
+    volumes:
+      - db:/var/lib/mysql
+    environment:
+      - MARIADB_DATABASE=${DB_DATABASE}
+      - MARIADB_ROOT_PASSWORD=${DB_PASSWORD}
+
+volumes:
+  db:
