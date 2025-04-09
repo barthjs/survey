@@ -1,10 +1,8 @@
 <div>
-    <div class="min-h-screen flex items-center justify-center">
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <a href="{{ route('profile') }}" class="font-medium underline px-3">{{ __('Profile')}}</a>
-            <x-button label="{{ __('Log Out') }}" type="submit" icon="o-arrow-left-end-on-rectangle"
-                      class="btn-primary"/>
-        </form>
+    <div class="flex items-center justify-center">
+        <div class="text-center p-8">
+            <h1 class="text-3xl">{{ config('app.name') }}</h1>
+            <p>{{ config('app.version') }}</p>
+        </div>
     </div>
 </div>

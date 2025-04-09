@@ -1,5 +1,5 @@
-<x-layouts.app>
-    <div class="min-h-screen flex items-center justify-center">
+<x-layouts.web>
+    <div class="flex items-center justify-center">
         <div class="text-center p-8">
             <h1 class="text-3xl">{{ config('app.name') }}</h1>
             <p>{{ config('app.version') }}</p>
@@ -7,4 +7,4 @@
             <a href="{{ route('register') }}" class="font-medium underline px-3">{{ __('Register')}}</a>
         </div>
     </div>
-</x-layouts.app>
+</x-layouts.web>

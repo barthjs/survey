@@ -1,7 +1,6 @@
 <div>
     <x-header :title="__('Profile')" :subtitle="__('Manage your profile and account settings')" shadow
               separator/>
-    <x-toast/>
 
     <x-card :title="__('Profile')" :subtitle="__('Update your name and email address')">
         <x-form wire:submit="updateProfileInformation" novalidate autocomplete="off">

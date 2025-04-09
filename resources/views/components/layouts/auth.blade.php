@@ -1,20 +1,9 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>
-        @if (!empty($title))
-            {{ $title }} -
-        @endif
-        {{ config('app.name') }}
-    </title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="min-h-screen">
-
-{{ $slot }}
-
-</body>
-</html>
+<x-layouts.html :title="$title">
+    <body class="auth min-h-screen font-sans antialiased bg-primary-700 dark:bg-primary-800">
+    <x-main full-width>
+        <x-slot:content>
+            {{ $slot }}
+        </x-slot:content>
+    </x-main>
+    </body>
+</x-layouts.html>
