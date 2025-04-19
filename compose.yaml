@@ -1,0 +1,29 @@
+services:
+  survey:
+    image: barthjs/survey:latest
+    container_name: survey
+    restart: unless-stopped
+    depends_on:
+      survey-db:
+        condition: service_healthy
+    ports:
+      - 8080:80
+    volumes:
+      - ./data:/app/storage/app
+    env_file: .env
+
+  survey-db:
+    image: mariadb:11.4
+    container_name: survey-db
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - ./db-data:/var/lib/mysql
+    environment:
+      - MARIADB_DATABASE=${DB_DATABASE}
+      - MARIADB_ROOT_PASSWORD=${DB_PASSWORD}
