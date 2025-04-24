@@ -44,6 +44,7 @@
         <x-slot:sidebar drawer="main-drawer" class="bg-base-200 lg:bg-inherit">
             <x-menu :activate-by-route="true">
                 <x-menu-item :title="__('Dashboard')" icon="o-home" :link="route('dashboard')"/>
+                <x-menu-item :title="__('Surveys')" icon="o-rectangle-stack" :link="route('surveys.index')"/>
             </x-menu>
         </x-slot:sidebar>
 

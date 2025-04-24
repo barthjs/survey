@@ -45,7 +45,7 @@ class DatabaseSeeder extends Seeder
 
     private function createDemoSurveys(User $user): void
     {
-        $surveys = Survey::factory(10)->create(['user_id' => $user->id]);
+        $surveys = Survey::factory(20)->create(['user_id' => $user->id]);
 
         foreach ($surveys as $survey) {
             $questions = [];
