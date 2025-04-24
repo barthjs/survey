@@ -56,4 +56,21 @@ class User extends Authenticatable
     {
         return $this->hasMany(Survey::class);
     }
+
+    /**
+     * Get user initials from the username
+     */
+    public function initials(): string
+    {
+        $words = explode(' ', $this->name);
+        $initials = '';
+
+        foreach ($words as $word) {
+            if (! empty($word)) {
+                $initials .= mb_strtoupper(substr($word, 0, 1));
+            }
+        }
+
+        return $initials;
+    }
 }

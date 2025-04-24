@@ -15,5 +15,8 @@
     themes: light --default, dark --prefersdark;
 }
 
+/* Dark theme variant support */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* maryUI */
 @source "../../vendor/robsontenorio/mary/src/View/Components/**/*.php";

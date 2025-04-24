@@ -3,16 +3,15 @@
 
     <x-auth-session-status class="text-center" :status="session('status')"/>
 
-    <x-form novalidate wire:submit="resetPassword">
-        <x-input required label="{{ __('Email address') }}" wire:model="email" icon="o-at-symbol" autofocus
+    <x-form wire:submit="resetPassword" novalidate>
+        <x-input required :label="__('Email address')" wire:model="email" icon="o-at-symbol" autofocus
                  autocomplete="username"/>
-        <x-password required label="{{ __('Password') }}" wire:model="password" required
-                    autocomplete="new-password"/>
-        <x-password required label="{{ __('Confirm password') }}" wire:model="password_confirmation" required
+        <x-password required :label=" __('Password')" wire:model="password" autocomplete="new-password"/>
+        <x-password required :label="__('Confirm password')" wire:model="password_confirmation"
                     autocomplete="new-password"/>
 
         <hr class="mt-3"/>
 
-        <x-button label="{{ __('Reset password') }}" type="submit" class="btn-primary" spinner="resetPassword"/>
+        <x-button :label="__('Reset password')" type="submit" class="btn-primary" spinner="resetPassword"/>
     </x-form>
 </x-card>
