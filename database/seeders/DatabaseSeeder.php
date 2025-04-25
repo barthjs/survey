@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
                 'email' => 'admin@example.com',
                 'password' => Hash::make('admin'),
                 'email_verified_at' => now(),
+                'is_admin' => true,
             ]
         );
         if (App::isLocal()) {
@@ -40,6 +41,8 @@ class DatabaseSeeder extends Seeder
             );
             $this->createDemoSurveys($admin);
             $this->createDemoSurveys($user);
+
+            User::factory(10)->create(['password' => 'password']);
         }
     }
 

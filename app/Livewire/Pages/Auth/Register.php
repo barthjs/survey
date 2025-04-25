@@ -41,6 +41,10 @@ class Register extends Component
 
         $validated['password'] = Hash::make($validated['password']);
 
+        if (User::whereIsAdmin(true)->count() === 0) {
+            $validated['is_admin'] = true;
+        }
+
         event(new Registered(($user = User::create($validated))));
 
         Auth::login($user);

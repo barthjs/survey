@@ -24,11 +24,14 @@
                 </x-slot:trigger>
 
                 <x-menu-item icon="o-user" :link="route('profile')">
-                    {{ __('Profil') }}<br>
+                    {{ auth()->user()->name }}<br>
                     <div class="text-xs">
                         {{ auth()->user()->email }}
                     </div>
                 </x-menu-item>
+                @if(auth()->user()->is_admin)
+                    <x-menu-item :title="__('Users')" icon="o-users" :link="route('users.index')"/>
+                @endif
                 <x-menu-separator/>
 
                 <form method="POST" action="{{ route('logout') }}">
