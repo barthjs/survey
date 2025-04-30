@@ -32,16 +32,6 @@ class CreateSurvey extends Component
 
     public array $questions = [];
 
-    public array $questionTypes;
-
-    public function mount(): void
-    {
-        $this->questionTypes = collect(QuestionType::cases())->map(fn ($type) => [
-            'id' => $type->value,
-            'name' => $type->label(),
-        ])->toArray();
-    }
-
     /**
      * @throws Throwable
      */
@@ -99,7 +89,7 @@ class CreateSurvey extends Component
             'questions.*.type' => ['required', Rule::enum(QuestionType::class)],
             'questions.*.is_required' => ['required', 'boolean'],
             'questions.*.options' => ['nullable', 'array'],
-            'questions.*.options.*' => ['nullable', 'required', 'max:255'],
+            'questions.*.options.*' => ['required_with:questions.*.options', 'string', 'max:255'],
         ])->validate();
     }
 

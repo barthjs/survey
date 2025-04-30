@@ -19,7 +19,7 @@ class AnswerOption extends Model
 
     protected $fillable = [
         'answer_id',
-        'option_id',
+        'question_option_id',
     ];
 
     public function answer(): BelongsTo

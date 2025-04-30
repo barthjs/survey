@@ -1,3 +1,4 @@
+@php use App\Enums\QuestionType; @endphp
 <div x-data="surveyBuilder()" x-init="init()">
     <x-header :title="__('Create survey')" :separator="true"/>
 
@@ -8,7 +9,7 @@
             <x-datetime :label="__('End date')" wire:model="closed_at" type="datetime-local"/>
         </x-card>
 
-        <template x-for="(question, questionIndex) in questions" :key="questionIndex">
+        <template x-for="(question, questionIndex) in questions">
             <x-card>
                 <div class="flex items-center">
                     <x-badge x-text="'{{ __('Question') }} ' + (questionIndex + 1)" class="badge-primary mr-4"/>
@@ -23,16 +24,16 @@
 
                 <x-select
                     :label="__('Type')"
-                    :options="$questionTypes"
+                    :options="QuestionType::toArray()"
                     x-model="question.type"
                     x-on:change="handleQuestionTypeChange(questionIndex)"
                     required
                     class="mb-4"
                 />
 
-                <template x-if="question.type === 'MULTIPLE_CHOICE'">
+                <template x-if="question.type === '{{ QuestionType::MULTIPLE_CHOICE->value }}'">
                     <div class="space-y-4">
-                        <template x-for="(option, optionIndex) in question.options" :key="optionIndex">
+                        <template x-for="(option, optionIndex) in question.options">
                             <div class="space-y-1">
                                 <div class="flex gap-2">
                                     <div class="flex-1">
@@ -42,7 +43,7 @@
                                         x-show="question.options.length > 2"
                                         x-on:click="removeOption(questionIndex, optionIndex)"
                                         icon="o-x-mark"
-                                        class="btn btn-ghost text-error self-start"
+                                        class="btn-ghost text-error"
                                     />
                                 </div>
                                 <div
@@ -64,6 +65,7 @@
                 <x-slot:actions>
                     <x-button
                         :label="__('Delete')"
+                        :responsive="true"
                         x-show="questions.length > 1"
                         x-on:click="removeQuestion(questionIndex)"
                         icon="o-trash"
@@ -81,6 +83,7 @@
                 class="btn-warning"/>
             <x-button
                 :label="__('Create survey')"
+                spinner="createSurvey"
                 type="submit"
                 class="btn-success"/>
         </x-slot:actions>

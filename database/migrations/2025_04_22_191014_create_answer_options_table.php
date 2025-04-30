@@ -16,10 +16,10 @@ return new class extends Migration
         Schema::create('answer_options', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('answer_id');
-            $table->uuid('option_id');
+            $table->uuid('question_option_id');
 
             $table->foreign('answer_id')->references('id')->on('answers')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreign('option_id')->references('id')->on('question_options')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreign('question_option_id')->references('id')->on('question_options')->cascadeOnUpdate()->cascadeOnDelete();
         });
     }
 

@@ -14,4 +14,12 @@ enum QuestionType: string
     {
         return __('survey.question_types.'.$this->value);
     }
+
+    public static function toArray(): array
+    {
+        return collect(QuestionType::cases())->map(fn ($type) => [
+            'id' => $type->value,
+            'name' => $type->label(),
+        ])->toArray();
+    }
 }
