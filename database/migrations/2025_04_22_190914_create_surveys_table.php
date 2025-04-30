@@ -16,12 +16,13 @@ return new class extends Migration
         Schema::create('surveys', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->timestamps();
+            $table->index(['created_at', 'updated_at']);
             $table->uuid('user_id');
 
-            $table->string('title');
+            $table->string('title')->index();
             $table->text('description')->nullable();
             $table->boolean('is_active')->default(true);
-            $table->dateTime('closed_at')->nullable();
+            $table->dateTime('closed_at')->nullable()->index();
 
             $table->foreign('user_id')->references('id')->on('sys_users')->cascadeOnUpdate()->cascadeOnDelete();
         });

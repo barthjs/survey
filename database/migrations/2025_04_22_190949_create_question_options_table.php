@@ -15,7 +15,6 @@ return new class extends Migration
     {
         Schema::create('question_options', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->timestamps();
             $table->uuid('question_id');
 
             $table->string('option_text');

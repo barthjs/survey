@@ -106,7 +106,7 @@ class DatabaseSeeder extends Seeder
                             foreach ($options as $option) {
                                 AnswerOption::factory()->create([
                                     'answer_id' => $answer->id,
-                                    'option_id' => $option->id,
+                                    'question_option_id' => $option->id,
                                 ]);
                             }
                             break;

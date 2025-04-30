@@ -17,6 +17,8 @@ class Question extends Model
 
     protected $table = 'questions';
 
+    public $timestamps = false;
+
     protected $fillable = [
         'survey_id',
         'question_text',

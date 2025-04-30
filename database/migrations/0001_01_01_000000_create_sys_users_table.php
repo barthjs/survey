@@ -23,6 +23,7 @@ return new class extends Migration
             $table->boolean('is_admin')->default(false);
             $table->rememberToken();
             $table->timestamps();
+            $table->index(['created_at', 'updated_at']);
         });
 
         Schema::create('sys_password_reset_tokens', function (Blueprint $table) {

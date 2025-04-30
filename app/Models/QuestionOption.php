@@ -16,6 +16,8 @@ class QuestionOption extends Model
 
     protected $table = 'question_options';
 
+    public $timestamps = false;
+
     protected $fillable = [
         'question_id',
         'option_text',

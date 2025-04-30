@@ -17,9 +17,9 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('survey_id');
 
-            $table->string('ip_address')->nullable();
+            $table->ipAddress()->nullable();
             $table->string('user_agent')->nullable();
-            $table->timestamp('submitted_at')->useCurrent();
+            $table->timestamp('submitted_at')->useCurrent()->index();
 
             $table->foreign('survey_id')->references('id')->on('surveys')->cascadeOnUpdate()->cascadeOnDelete();
         });
