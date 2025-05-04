@@ -1,5 +1,13 @@
 <div>
     <x-header :title="__('Users')" separator>
+        <x-slot:actions>
+            <x-button
+                :label="__('Create user')"
+                :link="route('users.create')"
+                icon="o-plus"
+                class="btn-primary"
+            />
+        </x-slot:actions>
     </x-header>
 
     <x-card>
@@ -9,6 +17,7 @@
             :headers="$headers"
             :rows="$users"
             :sort-by="$sortBy"
+            :link="route('users.view', ['id' => '[id]'])"
             per-page="perPage"
             striped
             with-pagination
