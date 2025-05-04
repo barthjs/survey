@@ -1,5 +1,5 @@
 <div>
-    <x-header :title="__('Surveys')" separator>
+    <x-header>
         <x-slot:actions>
             <x-button
                 :label="__('Create survey')"

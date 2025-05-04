@@ -1,4 +1,4 @@
-<div class="max-w-4xl space-y-8">
+<div class="mx-auto max-w-4xl space-y-8">
     <x-header :title="__('Profile')" :subtitle="__('Manage your profile and account settings')" separator/>
 
     <x-card :title="__('Profile')" :subtitle="__('Update your name and email address')">

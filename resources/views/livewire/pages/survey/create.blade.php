@@ -1,6 +1,24 @@
 @php use App\Enums\QuestionType; @endphp
 <div x-data="surveyBuilder()" x-init="init()">
-    <x-header :title="__('Create survey')" :separator="true"/>
+    <x-header :title="__('Create survey')" separator>
+        <x-slot:actions>
+            <x-button
+                icon="o-x-circle"
+                :label="__('Cancel')"
+                :link="route('surveys.index')"
+                responsive
+                class="btn-secondary"
+            />
+            <x-button
+                icon="o-check"
+                :label="__('Create survey')"
+                responsive
+                spinner="createSurvey"
+                x-on:click="submitSurvey"
+                class="btn-success"
+            />
+        </x-slot:actions>
+    </x-header>
 
     <x-form x-on:submit.prevent="submitSurvey" novalidate autocomplete="off">
         <x-card>
@@ -40,9 +58,9 @@
                                         <x-input x-model="question.options[optionIndex]" class="w-full"/>
                                     </div>
                                     <x-button
+                                        icon="o-x-mark"
                                         x-show="question.options.length > 2"
                                         x-on:click="removeOption(questionIndex, optionIndex)"
-                                        icon="o-x-mark"
                                         class="btn-ghost text-error"
                                     />
                                 </div>
@@ -54,9 +72,9 @@
                         </template>
 
                         <x-button
+                            icon="o-plus"
                             :label="__('Add option')"
                             x-on:click="addOption(questionIndex)"
-                            icon="o-plus"
                             class="btn-outline"
                         />
                     </div>
@@ -64,11 +82,11 @@
 
                 <x-slot:actions>
                     <x-button
+                        icon="o-trash"
                         :label="__('Delete')"
                         :responsive="true"
                         x-show="questions.length > 1"
                         x-on:click="removeQuestion(questionIndex)"
-                        icon="o-trash"
                         class="btn-error"
                     />
                 </x-slot:actions>
@@ -77,15 +95,11 @@
 
         <x-slot:actions class="justify-start">
             <x-button
+                icon="o-plus"
                 :label="__('Add question')"
                 x-on:click="addQuestion()"
-                icon="o-plus"
-                class="btn-warning"/>
-            <x-button
-                :label="__('Create survey')"
-                spinner="createSurvey"
-                type="submit"
-                class="btn-success"/>
+                class="btn-warning"
+            />
         </x-slot:actions>
     </x-form>
 

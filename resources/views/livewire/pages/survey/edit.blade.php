@@ -3,10 +3,26 @@
     <x-header :title="__('Edit survey')" separator>
         <x-slot:actions>
             <x-button
-                :label="__('Delete survey')"
-                wire:click="confirmDeletion"
+                icon="o-x-circle"
+                :label="__('Cancel')"
+                :link="route('surveys.index')"
+                responsive
+                class="btn-secondary"
+            />
+            <x-button
                 icon="o-trash"
-                class="btn-sm btn-error"
+                :label="__('Delete survey')"
+                responsive
+                wire:click="confirmDeletion"
+                class="btn-error"
+            />
+            <x-button
+                icon="o-check"
+                :label="__('Update survey')"
+                responsive
+                spinner="updateSurvey"
+                wire:click="updateSurvey"
+                class="btn-success"
             />
             <x-confirm-delete :title="__('Delete survey')" deleteAction="deleteSurvey"/>
         </x-slot:actions>
@@ -53,9 +69,9 @@
                                 </div>
                                 @if(count($question['options']) > 2)
                                     <x-button
+                                        icon="o-x-mark"
                                         spinner="removeOption({{ $questionIndex }}, {{ $optionIndex }})"
                                         wire:click="removeOption({{ $questionIndex }}, {{ $optionIndex }})"
-                                        icon="o-x-mark"
                                         class="btn-ghost text-error"
                                     />
                                 @endif
@@ -63,10 +79,10 @@
                         @endforeach
 
                         <x-button
+                            icon="o-plus"
                             :label="__('Add option')"
                             spinner="addOption({{ $questionIndex  }})"
                             wire:click="addOption({{ $questionIndex  }})"
-                            icon="o-plus"
                             class="btn-outline"
                         />
                     </div>
@@ -75,11 +91,11 @@
                 <x-slot:actions>
                     @if(count($questions) > 1)
                         <x-button
+                            icon="o-trash"
                             :label="__('Delete')"
                             responsive
                             spinner="removeQuestion({{ $questionIndex }})"
                             wire:click="removeQuestion({{ $questionIndex }})"
-                            icon="o-trash"
                             class="btn-error"
                         />
                     @endif
@@ -89,17 +105,11 @@
 
         <x-slot:actions class="justify-start">
             <x-button
+                icon="o-plus"
                 :label="__('Add question')"
                 spinner="addQuestion"
                 wire:click="addQuestion"
-                icon="o-plus"
                 class="btn-warning"
-            />
-            <x-button
-                :label="__('Update survey')"
-                spinner="updateSurvey"
-                type="submit"
-                class="btn-success"
             />
         </x-slot:actions>
     </x-form>

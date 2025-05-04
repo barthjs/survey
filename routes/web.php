@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use App\Http\Middleware\AdminMiddleware;
-use App\Livewire\Pages\Dashboard;
 use App\Livewire\Pages\Profile;
 use App\Livewire\Pages\Survey\CreateSurvey;
 use App\Livewire\Pages\Survey\EditSurvey;
@@ -13,13 +12,14 @@ use App\Livewire\Pages\User\IndexUsers;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('surveys.index');
+    }
+
     return view('pages.homepage');
 })->name('home');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', Dashboard::class)
-        ->name('dashboard');
-
     Route::get('/profile', Profile::class)
         ->name('profile');
 
