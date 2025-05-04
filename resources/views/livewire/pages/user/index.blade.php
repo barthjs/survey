@@ -40,18 +40,12 @@
 
             @scope('actions', $user)
             @if(auth()->user()->id !== $user->id)
-                <x-button icon="o-trash" wire:click="openModalConfirmDelete" class="btn-sm btn-ghost text-error"/>
-
-                <x-modal wire:model="confirmDeletionModalIsVisible" :title="__('Delete User')"
-                         :subtitle="__('Are you sure you would like to do this?')">
-
-                    <x-slot:actions>
-                        <x-button :label="__('Cancel')" wire:click="closeModalConfirmDelete"
-                                  icon="o-x-circle" class="btn-secondary"/>
-                        <x-button :label="__('Delete')" wire:click="delete('{{ $user->id }}')" icon="o-trash"
-                                  class="btn-error"/>
-                    </x-slot:actions>
-                </x-modal>
+                <x-button
+                    wire:click="confirmDeletion('{{ $user->id }}')"
+                    icon="o-trash"
+                    class="btn-sm btn-ghost text-error"
+                />
+                <x-confirm-delete :title="__('Delete user')"/>
             @endif
             @endscope
         </x-table>

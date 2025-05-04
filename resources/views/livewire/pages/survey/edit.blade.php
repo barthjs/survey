@@ -1,13 +1,14 @@
 @php use App\Enums\QuestionType; @endphp
 <div>
-    <x-header :title="__('Edit survey')" :separator="true">
+    <x-header :title="__('Edit survey')" separator>
         <x-slot:actions>
             <x-button
                 :label="__('Delete survey')"
-                wire:click="deleteSurvey"
+                wire:click="confirmDeletion"
                 icon="o-trash"
                 class="btn-sm btn-error"
             />
+            <x-confirm-delete :title="__('Delete survey')" deleteAction="deleteSurvey"/>
         </x-slot:actions>
     </x-header>
 
@@ -75,7 +76,7 @@
                     @if(count($questions) > 1)
                         <x-button
                             :label="__('Delete')"
-                            :responsive="true"
+                            responsive
                             spinner="removeQuestion({{ $questionIndex }})"
                             wire:click="removeQuestion({{ $questionIndex }})"
                             icon="o-trash"

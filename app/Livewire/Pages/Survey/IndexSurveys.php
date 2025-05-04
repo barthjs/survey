@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire\Pages\Survey;
 
 use App\Models\Survey;
+use App\Traits\ConfirmDeletionModal;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Database\Eloquent\Builder;
@@ -20,7 +21,7 @@ use Mary\Traits\Toast;
 #[Layout('components.layouts.app')]
 class IndexSurveys extends Component
 {
-    use Toast, WithPagination;
+    use ConfirmDeletionModal, Toast, WithPagination;
 
     #[Session]
     public array $sortBy = ['column' => 'title', 'direction' => 'asc'];
@@ -49,10 +50,21 @@ class IndexSurveys extends Component
             ->paginate($this->perPage);
     }
 
-    public function delete(string $id): void
+    public function delete(): void
     {
-        Survey::find($id)->delete();
-        $this->warning('Deleted survey');
+        $survey = Survey::findOrFail($this->deletionId);
+
+        if (auth()->user()->cannot('delete', $survey)) {
+            abort(403);
+        }
+
+        if ($survey->responses()->count() > 0) {
+            abort(403);
+        }
+
+        $survey->delete();
+        $this->closeConfirmDeletionModal();
+        $this->warning(__('Deleted survey'));
     }
 
     public function render(): Application|Factory|View

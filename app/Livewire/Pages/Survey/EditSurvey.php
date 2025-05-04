@@ -6,6 +6,7 @@ namespace App\Livewire\Pages\Survey;
 
 use App\Enums\QuestionType;
 use App\Models\Survey;
+use App\Traits\ConfirmDeletionModal;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Application;
@@ -23,7 +24,7 @@ use ValueError;
 #[Layout('components.layouts.app')]
 class EditSurvey extends Component
 {
-    use Toast;
+    use ConfirmDeletionModal, Toast;
 
     public Survey $survey;
 
@@ -222,8 +223,8 @@ class EditSurvey extends Component
         }
 
         $this->survey->delete();
-
-        $this->warning('Deleted survey');
+        $this->closeConfirmDeletionModal();
+        $this->warning(__('Deleted survey'));
 
         $this->redirect(route('surveys.index'), navigate: true);
     }

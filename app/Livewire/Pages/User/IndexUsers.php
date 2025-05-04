@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire\Pages\User;
 
 use App\Models\User;
+use App\Traits\ConfirmDeletionModal;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Database\Eloquent\Builder;
@@ -20,7 +21,7 @@ use Mary\Traits\Toast;
 #[Layout('components.layouts.app')]
 class IndexUsers extends Component
 {
-    use Toast, WithPagination;
+    use ConfirmDeletionModal, Toast, WithPagination;
 
     #[Session]
     public array $sortBy = ['column' => 'name', 'direction' => 'asc'];
@@ -53,35 +54,24 @@ class IndexUsers extends Component
             ->paginate($this->perPage);
     }
 
-    public function openModalConfirmDelete(): void
+    public function delete(): void
     {
-        $this->confirmDeletionModalIsVisible = true;
-    }
-
-    public function closeModalConfirmDelete(): void
-    {
-        $this->confirmDeletionModalIsVisible = false;
-    }
-
-    public function delete(string $id): void
-    {
-        $user = User::find($id);
+        $user = User::findOrFail($this->deletionId);
 
         if ($user->is_admin) {
+            $this->closeConfirmDeletionModal();
             $this->error(__('You cannot delete an admin'));
 
             return;
         }
 
         if (auth()->user()->id === $user->id) {
-            $this->error(__('Go to the profile in order to delete your account.'));
-
-            return;
+            abort(403);
         }
 
         $user->delete();
-        $this->closeModalConfirmDelete();
-        $this->warning('Deleted user');
+        $this->closeConfirmDeletionModal();
+        $this->warning(__('Deleted user'));
     }
 
     public function render(): Application|Factory|View
