@@ -8,6 +8,7 @@
     :title="$title ?? __('Confirm deletion')"
     :subtitle="$subtitle ?? __('Are you sure you want to do this?')"
     wire:model="confirmDeletionModal"
+    class="backdrop-blur"
 >
     <x-slot:actions>
         <x-button

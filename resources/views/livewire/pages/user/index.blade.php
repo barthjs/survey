@@ -3,15 +3,15 @@
     </x-header>
 
     <x-card>
-        <x-input wire:model.live.debounce="search" icon="o-magnifying-glass" clearable class="max-w-md"/>
+        <x-input icon="o-magnifying-glass" clearable wire:model.live.debounce="search" class="max-w-md"/>
 
         <x-table
             :headers="$headers"
             :rows="$users"
             :sort-by="$sortBy"
+            per-page="perPage"
             striped
             with-pagination
-            per-page="perPage"
         >
             <x-slot:empty>
                 <x-icon name="o-information-circle" :label="__('No users found')"/>
@@ -41,8 +41,8 @@
             @scope('actions', $user)
             @if(auth()->user()->id !== $user->id)
                 <x-button
-                    wire:click="confirmDeletion('{{ $user->id }}')"
                     icon="o-trash"
+                    wire:click="confirmDeletion('{{ $user->id }}')"
                     class="btn-sm btn-ghost text-error"
                 />
                 <x-confirm-delete :title="__('Delete user')"/>

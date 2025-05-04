@@ -12,10 +12,10 @@
 
     <x-card>
         <x-input
+            icon="o-magnifying-glass"
             :placeholder="__('Enter survey title...')"
             clearable
             wire:model.live.debounce="search_url"
-            icon="o-magnifying-glass"
             class="max-w-md"
         />
 
@@ -56,11 +56,12 @@
                 </x-slot:content>
             </x-popover>
             @endscope
+
             @scope('actions', $survey)
             @if($survey->responses()->count() === 0)
                 <x-button
-                    wire:click="confirmDeletion('{{ $survey->id }}')"
                     icon="o-trash"
+                    wire:click="confirmDeletion('{{ $survey->id }}')"
                     class="btn-sm btn-ghost text-error"
                 />
                 <x-confirm-delete :title="__('Delete survey')"/>
