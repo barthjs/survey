@@ -11,6 +11,7 @@
 
         {{-- Right side actions --}}
         <x-slot:actions>
+            <x-language-selector class="btn-circle btn-ghost"/>
             <x-theme-toggle class="btn-circle btn-ghost"/>
 
             <x-dropdown :right="true">

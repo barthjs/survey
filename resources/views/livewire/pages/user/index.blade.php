@@ -47,9 +47,6 @@
             @endscope
 
             @scope('cell_is_admin', $user)
-            <div class="flex items-center">
-
-            </div>
             <x-icon
                 :name="$user->is_admin ? 'o-check-circle' : 'o-x-circle'"
                 :class="$user->is_admin ? 'text-success' : 'text-base-content'"

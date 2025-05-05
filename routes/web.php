@@ -20,6 +20,14 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth'])->group(function () {
+    Route::get('/language/{locale}', function ($locale) {
+        if (array_key_exists($locale, config('app.locales'))) {
+            session()->put('locale', $locale);
+        }
+
+        return redirect()->back();
+    })->name('locale');
+
     Route::get('/profile', Profile::class)
         ->name('profile');
 
