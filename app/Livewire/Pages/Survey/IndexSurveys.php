@@ -27,7 +27,7 @@ class IndexSurveys extends Component
     public array $sortBy = ['column' => 'title', 'direction' => 'asc'];
 
     #[Url]
-    public string $search_url = '';
+    public string $search = '';
 
     public int $perPage = 10;
 
@@ -45,7 +45,7 @@ class IndexSurveys extends Component
     {
         return Survey::query()
             ->where('user_id', auth()->id())
-            ->when($this->search_url, fn (Builder $query) => $query->where('title', 'like', "%$this->search_url%"))
+            ->when($this->search, fn (Builder $query) => $query->where('title', 'like', "%$this->search%"))
             ->orderBy(...array_values($this->sortBy))
             ->paginate($this->perPage);
     }

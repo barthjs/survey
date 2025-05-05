@@ -2,9 +2,9 @@
     <x-header>
         <x-slot:actions>
             <x-button
+                icon="o-plus"
                 :label="__('Create survey')"
                 :link="route('surveys.create')"
-                icon="o-plus"
                 class="btn-primary"
             />
         </x-slot:actions>
@@ -15,7 +15,7 @@
             icon="o-magnifying-glass"
             :placeholder="__('Enter survey title...')"
             clearable
-            wire:model.live.debounce="search_url"
+            wire:model.live.debounce="search"
             class="max-w-md"
         />
 

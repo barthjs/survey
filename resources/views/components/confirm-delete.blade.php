@@ -3,7 +3,6 @@
     'subtitle' => null,
     'deleteAction' => 'delete',
 ])
-
 <x-modal
     :title="$title ?? __('Confirm deletion')"
     :subtitle="$subtitle ?? __('Are you sure you want to do this?')"
@@ -12,16 +11,16 @@
 >
     <x-slot:actions>
         <x-button
-            :label="__('Cancel')"
-            @click="$wire.set('confirmDeletionModal', false)"
             icon="o-x-circle"
+            :label="__('Cancel')"
+            x-on:click="$wire.confirmDeletionModal = false"
             class="btn-secondary"
         />
         <x-button
+            icon="o-trash"
             :label="__('Delete')"
             spinner="{{ $deleteAction }}"
             wire:click="{{ $deleteAction }}"
-            icon="o-trash"
             class="btn-error"
         />
     </x-slot:actions>
