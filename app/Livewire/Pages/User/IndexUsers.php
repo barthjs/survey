@@ -77,8 +77,10 @@ class IndexUsers extends Component
     public function openCreateUserModal(): void
     {
         $this->reset('name', 'email', 'password', 'password_confirmation', 'is_active', 'is_admin');
+
         $this->is_active = true;
         $this->is_admin = false;
+
         $this->createUserModal = true;
     }
 
@@ -100,9 +102,9 @@ class IndexUsers extends Component
 
         $this->reset('name', 'email', 'password', 'password_confirmation', 'is_active', 'is_admin');
 
-        $this->success(__('User created successfully'));
-
         $this->createUserModal = false;
+
+        $this->success(__('User created successfully'));
     }
 
     public function editUser(string $id): void
@@ -159,9 +161,9 @@ class IndexUsers extends Component
 
         $user->save();
 
-        $this->success(__('User updated successfully'));
-
         $this->editUserModal = false;
+
+        $this->success(__('User updated successfully'));
     }
 
     public function delete(): void
@@ -180,7 +182,9 @@ class IndexUsers extends Component
         }
 
         $user->delete();
+
         $this->closeConfirmDeletionModal();
+
         $this->warning(__('Deleted user'));
     }
 

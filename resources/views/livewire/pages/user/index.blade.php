@@ -29,7 +29,9 @@
             </x-slot:empty>
 
             @scope('cell_email', $user)
-            <a href="mailto:{{ $user->email }}" class="link">{{ $user->email }}</a>
+            <a href="mailto:{{ $user->email }}" class="link">
+                {{ $user->email }}
+            </a>
             @endscope
 
             @scope('cell_is_active', $user)

@@ -5,7 +5,9 @@
     <x-nav sticky>
         <x-slot:brand>
             <div>
-                <a href="{{ route('surveys.index') }}" wire:navigate.hover class="text-2xl">{{ config('app.name') }}</a>
+                <a href="{{ route('surveys.index') }}" wire:navigate.hover class="text-2xl">
+                    {{ config('app.name') }}
+                </a>
             </div>
         </x-slot:brand>
 

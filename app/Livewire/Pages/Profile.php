@@ -33,7 +33,7 @@ class Profile extends Component
 
     public string $password_confirmation = '';
 
-    public bool $confirmUserDeletionModalIsVisible = false;
+    public bool $confirmUserDeletionModal = false;
 
     /**
      * Mount the component.
@@ -96,9 +96,9 @@ class Profile extends Component
             'password' => Hash::make($validated['password']),
         ]);
 
-        $this->success(__('Password updated'));
-
         $this->reset('current_password', 'password', 'password_confirmation');
+
+        $this->success(__('Password updated'));
     }
 
     /**
@@ -115,15 +115,15 @@ class Profile extends Component
         $this->redirect(route('home'), navigate: true);
     }
 
-    public function openModalConfirmUserDeletion(): void
+    public function openConfirmUserDeletionModal(): void
     {
         $this->password = '';
-        $this->confirmUserDeletionModalIsVisible = true;
+        $this->confirmUserDeletionModal = true;
     }
 
-    public function closeModalConfirmUserDeletion(): void
+    public function closeConfirmUserDeletionModal(): void
     {
-        $this->confirmUserDeletionModalIsVisible = false;
+        $this->confirmUserDeletionModal = false;
     }
 
     public function render(): Application|Factory|View

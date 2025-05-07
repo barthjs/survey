@@ -9,21 +9,21 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Password;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Validate;
 use Livewire\Component;
 
 #[Layout('components.layouts.auth')]
 class ForgotPassword extends Component
 {
+    #[Validate('required|string|email')]
     public string $email = '';
 
     /**
-     * Send a password reset link to the provided email address.
+     * Send a password-reset link to the provided email address.
      */
     public function sendPasswordResetLink(): void
     {
-        $this->validate([
-            'email' => ['required', 'string', 'email'],
-        ]);
+        $this->validate();
 
         Password::sendResetLink($this->only('email'));
 

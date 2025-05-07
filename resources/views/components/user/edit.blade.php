@@ -5,8 +5,8 @@
         <x-form wire:submit="updateUser" novalidate autocomplete="off">
             <x-input icon="o-user" :label="__('Full name')" wire:model="name" required/>
             <x-input icon="o-at-symbol" :label="__('Email address')" wire:model="email" required/>
-            <x-password :label="__('Password')" clearable wire:model="password"/>
 
+            <x-password :label="__('Password')" clearable wire:model="password"/>
             <template x-if="password">
                 <x-password :label=" __('Confirm Password')" clearable wire:model="password_confirmation" required/>
             </template>
