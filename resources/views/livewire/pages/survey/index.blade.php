@@ -58,6 +58,12 @@
             @endscope
 
             @scope('actions', $survey)
+            <x-button
+                icon="o-arrow-top-right-on-square"
+                :link="route('surveys.submit', ['id' => $survey->id ])"
+                external
+                class="btn-sm btn-ghost info"
+            />
             @if($survey->responses()->count() === 0)
                 <x-button
                     icon="o-trash"

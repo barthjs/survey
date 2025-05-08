@@ -81,8 +81,8 @@
                         <x-button
                             icon="o-plus"
                             :label="__('Add option')"
-                            spinner="addOption({{ $questionIndex  }})"
-                            wire:click="addOption({{ $questionIndex  }})"
+                            spinner="addOption({{ $questionIndex }})"
+                            wire:click="addOption({{ $questionIndex }})"
                             class="btn-outline"
                         />
                     </div>
