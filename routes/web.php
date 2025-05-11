@@ -52,3 +52,7 @@ Route::middleware(['auth'])->group(function () {
 
 Route::get('/s/{id}', SubmitSurvey::class)
     ->name('surveys.submit');
+
+Route::get('thank-you', function () {
+    return view('pages.thank-you');
+})->name('surveys.thank-you');
