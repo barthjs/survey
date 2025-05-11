@@ -54,7 +54,7 @@ class SubmitSurvey extends Component
         }])
             ->whereSurveyId($this->survey->id)
             ->orderBy('order_index')
-            ->get(['id', 'question_text', 'type', 'is_required'])
+            ->get(['id', 'question_text', 'type', 'is_required', 'order_index'])
             ->toArray();
 
         if (empty($this->questions)) {

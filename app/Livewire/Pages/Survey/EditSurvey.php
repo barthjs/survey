@@ -64,12 +64,10 @@ class EditSurvey extends Component
 
     public function addQuestion(): void
     {
-        $isRequired = count($this->questions) === 0;
-
         $this->questions[] = [
             'question_text' => '',
             'type' => QuestionType::TEXT,
-            'is_required' => $isRequired,
+            'is_required' => true,
             'options' => [],
         ];
     }
@@ -139,6 +137,17 @@ class EditSurvey extends Component
      */
     public function updateSurvey(): void
     {
+        $hasRequiredQuestion = collect($this->questions)
+            ->pluck('is_required')
+            ->filter()
+            ->isNotEmpty();
+
+        if (! $hasRequiredQuestion) {
+            throw ValidationException::withMessages([
+                'questions' => [__('At least one question must be marked as required.')],
+            ]);
+        }
+
         $validatedData = $this->validateData();
 
         DB::transaction(function () use ($validatedData) {

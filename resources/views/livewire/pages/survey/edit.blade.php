@@ -38,11 +38,21 @@
             </div>
         </x-card>
 
+        @if ($errors->has('questions'))
+            <div class="text-error">
+                {{ $errors->first('questions') }}
+            </div>
+        @endif
+
         @foreach($questions as $questionIndex => $question)
             <x-card wire:key="question-{{ $questionIndex }}">
                 <div class="flex items-center">
                     <x-badge :value="__('Question') . ' ' . $questionIndex + 1" class="badge-primary mr-4"></x-badge>
-                    <x-checkbox :label="__('Required')" wire:model="questions.{{ $questionIndex }}.is_required"/>
+                    <x-checkbox
+                        :label="__('Required')"
+                        wire:model="questions.{{ $questionIndex }}.is_required"
+                        x-on:click="{{ count($this->questions) === 1 ? '$event.preventDefault()' : '' }}"
+                    />
                 </div>
 
                 <x-input

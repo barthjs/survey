@@ -4,9 +4,13 @@
 
     <x-form wire:submit="submitSurvey" novalidate autocomplete="off">
         @foreach ($questions as $question)
-            <x-card :title="$question['question_text']">
+            <x-card :title="__('Question') . ' '  . $question['order_index'] + 1">
                 @if ($question['type'] === QuestionType::TEXT->name)
-                    <x-input wire:model="response.{{ $question['id'] }}"/>
+                    <x-input
+                        :label="$question['question_text']"
+                        wire:model="response.{{ $question['id'] }}"
+                        :required="$question['is_required']"
+                    />
 
                 @elseif ($question['type'] === QuestionType::MULTIPLE_CHOICE->name )
                     @foreach ($question['options'] as $option)
@@ -14,11 +18,12 @@
                             :id="$option['id']"
                             :label="$option['option_text']"
                             wire:model="response.{{ $question['id'] }}.{{ $option['id'] }}"
+                            :required="$question['is_required']"
                         />
                     @endforeach
 
                 @elseif ($question['type'] === QuestionType::FILE->name)
-                    <x-file wire:model="response.{{ $question['id'] }}" required/>
+                    <x-file wire:model="response.{{ $question['id'] }}" :required="$question['is_required']"/>
                 @endif
             </x-card>
         @endforeach

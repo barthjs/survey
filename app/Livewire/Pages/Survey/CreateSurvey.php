@@ -90,7 +90,12 @@ class CreateSurvey extends Component
             'questions.*.is_required' => ['required', 'boolean'],
             'questions.*.options' => ['nullable', 'array'],
             'questions.*.options.*' => ['required_with:questions.*.options', 'string', 'max:255'],
-        ])->validate();
+        ])->after(function ($validator) {
+            $hasRequired = collect($this->questions)->contains(fn ($q) => $q['is_required']);
+            if (! $hasRequired) {
+                $validator->errors()->add('questions', __('At least one question must be required.'));
+            }
+        })->validate();
     }
 
     protected function createSurveyQuestions(Survey $survey): void

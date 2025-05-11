@@ -27,11 +27,21 @@
             <x-datetime :label="__('End date')" wire:model="closed_at" type="datetime-local"/>
         </x-card>
 
+        <template x-if="!questions.some(q => q.is_required)">
+            <div class="text-error">
+                {{ __('At least one question must be marked as required.') }}
+            </div>
+        </template>
+
         <template x-for="(question, questionIndex) in questions">
             <x-card>
                 <div class="flex items-center">
                     <x-badge x-text="'{{ __('Question') }} ' + (questionIndex + 1)" class="badge-primary mr-4"/>
-                    <x-checkbox :label="__('Required')" x-model="question.is_required"/>
+                    <x-checkbox
+                        :label="__('Required')"
+                        x-model="question.is_required"
+                        x-on:click="if (questions.length === 1) $event.preventDefault()"
+                    />
                 </div>
 
                 <x-input :label="__('Question Text')" x-model="question.question_text" required/>
@@ -112,7 +122,7 @@
                     return {
                         question_text: '',
                         type: 'TEXT',
-                        is_required: false,
+                        is_required: true,
                         options: [],
                     };
                 },
@@ -129,6 +139,10 @@
                 removeQuestion(questionIndex) {
                     if (this.questions.length <= 1) return;
                     this.questions.splice(questionIndex, 1);
+
+                    if (this.questions.length === 1) {
+                        this.questions[0]['is_required'] = true;
+                    }
                 },
                 addOption(questionIndex) {
                     this.questions[questionIndex].options.push('');
@@ -148,6 +162,11 @@
                 },
                 submitSurvey() {
                     this.errors = {};
+
+                    if (!this.questions.some(q => q.is_required)) {
+                        this.errors['questions'] = ['At least one question must be marked as required.'];
+                        return;
+                    }
 
                     const component = Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'));
                     component.set('questions', this.questions);
