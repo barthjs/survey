@@ -84,7 +84,7 @@
                     <x-button
                         icon="o-trash"
                         :label="__('Delete')"
-                        :responsive="true"
+                        responsive
                         x-show="questions.length > 1"
                         x-on:click="removeQuestion(questionIndex)"
                         class="btn-error"

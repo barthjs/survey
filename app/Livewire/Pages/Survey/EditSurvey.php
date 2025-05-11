@@ -34,6 +34,8 @@ class EditSurvey extends Component
 
     public ?string $closed_at = null;
 
+    public bool $is_active;
+
     public array $questions = [];
 
     public function mount(string $id): void
@@ -47,6 +49,7 @@ class EditSurvey extends Component
         $this->title = $this->survey->title;
         $this->description = $this->survey->description;
         $this->closed_at = $this->survey->closed_at?->format('Y-m-d\TH:i');
+        $this->is_active = $this->survey->is_active;
 
         $this->questions = $this->survey->questions->map(fn ($question) => [
             'id' => $question->id,
@@ -61,10 +64,12 @@ class EditSurvey extends Component
 
     public function addQuestion(): void
     {
+        $isRequired = count($this->questions) === 0;
+
         $this->questions[] = [
             'question_text' => '',
-            'type' => QuestionType::TEXT->value,
-            'is_required' => false,
+            'type' => QuestionType::TEXT,
+            'is_required' => $isRequired,
             'options' => [],
         ];
     }
@@ -77,6 +82,10 @@ class EditSurvey extends Component
 
         if (count($this->questions) > 1) {
             array_splice($this->questions, $questionIndex, 1);
+
+            if (count($this->questions) === 1) {
+                $this->questions[0]['is_required'] = true;
+            }
         }
     }
 
@@ -118,7 +127,10 @@ class EditSurvey extends Component
         if ($questionType !== QuestionType::MULTIPLE_CHOICE) {
             $this->questions[$questionIndex]['options'] = [];
         } elseif (empty($this->questions[$questionIndex]['options'])) {
-            $this->questions[$questionIndex]['options'] = ['', ''];
+            $this->questions[$questionIndex]['options'] = [
+                ['option_text' => ''],
+                ['option_text' => ''],
+            ];
         }
     }
 
@@ -137,6 +149,21 @@ class EditSurvey extends Component
                 ->with('options')
                 ->get()
                 ->keyBy('id');
+
+            $submittedQuestionIds = collect($this->questions)
+                ->pluck('id')
+                ->filter()
+                ->all();
+
+            $questionsToDelete = $existingQuestions->keys()->diff($submittedQuestionIds);
+
+            foreach ($questionsToDelete as $questionId) {
+                $question = $existingQuestions->get($questionId);
+
+                if ($question) {
+                    $question->delete();
+                }
+            }
 
             foreach ($this->questions as $questionIndex => $questionData) {
                 $question = null;
@@ -238,6 +265,7 @@ class EditSurvey extends Component
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
             'closed_at' => ['nullable', 'string'],
+            'is_active' => ['required', 'boolean'],
         ]);
 
         Validator::make(['questions' => $this->questions], [
@@ -254,6 +282,7 @@ class EditSurvey extends Component
                 'title' => mb_trim($this->title),
                 'description' => $this->description,
                 'closed_at' => $this->closed_at ? Carbon::parse($this->closed_at) : null,
+                'is_active' => $this->is_active,
             ],
         ];
     }
