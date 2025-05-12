@@ -34,16 +34,20 @@
     </x-form>
 
     <div class="text-center text-sm mt-4 flex flex-col gap-y-3">
-        <div>
-            {{ __('Don\'t have an account?') }}
-            <a href="{{ route('register') }}" wire:navigate.hover class="link">
-                {{ __('Sign up') }}
-            </a>
-        </div>
-        <div>
-            <a href="{{ route('password.request') }}" wire:navigate.hover class="link">
-                {{ __('Forgot your password?') }}
-            </a>
-        </div>
+        @if(config('app.allow_registration'))
+            <div>
+                {{ __('Don\'t have an account?') }}
+                <a href="{{ route('register') }}" wire:navigate.hover class="link">
+                    {{ __('Sign up') }}
+                </a>
+            </div>
+        @endif
+        @if(config('app.enable_password_reset'))
+            <div>
+                <a href="{{ route('password.request') }}" wire:navigate.hover class="link">
+                    {{ __('Forgot your password?') }}
+                </a>
+            </div>
+        @endif
     </div>
 </x-card>

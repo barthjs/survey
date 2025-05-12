@@ -5,8 +5,10 @@
         <a href="{{ route('login') }}" wire:navigate.hover class="font-medium underline px-3">
             {{ __('Log in ')}}
         </a>
-        <a href="{{ route('register') }}" wire:navigate.hover class="font-medium underline px-3">
-            {{ __('Register')}}
-        </a>
+        @if(config('app.allow_registration'))
+            <a href="{{ route('register') }}" wire:navigate.hover class="font-medium underline px-3">
+                {{ __('Register')}}
+            </a>
+        @endif
     </div>
 </x-layouts.web>

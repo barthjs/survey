@@ -14,6 +14,7 @@ use App\Models\Response;
 use App\Models\Survey;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
@@ -39,11 +40,57 @@ class DatabaseSeeder extends Seeder
                     'email_verified_at' => now(),
                 ]
             );
-            $this->createDemoSurveys($admin);
-            $this->createDemoSurveys($user);
+            $this->createDemoSurvey($admin);
+            $this->createDemoSurvey($user);
 
             User::factory(10)->create(['password' => 'password']);
         }
+    }
+
+    public function createDemoSurvey(User $user): void
+    {
+
+        $survey = Survey::create([
+            'user_id' => $user->id,
+            'title' => 'Demo Survey',
+            'description' => 'This is a demo survey.',
+            'is_active' => true,
+            'closed_at' => Carbon::now()->addMonths(3),
+        ]);
+
+        Question::create([
+            'survey_id' => $survey->id,
+            'question_text' => 'Question 1',
+            'is_required' => true,
+            'type' => QuestionType::TEXT,
+            'order_index' => 0,
+        ]);
+
+        $question = Question::create([
+            'survey_id' => $survey->id,
+            'question_text' => 'Question 2',
+            'type' => QuestionType::MULTIPLE_CHOICE,
+            'is_required' => false,
+            'order_index' => 1,
+        ]);
+        QuestionOption::create([
+            'question_id' => $question->id,
+            'option_text' => 'Option 1',
+            'order_index' => 0,
+        ]);
+        QuestionOption::create([
+            'question_id' => $question->id,
+            'option_text' => 'Option 2',
+            'order_index' => 1,
+        ]);
+
+        Question::create([
+            'survey_id' => $survey->id,
+            'question_text' => 'Question 3',
+            'type' => QuestionType::FILE,
+            'is_required' => false,
+            'order_index' => 2,
+        ]);
     }
 
     private function createDemoSurveys(User $user): void

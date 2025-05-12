@@ -34,6 +34,10 @@ class ResetPassword extends Component
      */
     public function mount(string $token): void
     {
+        if (! config('app.enable_password_reset')) {
+            abort(404);
+        }
+
         $this->token = $token;
 
         $this->email = (string) request()->string('email');

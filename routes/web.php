@@ -24,9 +24,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/language/{locale}', function ($locale) {
         if (array_key_exists($locale, config('app.locales'))) {
             session()->put('locale', $locale);
+
+            return redirect()->back();
         }
 
-        return redirect()->back();
+        abort(404);
     })->name('locale');
 
     Route::get('/profile', Profile::class)

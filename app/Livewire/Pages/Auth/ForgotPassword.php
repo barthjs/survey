@@ -18,6 +18,13 @@ class ForgotPassword extends Component
     #[Validate('required|string|email')]
     public string $email = '';
 
+    public function mount(): void
+    {
+        if (! config('app.enable_password_reset')) {
+            abort(404);
+        }
+    }
+
     /**
      * Send a password-reset link to the provided email address.
      */
