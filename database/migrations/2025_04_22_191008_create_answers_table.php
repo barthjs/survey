@@ -20,6 +20,7 @@ return new class extends Migration
 
             $table->text('answer_text')->nullable();
             $table->string('file_path')->nullable();
+            $table->string('original_file_name')->nullable();
 
             $table->foreign('response_id')->references('id')->on('responses')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreign('question_id')->references('id')->on('questions')->cascadeOnUpdate()->cascadeOnDelete();

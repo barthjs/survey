@@ -23,6 +23,7 @@ class Answer extends Model
         'response_id',
         'answer_text',
         'file_path',
+        'original_file_name',
     ];
 
     public function question(): BelongsTo

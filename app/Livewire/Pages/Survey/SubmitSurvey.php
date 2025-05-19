@@ -124,6 +124,9 @@ class SubmitSurvey extends Component
                     'file_path' => $question['type'] === QuestionType::FILE->name
                         ? $data->store('surveys/'.$response->id)
                         : null,
+                    'original_file_name' => $question['type'] === QuestionType::FILE->name
+                        ? $data->getClientOriginalName()
+                        : null,
                 ]);
 
                 if (is_array($data) && $question['type'] === QuestionType::MULTIPLE_CHOICE->name) {

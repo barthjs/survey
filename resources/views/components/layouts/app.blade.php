@@ -53,5 +53,7 @@
 
     <x-toast/>
 
+    @vite('resources/js/app.js')
+
     </body>
 </x-layouts.html>

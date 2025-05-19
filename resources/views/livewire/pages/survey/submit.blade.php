@@ -11,7 +11,6 @@
                         wire:model="response.{{ $question['id'] }}"
                         :required="$question['is_required']"
                     />
-
                 @elseif ($question['type'] === QuestionType::MULTIPLE_CHOICE->name )
                     @foreach ($question['options'] as $option)
                         <x-checkbox
@@ -21,7 +20,6 @@
                             :required="$question['is_required']"
                         />
                     @endforeach
-
                 @elseif ($question['type'] === QuestionType::FILE->name)
                     <x-file wire:model="response.{{ $question['id'] }}" :required="$question['is_required']"/>
                 @endif
