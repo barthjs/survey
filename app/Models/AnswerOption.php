@@ -29,6 +29,6 @@ class AnswerOption extends Model
 
     public function option(): BelongsTo
     {
-        return $this->belongsTo(QuestionOption::class);
+        return $this->belongsTo(QuestionOption::class, 'question_option_id');
     }
 }

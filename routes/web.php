@@ -8,6 +8,7 @@ use App\Livewire\Pages\Survey\CreateSurvey;
 use App\Livewire\Pages\Survey\EditSurvey;
 use App\Livewire\Pages\Survey\IndexSurveys;
 use App\Livewire\Pages\Survey\SubmitSurvey;
+use App\Livewire\Pages\Survey\ViewResponse;
 use App\Livewire\Pages\Survey\ViewSurvey;
 use App\Livewire\Pages\User\IndexUsers;
 use Illuminate\Support\Facades\Route;
@@ -50,6 +51,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/surveys/{id}', ViewSurvey::class)
         ->name('surveys.view');
+
+    Route::get('/surveys/response/{id}', ViewResponse::class)
+        ->name('surveys.response');
 });
 
 Route::get('/s/{id}', SubmitSurvey::class)
