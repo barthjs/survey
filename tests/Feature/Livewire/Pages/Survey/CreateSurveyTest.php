@@ -46,7 +46,7 @@ it('can create a survey with valid data', function () {
         ->assertHasNoErrors();
 
     expect(Survey::count())->toBe(1);
-    $survey = Survey::first();
+    $survey = Survey::with('questions.options')->first();
 
     expect($survey->questions)->toHaveCount(3)
         ->and($survey->questions[1]->options)->toHaveCount(3);
