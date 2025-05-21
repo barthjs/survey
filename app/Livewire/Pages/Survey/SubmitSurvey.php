@@ -11,14 +11,19 @@ use App\Models\Question;
 use App\Models\Response;
 use App\Models\Survey;
 use Carbon\Carbon;
+use Closure;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
 use Mary\Traits\Toast;
+use Storage;
 use Throwable;
 
 #[Layout('components.layouts.web')]
@@ -86,6 +91,11 @@ class SubmitSurvey extends Component
                     'file',
                     'max:10240',
                     'mimetypes:text/plain,application/pdf,image/jpeg,image/png,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    function (string $attribute, $value, Closure $fail) {
+                        if (mb_strlen($value->getClientOriginalName()) > 255) {
+                            $fail(__('The file name must not exceed 255 characters.'));
+                        }
+                    },
                 ],
             };
 
@@ -98,7 +108,38 @@ class SubmitSurvey extends Component
             $rules["response.$questionId"] = $baseRule;
         }
 
-        $this->validate($rules);
+        try {
+            $this->validate($rules);
+        } catch (ValidationException $e) {
+            $failedFields = array_keys($e->validator->failed());
+
+            foreach ($failedFields as $field) {
+                $questionId = str_replace('response.', '', $field);
+                $file = $this->response[$questionId] ?? null;
+
+                if ($file instanceof TemporaryUploadedFile) {
+                    $path = 'livewire-tmp/'.$file->getFilename();
+
+                    if (Storage::disk('local')->exists($path)) {
+                        Log::warning('File upload violated validation.', [
+                            'question_id' => $questionId,
+                            'original_name' => $file->getClientOriginalName(),
+                            'mime_type' => $file->getMimeType(),
+                            'size_kb' => round($file->getSize() / 1024, 2),
+                            'ip' => request()->ip(),
+                            'user_agent' => request()->userAgent(),
+                            'session_id' => session()->getId(),
+                        ]);
+
+                        Storage::disk('local')->delete($path);
+                    }
+                }
+
+                $this->response[$questionId] = null;
+            }
+
+            throw $e;
+        }
 
         DB::transaction(function () {
             $response = Response::create([
@@ -113,6 +154,7 @@ class SubmitSurvey extends Component
                     continue;
                 }
 
+                /** @var TemporaryUploadedFile|string|null $data */
                 $data = $this->response[$question['id']];
 
                 $answer = Answer::create([

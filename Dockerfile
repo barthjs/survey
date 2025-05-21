@@ -27,6 +27,8 @@ RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoload
 
 USER root
 
+RUN docker-cronjob '* * * * * application php /app/artisan schedule:run >> /dev/null 2>&1'
+
 # Set worker configuration file and container entrypoint script
 RUN mv /app/.docker/worker.conf /opt/docker/etc/supervisor.d/worker.conf \
     && mv /app/.docker/start.sh /opt/docker/provision/entrypoint.d/start.sh

@@ -26,6 +26,17 @@ class Answer extends Model
         'original_file_name',
     ];
 
+    protected static function booted(): void
+    {
+        static::deleted(function (Answer $answer) {
+            $response = $answer->response;
+
+            if ($response && $response->answers()->count() === 0) {
+                $response->delete();
+            }
+        });
+    }
+
     public function question(): BelongsTo
     {
         return $this->belongsTo(Question::class);

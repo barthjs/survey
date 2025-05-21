@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Jobs\UploadsCleanupJob;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -28,6 +29,23 @@ class Response extends Model
     protected $casts = [
         'submitted_at' => 'datetime',
     ];
+
+    protected static function booted(): void
+    {
+        static::deleting(function (Response $response) {
+            $filesToDelete = [];
+
+            $response->answers->each(function (Answer $answer) use (&$filesToDelete) {
+                if (! empty($answer->file_path)) {
+                    $filesToDelete[] = $answer->file_path;
+                }
+            });
+
+            if (! empty($filesToDelete)) {
+                UploadsCleanupJob::dispatch($filesToDelete);
+            }
+        });
+    }
 
     public function survey(): BelongsTo
     {

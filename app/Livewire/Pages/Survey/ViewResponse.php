@@ -30,13 +30,17 @@ class ViewResponse extends Component
             'answers.selectedOptions.option',
         ])->findOrFail($id);
 
-        if (auth()->user()->cannot('view', $this->response->survey)) {
+        if (auth()->user()->cannot('view', $this->response)) {
             abort(403);
         }
     }
 
     public function deleteResponse(): void
     {
+        if (auth()->user()->cannot('delete', $this->response)) {
+            abort(403);
+        }
+
         $this->response->delete();
         $this->closeConfirmDeletionModal();
         $this->warning(__('Deleted response'));

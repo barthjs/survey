@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire\Pages\Survey;
 
 use App\Enums\QuestionType;
+use App\Models\QuestionOption;
 use App\Models\Survey;
 use App\Traits\ConfirmDeletionModal;
 use Carbon\Carbon;
@@ -238,11 +239,14 @@ class EditSurvey extends Component
                 $optionsToDelete = $existingOptions->keys()->diff($submittedOptionIds);
 
                 foreach ($optionsToDelete as $optionId) {
+                    /** @var QuestionOption $option */
                     $option = $existingOptions->get($optionId);
 
-                    if ($option && $option->answerOptions()->doesntExist()) {
-                        $option->delete();
-                    }
+                    $option->answerOptions->each(function ($answerOption) {
+                        $answerOption->answer()->delete();
+                    });
+
+                    $option->delete();
                 }
             }
         });

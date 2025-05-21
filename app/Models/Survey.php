@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\QuestionType;
+use App\Jobs\UploadsCleanupJob;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -26,6 +28,25 @@ class Survey extends Model
         'is_active' => 'boolean',
         'closed_at' => 'datetime',
     ];
+
+    protected static function booted(): void
+    {
+        static::deleting(function (Survey $survey) {
+            $filesToDelete = [];
+
+            $survey->questions->each(function (Question $question) use (&$filesToDelete) {
+                if ($question->type === QuestionType::FILE) {
+                    $question->answers()->each(function (Answer $answer) use (&$filesToDelete) {
+                        $filesToDelete[] = $answer->file_path;
+                    });
+                }
+            });
+
+            if (! empty($filesToDelete)) {
+                UploadsCleanupJob::dispatch($filesToDelete);
+            }
+        });
+    }
 
     public function user(): BelongsTo
     {
