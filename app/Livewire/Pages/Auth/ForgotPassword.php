@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Livewire\Pages\Auth;
 
+use App\Jobs\SendPasswordResetLinkJob;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Validate;
@@ -32,9 +35,23 @@ class ForgotPassword extends Component
     {
         $this->validate();
 
-        Password::sendResetLink($this->only('email'));
+        $key = 'password-reset:'.Str::lower($this->email);
 
-        session()->flash('status', __('A reset link will be sent if the account exists.'));
+        if (RateLimiter::tooManyAttempts($key, 3)) {
+            $seconds = RateLimiter::availableIn($key);
+
+            $this->addError('email', __('Too many reset attempts. Try again in :minutes minutes.', [
+                'minutes' => ceil($seconds / 60),
+            ]));
+
+            return;
+        }
+
+        RateLimiter::hit($key, 3600);
+
+        SendPasswordResetLinkJob::dispatch($this->only('email'));
+
+        Session::flash('status', __('A reset link will be sent if the account exists.'));
     }
 
     public function render(): Application|Factory|View

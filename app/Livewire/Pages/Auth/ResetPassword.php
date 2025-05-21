@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Livewire\Pages\Auth;
 
+use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Session;
@@ -54,12 +56,12 @@ class ResetPassword extends Component
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        // Here we will attempt to reset the user's password. If it is successful we
+        // Here we will attempt to reset the user's password. If it is successful, we
         // will update the password on an actual user model and persist it to the
         // database. Otherwise, we will parse the error and return the response.
         $status = Password::reset(
             $this->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user) {
+            function (User $user) {
                 $user->forceFill([
                     'password' => Hash::make($this->password),
                     'remember_token' => Str::random(60),
@@ -70,9 +72,9 @@ class ResetPassword extends Component
         );
 
         // If the password was successfully reset, we will redirect the user back to
-        // the application's home authenticated view. If there is an error we can
+        // the application's home authenticated view. If there is an error, we can
         // redirect them back to where they came from with their error message.
-        if ($status != Password::PasswordReset) {
+        if ($status !== Password::PasswordReset) {
             $this->addError('email', __($status));
 
             return;

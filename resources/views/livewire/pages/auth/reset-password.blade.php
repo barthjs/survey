@@ -18,7 +18,7 @@
         />
 
         <x-password
-            :label=" __('Password')"
+            :label="__('Password')"
             clearable
             wire:model="password"
             autocomplete="new-password"
