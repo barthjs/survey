@@ -21,7 +21,13 @@ Route::get('/', function () {
     return view('pages.homepage');
 })->name('home');
 
-Route::middleware(['auth'])->group(function () {
+$middlewares = ['auth'];
+
+if (config('app.enable_email_verification')) {
+    $middlewares[] = 'verified';
+}
+
+Route::middleware($middlewares)->group(function () {
     Route::get('/language/{locale}', function ($locale) {
         if (array_key_exists($locale, config('app.locales'))) {
             session()->put('locale', $locale);

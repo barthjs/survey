@@ -82,7 +82,22 @@ class Login extends Component
 
     public function render(): Application|Factory|View
     {
+        /*
+         * Handles the case where a user opens the email verification link in a different browser
+         * where they are not logged in. If the intended URL is the verification page,
+         * show a notice after login to clarify why they were redirected here.
+         */
+        $wantsToVerifyEmail = false;
+        $intendedUrl = session('url.intended');
+        if (($intendedUrl) && (Str::contains($intendedUrl, route('verification.notice', absolute: false)))) {
+            $wantsToVerifyEmail = true;
+
+            // Clear the intended URL to prevent the message from showing again later
+            session()->forget('url.intended');
+        }
+
         return view('livewire.pages.auth.login')
+            ->with('wantsToVerifyEmail', $wantsToVerifyEmail)
             ->title(__('Log in'));
     }
 }

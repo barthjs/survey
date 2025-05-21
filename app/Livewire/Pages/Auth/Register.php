@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Livewire\Pages\Auth;
 
+use App\Jobs\SendEmailVerificationJob;
 use App\Models\User;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
@@ -52,7 +52,10 @@ class Register extends Component
             $validated['is_admin'] = true;
         }
 
-        event(new Registered(($user = User::create($validated))));
+        $user = User::create($validated);
+        if (config('app.enable_email_verification')) {
+            SendEmailVerificationJob::dispatch($user);
+        }
 
         Auth::login($user);
 

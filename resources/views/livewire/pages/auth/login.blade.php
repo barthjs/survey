@@ -1,10 +1,17 @@
 <x-card
     :title="__('Log in to your account')"
-    :subtitle="__('Enter your email and password below to log in')"
     separator
     shadow
     class="w-full max-w-lg mx-auto"
 >
+    <x-slot:subtitle>
+        @if($wantsToVerifyEmail)
+            {{ __('Please log in again to activate your account. Use the credentials you provided during registration.') }}
+        @else
+            {{ __('Enter your email and password below to log in') }}
+        @endif
+    </x-slot:subtitle>
+
     <x-auth-session-status :status="session('status')" class="text-center"/>
 
     <x-form wire:submit="login" novalidate>
