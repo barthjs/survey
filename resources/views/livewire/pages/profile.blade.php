@@ -6,6 +6,8 @@
             <x-input icon="o-user" :label="__('Full name')" wire:model="name" required/>
             <x-input icon="o-at-symbol" :label="__('Email address')" wire:model="email" required/>
 
+            <x-auth-session-status :status="session('new_email')" class="text-yellow-600"/>
+
             <x-slot:actions class="justify-start">
                 <x-button
                     :label="__('Save')"
@@ -13,6 +15,16 @@
                     type="submit"
                     class="btn-primary"
                 />
+                @if (!empty($new_email) && ($new_email != $email))
+                    <x-button
+                        icon="o-envelope"
+                        :label="__('Resend verification email')"
+                        spinner="sendVerification"
+                        wire:click="sendVerification"
+                        class="btn-primary"
+                        :disabled="$rateLimited"
+                    />
+                @endif
             </x-slot:actions>
         </x-form>
     </x-card>

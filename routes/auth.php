@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\Auth\VerifyNewEmailController;
+use App\Http\Middleware\ActiveUserMiddleware;
 use App\Livewire\Actions\Logout;
 use App\Livewire\Pages\Auth\ForgotPassword;
 use App\Livewire\Pages\Auth\Login;
@@ -25,13 +27,17 @@ Route::middleware('guest')->group(function () {
         ->name('password.reset');
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', ActiveUserMiddleware::class])->group(function () {
     Route::get('verify-email', VerifyEmail::class)
         ->name('verification.notice');
 
     Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
         ->middleware(['signed', 'throttle:6,1'])
         ->name('verification.verify');
+
+    Route::get('verify-new-email/{id}/{hash}', VerifyNewEmailController::class)
+        ->middleware(['signed', 'throttle:6,1'])
+        ->name('verification.verify-new-email');
 
     Route::get('/user/verified', function () {
         return response()->json([

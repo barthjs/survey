@@ -14,7 +14,12 @@
     <x-user.edit/>
 
     <x-card>
-        <x-input icon="o-magnifying-glass" clearable wire:model.live.debounce="search" class="max-w-md"/>
+        <x-input
+            icon="o-magnifying-glass"
+            clearable :placeholder="__('Search...')"
+            wire:model.live.debounce="search"
+            class="max-w-md"
+        />
 
         <x-table
             :headers="$headers"
@@ -32,6 +37,20 @@
             <a href="mailto:{{ $user->email }}" class="link">
                 {{ $user->email }}
             </a>
+            @endscope
+
+            @scope('cell_email_verified_at', $user)
+            <x-popover>
+                <x-slot:trigger>
+                    <x-icon
+                        :name="$user->email_verified_at ? 'o-check-circle' : 'o-x-circle'"
+                        :class="$user->email_verified_at ? 'text-success' : 'text-base-content'"
+                    />
+                </x-slot:trigger>
+                <x-slot:content>
+                    {{ $user->email_verified_at }}
+                </x-slot:content>
+            </x-popover>
             @endscope
 
             @scope('cell_is_active', $user)

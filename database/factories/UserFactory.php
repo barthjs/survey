@@ -27,6 +27,7 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
+            'is_active' => fake()->boolean(),
             'is_admin' => fake()->boolean(),
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
@@ -34,6 +35,13 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
         ];
+    }
+
+    public function active(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_active' => true,
+        ]);
     }
 
     /**

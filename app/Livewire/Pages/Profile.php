@@ -6,10 +6,13 @@ namespace App\Livewire\Pages;
 
 use App\Livewire\Actions\Logout;
 use App\Models\User;
+use App\Notifications\VerifyNewEmailNotification;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
@@ -27,6 +30,8 @@ class Profile extends Component
 
     public string $email = '';
 
+    public string $new_email = '';
+
     public string $current_password = '';
 
     public string $password = '';
@@ -35,6 +40,8 @@ class Profile extends Component
 
     public bool $confirmUserDeletionModal = false;
 
+    public bool $rateLimited = false;
+
     /**
      * Mount the component.
      */
@@ -42,6 +49,7 @@ class Profile extends Component
     {
         $this->name = Auth::user()->name;
         $this->email = Auth::user()->email;
+        $this->new_email = Auth::user()->new_email ?? '';
     }
 
     /**
@@ -55,7 +63,6 @@ class Profile extends Component
 
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],
-
             'email' => [
                 'required',
                 'string',
@@ -66,15 +73,49 @@ class Profile extends Component
             ],
         ]);
 
-        $user->fill($validated);
+        $user->name = $validated['name'];
+        $validated['email'] = mb_strtolower($validated['email']);
 
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = null;
+        if ($user->email !== $validated['email']) {
+            if (config('app.enable_email_verification')) {
+                $user->new_email = $validated['email'];
+                $user->save();
+                $this->sendVerification();
+            } else {
+                $user->email = $validated['email'];
+                $user->save();
+                $this->success(__('Profile information updated'));
+            }
+        }
+    }
+
+    public function sendVerification(): void
+    {
+        if (! config('app.enable_email_verification')) {
+            abort(404);
         }
 
-        $user->save();
+        $user = Auth::user();
+        if (empty($user->new_email)) {
+            $this->error(__('Email already verified.'));
 
-        $this->success(__('Profile information updated'));
+            return;
+        }
+
+        $key = 'send-new-verification-email:'.$user->id;
+
+        if (RateLimiter::tooManyAttempts($key, 3)) {
+            $this->rateLimited = true;
+            $this->error(__('Too many verification requests. Please try again later.'));
+
+            return;
+        }
+
+        RateLimiter::hit($key);
+
+        Notification::route('mail', $user->new_email)->notify(new VerifyNewEmailNotification($user, $user->new_email));
+
+        $this->success(__('Verification email sent. Please check your email.'));
     }
 
     /**

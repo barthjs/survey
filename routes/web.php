@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\ActiveUserMiddleware;
 use App\Http\Middleware\AdminMiddleware;
 use App\Livewire\Pages\Profile;
 use App\Livewire\Pages\Survey\CreateSurvey;
@@ -21,7 +22,7 @@ Route::get('/', function () {
     return view('pages.homepage');
 })->name('home');
 
-$middlewares = ['auth'];
+$middlewares = ['auth', ActiveUserMiddleware::class];
 
 if (config('app.enable_email_verification')) {
     $middlewares[] = 'verified';

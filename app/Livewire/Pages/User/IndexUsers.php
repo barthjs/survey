@@ -6,6 +6,7 @@ namespace App\Livewire\Pages\User;
 
 use App\Models\User;
 use App\Traits\ConfirmDeletionModal;
+use Carbon\Carbon;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\View\Factory;
@@ -18,6 +19,7 @@ use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Session;
 use Livewire\Attributes\Url;
+use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Mary\Traits\Toast;
@@ -45,6 +47,9 @@ class IndexUsers extends Component
 
     public string $email = '';
 
+    #[Validate('boolean')]
+    public bool $verified = true;
+
     public string $password = '';
 
     public string $password_confirmation = '';
@@ -60,6 +65,7 @@ class IndexUsers extends Component
             ['key' => 'email', 'label' => __('Email')],
             ['key' => 'created_at', 'label' => __('Created at'), 'format' => ['date', 'd-m-Y']],
             ['key' => 'updated_at', 'label' => __('Updated at'), 'format' => ['date', 'd-m-Y']],
+            ['key' => 'email_verified_at', 'label' => __('Verified')],
             ['key' => 'is_active', 'label' => __('Status')],
             ['key' => 'is_admin', 'label' => __('Admin')],
         ];
@@ -97,6 +103,7 @@ class IndexUsers extends Component
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
+        $validated['email_verified_at'] = Carbon::now();
 
         event(new Registered(User::create($validated)));
 
@@ -109,7 +116,7 @@ class IndexUsers extends Component
 
     public function editUser(string $id): void
     {
-        $this->reset('name', 'email', 'password', 'password_confirmation', 'is_active', 'is_admin');
+        $this->reset('name', 'email', 'verified', 'password', 'password_confirmation', 'is_active', 'is_admin');
 
         $user = User::findOrFail($id);
         $this->editUserId = $id;
@@ -117,6 +124,11 @@ class IndexUsers extends Component
         $this->email = $user->email;
         $this->password = '';
         $this->password_confirmation = '';
+        if ($user->email_verified_at) {
+            $this->verified = true;
+        } else {
+            $this->verified = false;
+        }
         $this->is_active = $user->is_active;
         $this->is_admin = $user->is_admin;
 
@@ -155,8 +167,12 @@ class IndexUsers extends Component
 
         $user->fill($validated);
 
-        if ($user->isDirty('email')) {
+        if (! $this->verified || $user->isDirty('email')) {
             $user->email_verified_at = null;
+        }
+
+        if ($this->verified && is_null($user->email_verified_at)) {
+            $user->email_verified_at = now();
         }
 
         $user->save();
