@@ -5,7 +5,7 @@
             <x-button
                 icon="o-x-circle"
                 :label="__('Cancel')"
-                :link="route('surveys.index')"
+                :link="route('surveys.view', ['id' => $survey->id])"
                 responsive
                 class="btn-secondary"
             />
@@ -29,6 +29,16 @@
     </x-header>
 
     <x-form wire:submit="updateSurvey" novalidate autocomplete="off">
+        <x-alert
+            wire:dirty
+            class="alert-warning"
+        >
+            <div class="flex items-start gap-2">
+                <x-icon name="o-exclamation-triangle"/>
+                <div>{{ __('Unsaved changes!') }}</div>
+            </div>
+        </x-alert>
+
         <x-card>
             <x-input :label="__('Title')" wire:model="title" required/>
             <x-textarea :label="__('Description')" :hint="__('Max 1000 chars')" wire:model="description" rows="5"/>

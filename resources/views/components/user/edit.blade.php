@@ -1,8 +1,16 @@
 <x-modal :title="__('Edit user')" persistent wire:model="editUserModal" class="backdrop-blur">
-    <div wire:dirty class="mb-4 2xl:text-warning">{{ __('Unsaved changes!') }}</div>
-
-    <div x-data="{ password: @entangle('password') }">
+    <div>
         <x-form wire:submit="updateUser" novalidate autocomplete="off">
+            <x-alert
+                wire:dirty
+                class="alert-warning"
+            >
+                <div class="flex items-start gap-2">
+                    <x-icon name="o-exclamation-triangle"/>
+                    <div>{{ __('Unsaved changes!') }}</div>
+                </div>
+            </x-alert>
+
             <x-input icon="o-user" :label="__('Full name')" wire:model="name" required/>
             <x-input icon="o-at-symbol" :label="__('Email address')" wire:model="email" required/>
 
