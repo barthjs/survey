@@ -12,12 +12,10 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
-#[Layout('components.layouts.app')]
 class ViewSurvey extends Component
 {
     use WithPagination;
@@ -30,8 +28,10 @@ class ViewSurvey extends Component
     {
         $this->survey = Survey::findOrFail($id);
 
-        if (auth()->user()->cannot('view', $this->survey)) {
-            abort(403);
+        if (! $this->survey->is_public) {
+            if (! auth()->check() || auth()->user()->cannot('view', $this->survey)) {
+                abort(403);
+            }
         }
 
         $this->questions = Question::query()
@@ -74,7 +74,12 @@ class ViewSurvey extends Component
 
     public function render(): Application|Factory|View
     {
+        $layout = $this->survey->is_public && ! auth()->check()
+            ? 'components.layouts.web'
+            : 'components.layouts.app';
+
         return view('livewire.pages.survey.view')
+            ->layout($layout)
             ->title(__('View survey'));
     }
 }

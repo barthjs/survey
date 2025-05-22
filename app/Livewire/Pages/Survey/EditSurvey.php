@@ -33,6 +33,8 @@ class EditSurvey extends Component
 
     public ?string $description = null;
 
+    public bool $is_public;
+
     public ?string $closed_at = null;
 
     public bool $is_active;
@@ -49,6 +51,7 @@ class EditSurvey extends Component
 
         $this->title = $this->survey->title;
         $this->description = $this->survey->description;
+        $this->is_public = $this->survey->is_public;
         $this->closed_at = $this->survey->closed_at?->format('Y-m-d\TH:i');
         $this->is_active = $this->survey->is_active;
 
@@ -277,6 +280,7 @@ class EditSurvey extends Component
         $this->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
+            'is_public' => ['required', 'boolean'],
             'closed_at' => ['nullable', 'string'],
             'is_active' => ['required', 'boolean'],
         ]);
@@ -294,6 +298,7 @@ class EditSurvey extends Component
             'survey' => [
                 'title' => mb_trim($this->title),
                 'description' => $this->description,
+                'is_public' => $this->is_public,
                 'closed_at' => $this->closed_at ? Carbon::parse($this->closed_at) : null,
                 'is_active' => $this->is_active,
             ],

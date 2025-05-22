@@ -20,11 +20,13 @@ class Survey extends Model
         'user_id',
         'title',
         'description',
+        'is_public',
         'is_active',
         'closed_at',
     ];
 
     protected $casts = [
+        'is_public' => 'boolean',
         'is_active' => 'boolean',
         'closed_at' => 'datetime',
     ];

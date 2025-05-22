@@ -1,19 +1,21 @@
 @php use App\Enums\QuestionType; @endphp
-<div>
+<div @if($this->survey->is_public && ! auth()->check())class="my-6"@endif>
     <x-header :title="$survey->title" :subtitle="$survey->description" separator>
         <x-slot:actions>
-            <x-button
-                icon="o-x-circle"
-                :label="__('Cancel')"
-                :link="route('surveys.index')"
-                class="btn-secondary"
-            />
-            <x-button
-                icon="o-pencil"
-                :label="__('Edit survey')"
-                :link="route('surveys.edit', ['id' => $survey->id])"
-                class="btn-primary"
-            />
+            @auth
+                <x-button
+                    icon="o-x-circle"
+                    :label="__('Cancel')"
+                    :link="route('surveys.index')"
+                    class="btn-secondary"
+                />
+                <x-button
+                    icon="o-pencil"
+                    :label="__('Edit survey')"
+                    :link="route('surveys.edit', ['id' => $survey->id])"
+                    class="btn-primary"
+                />
+            @endauth
             @if (
                 (! $this->survey->closed_at || ! $this->survey->closed_at->isPast()) &&
                 $this->survey->is_active
@@ -30,7 +32,17 @@
     </x-header>
 
     <div class="space-y-3">
-        <x-card>
+        <x-card :title="__('Details')">
+            @if(auth()->check())
+                <div class="flex items-center space-x-4">
+                    <x-badge :value="$this->survey->is_public ? __('Public') : __('Private')" class="badge-primary"/>
+                    <x-badge :value="__('Created at') . ': '.  $this->survey->created_at" class="badge-primary"/>
+                    <x-badge
+                        :value="$this->survey->is_active ? __('Open') : __('Closed')"
+                        class="{{ $this->survey->is_active ? 'badge-success' : 'badge-error' }}"
+                    />
+                </div>
+            @endif
             <div class="flex flex-col md:flex-row md:items-center md:justify-between">
                 <x-stat
                     :title="__('Responses')"
@@ -38,7 +50,7 @@
                 />
                 <x-stat
                     :title="__('Closed at')"
-                    :value="$survey->closed_at"
+                    :value="$survey->closed_at ?? __('No end date')"
                 />
             </div>
         </x-card>

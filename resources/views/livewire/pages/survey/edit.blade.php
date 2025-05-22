@@ -34,6 +34,7 @@
             <x-textarea :label="__('Description')" :hint="__('Max 1000 chars')" wire:model="description" rows="5"/>
             <x-datetime :label="__('End date')" wire:model="closed_at" type="datetime-local"/>
             <div class="mt-4">
+                <x-checkbox :label="__('Public')" wire:model="is_public"/>
                 <x-checkbox :label="__('Active')" wire:model="is_active"/>
             </div>
         </x-card>

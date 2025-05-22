@@ -21,6 +21,7 @@ return new class extends Migration
 
             $table->string('title')->index();
             $table->text('description')->nullable();
+            $table->boolean('is_public')->default(false);
             $table->boolean('is_active')->default(true);
             $table->dateTime('closed_at')->nullable()->index();
 

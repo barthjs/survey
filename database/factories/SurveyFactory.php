@@ -19,6 +19,7 @@ class SurveyFactory extends Factory
             'updated_at' => Carbon::now(),
             'title' => $this->faker->text(50),
             'description' => $this->faker->realText(),
+            'is_public' => $this->faker->boolean(),
             'is_active' => $this->faker->boolean(),
             'closed_at' => Carbon::now()->addMonths(3),
         ];

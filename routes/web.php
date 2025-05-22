@@ -62,6 +62,9 @@ Route::middleware($middlewares)->group(function () {
         ->name('surveys.response');
 });
 
+Route::get('/results/{id}', ViewSurvey::class)
+    ->name('surveys.public.view');
+
 Route::get('/s/{id}', SubmitSurvey::class)
     ->name('surveys.submit');
 

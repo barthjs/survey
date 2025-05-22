@@ -28,6 +28,10 @@ class CreateSurvey extends Component
 
     public ?string $description = null;
 
+    public bool $is_public = false;
+
+    public bool $is_active = true;
+
     public ?string $closed_at = null;
 
     public array $questions = [];
@@ -67,12 +71,16 @@ class CreateSurvey extends Component
         $this->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
+            'is_public' => ['required', 'boolean'],
+            'is_active' => ['required', 'boolean'],
             'closed_at' => ['nullable', 'string'],
         ]);
 
         return [
             'title' => mb_trim($this->title),
             'description' => $this->description,
+            'is_public' => $this->is_public,
+            'is_active' => $this->is_active,
             'user_id' => auth()->id(),
             'closed_at' => $this->closed_at ? Carbon::parse($this->closed_at) : null,
         ];
