@@ -138,6 +138,10 @@
                     });
                 },
                 addQuestion() {
+                    if (this.questions.length >= 100) {
+                        return;
+                    }
+
                     this.questions.push(this.questionTemplate());
                 },
                 removeQuestion(questionIndex) {
@@ -149,6 +153,11 @@
                     }
                 },
                 addOption(questionIndex) {
+                    const options = this.questions[questionIndex].options;
+                    if (options.length >= 10) {
+                        return;
+                    }
+
                     this.questions[questionIndex].options.push('');
                 },
                 removeOption(questionIndex, optionIndex) {

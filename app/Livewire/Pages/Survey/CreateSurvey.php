@@ -92,11 +92,11 @@ class CreateSurvey extends Component
     protected function validateQuestions(): void
     {
         Validator::make(['questions' => $this->questions], [
-            'questions' => ['required', 'array'],
+            'questions' => ['required', 'array', 'max:100'],
             'questions.*.question_text' => ['required', 'string', 'max:255'],
             'questions.*.type' => ['required', Rule::enum(QuestionType::class)],
             'questions.*.is_required' => ['required', 'boolean'],
-            'questions.*.options' => ['nullable', 'array'],
+            'questions.*.options' => ['nullable', 'array', 'max:10'],
             'questions.*.options.*' => ['required_with:questions.*.options', 'string', 'max:255'],
         ])->after(function ($validator) {
             $hasRequired = collect($this->questions)->contains(fn ($q) => $q['is_required']);

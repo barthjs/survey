@@ -68,6 +68,12 @@ class EditSurvey extends Component
 
     public function addQuestion(): void
     {
+        if (count($this->questions) >= 100) {
+            $this->error(__('You can only add up to 100 questions.'));
+
+            return;
+        }
+
         $this->questions[] = [
             'question_text' => '',
             'type' => QuestionType::TEXT,
@@ -94,6 +100,12 @@ class EditSurvey extends Component
     public function addOption(int $questionIndex): void
     {
         if (! isset($this->questions[$questionIndex])) {
+            return;
+        }
+
+        if (count($this->questions[$questionIndex]['options']) >= 10) {
+            $this->error("questions.{$questionIndex}.options", __('A maximum of 10 options is allowed.'));
+
             return;
         }
 
@@ -286,11 +298,11 @@ class EditSurvey extends Component
         ]);
 
         Validator::make(['questions' => $this->questions], [
-            'questions' => ['required', 'array'],
+            'questions' => ['required', 'array', 'max:100'],
             'questions.*.question_text' => ['required', 'string', 'max:255'],
             'questions.*.type' => ['required', Rule::enum(QuestionType::class)],
             'questions.*.is_required' => ['required', 'boolean'],
-            'questions.*.options' => ['nullable', 'array'],
+            'questions.*.options' => ['nullable', 'array', 'max:10'],
             'questions.*.options.*.option_text' => ['required_with:questions.*.options', 'string', 'max:255'],
         ])->validate();
 
