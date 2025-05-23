@@ -32,21 +32,28 @@
             </x-card>
         @endif
 
-        @foreach($response->answers as $answer)
-            <x-card wire:key="answer-{{ $answer->id }}">
-                <h3 class="text-lg">{{ $answer->question->question_text }}</h3>
+        @foreach($answers as $answer)
+            <x-card wire:key="answer-{{ $answer['id'] }}">
+                <div class="flex items-center space-x-4">
+                    <x-badge :value="__('Question') . ' ' . $answer['question_order_index'] + 1" class="badge-primary"/>
+                    <x-badge :value="$answer['question_type']->label()" class="badge-info"/>
+                </div>
 
-                @if($answer->question->type === QuestionType::TEXT)
-                    <p class="mt-4">{{ $answer->answer_text }}</p>
-                @elseif($answer->question->type === QuestionType::MULTIPLE_CHOICE)
+                <div class="divider"></div>
+
+                <h3 class="text-lg">{{ $answer['question_text'] }}</h3>
+
+                @if($answer['question_type'] === QuestionType::TEXT)
+                    <p class="mt-4">{{ $answer['answer_text'] }}</p>
+                @elseif($answer['question_type'] === QuestionType::MULTIPLE_CHOICE)
                     <ul class="mt-4 list-disc list-inside">
-                        @foreach($answer->selectedOptions as $option)
-                            <li>{{ $option->option->option_text }}</li>
+                        @foreach($answer['options'] as $option)
+                            <li>{{ $option['option_text'] }}</li>
                         @endforeach
                     </ul>
-                @elseif($answer->question->type === QuestionType::FILE)
+                @elseif($answer['question_type'] === QuestionType::FILE)
                     @php
-                        $filename = $answer->original_file_name;
+                        $filename = $answer['original_file_name'];
                         $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
                         $icon = match($extension) {
                             'txt','doc','docx' => 'o-document-text',
@@ -63,11 +70,40 @@
                         </div>
                         <x-button
                             icon="o-arrow-down-tray"
-                            wire:click="download('{{ $answer->id }}')"
+                            wire:click="download('{{ $answer['id'] }}')"
                             class="btn-sm btn-ghost"
                         />
                     </div>
                 @endif
+
+                <x-slot:actions>
+                    <x-button
+                        icon="o-trash"
+                        x-on:click="$wire.confirmAnswerDeletionModal = true"
+                        class="btn-sm btn-ghost text-error"
+                    />
+                    <x-modal
+                        :title="__('Delete answer')"
+                        wire:model="confirmAnswerDeletionModal"
+                        class="backdrop-blur"
+                    >
+                        <x-slot:actions>
+                            <x-button
+                                icon="o-x-circle"
+                                :label="__('Cancel')"
+                                x-on:click="$wire.confirmAnswerDeletionModal = false"
+                                class="btn-secondary"
+                            />
+                            <x-button
+                                icon="o-trash"
+                                :label="__('Delete')"
+                                spinner="deleteAnswer('{{ $answer['id'] }}')"
+                                wire:click="deleteAnswer('{{ $answer['id'] }}')"
+                                class="btn-error"
+                            />
+                        </x-slot:actions>
+                    </x-modal>
+                </x-slot:actions>
             </x-card>
         @endforeach
     </div>

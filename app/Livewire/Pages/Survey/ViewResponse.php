@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Livewire\Pages\Survey;
 
+use App\Models\Answer;
+use App\Models\QuestionOption;
 use App\Models\Response;
 use App\Traits\ConfirmDeletionModal;
 use Illuminate\Contracts\View\Factory;
@@ -22,13 +24,30 @@ class ViewResponse extends Component
 
     public Response $response;
 
+    public array $answers = [];
+
+    public bool $confirmAnswerDeletionModal = false;
+
     public function mount(string $id): void
     {
         $this->response = Response::with([
             'survey',
+            'answers.question',
             'answers.question.options',
-            'answers.selectedOptions.option',
         ])->findOrFail($id);
+
+        $this->answers = $this->response->answers->map(fn (Answer $answer) => [
+            'id' => $answer->id,
+            'question_id' => $answer->question_id,
+            'question_type' => $answer->question->type,
+            'question_text' => $answer->question->question_text,
+            'question_order_index' => $answer->question->order_index,
+            'answer_text' => $answer->answer_text,
+            'original_file_name' => $answer->original_file_name,
+            'options' => $answer->question->options->map(fn (QuestionOption $option) => [
+                'option_text' => $option->option_text,
+            ])->toArray(),
+        ])->toArray();
 
         if (auth()->user()->cannot('view', $this->response)) {
             abort(403);
@@ -48,17 +67,28 @@ class ViewResponse extends Component
         $this->redirect(route('surveys.view', ['id' => $this->response->survey_id]), navigate: true);
     }
 
+    public function deleteAnswer(string $id): void
+    {
+        $answer = $this->response->answers->firstWhere('id', $id);
+        if (! $answer) {
+            abort(404);
+        }
+
+        $answer->delete();
+        $this->confirmAnswerDeletionModal = false;
+        $this->success(__('Deleted answer'));
+    }
+
     public function download(string $id): BinaryFileResponse
     {
         $answer = $this->response->answers->firstWhere('id', $id);
-
         if (! $answer) {
             abort(404);
         }
 
         return response()->download(
             Storage::disk('local')->path($answer->file_path),
-            $answer->response->submitted_at->format('Y-m-d_H-i-s').'_'.$answer->original_file_name,
+            $this->response->submitted_at->format('Y-m-d_H-i-s').'_'.$answer->original_file_name,
         );
     }
 
