@@ -48,7 +48,7 @@
                     />
                 </div>
 
-                <x-input :label="__('Question Text')" x-model="question.question_text" required/>
+                <x-input :label="__('Question text')" x-model="question.question_text" required/>
                 <div
                     class="text-error"
                     x-text="getError(`questions.${questionIndex}.question_text`)">

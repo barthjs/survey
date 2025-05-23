@@ -24,7 +24,7 @@
         @if(auth()->user()->is_admin)
             <x-card>
                 <div class="text-sm space-y-1">
-                    <div><strong>{{ __('IP Address') }}:</strong> {{ $response->ip_address ?? __('N/A') }}</div>
+                    <div><strong>{{ __('IP-Address') }}:</strong> {{ $response->ip_address ?? __('N/A') }}</div>
                     <div><strong>{{ __('User Agent') }}:</strong>
                         <code class="break-all">{{ $response->user_agent ?? __('N/A') }}</code>
                     </div>

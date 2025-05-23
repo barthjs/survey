@@ -45,7 +45,7 @@
                 wire:model="password"
             />
             <x-password
-                :label="__('Confirm Password')"
+                :label="__('Confirm password')"
                 clearable
                 wire:model="password_confirmation"
             />

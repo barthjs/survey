@@ -12,14 +12,14 @@
         <x-input icon="o-at-symbol" :label="__('Email address')" wire:model="email" autocomplete="email" required/>
 
         <x-password :label="__('Password')" wire:model="password" required/>
-        <x-password :label=" __('Confirm Password')" wire:model="password_confirmation" required/>
+        <x-password :label=" __('Confirm password')" wire:model="password_confirmation" required/>
 
         <hr class="mt-3"/>
 
         <div class="w-full flex justify-center">
             <x-button
                 icon="o-paper-airplane"
-                :label="__('Create Account')"
+                :label="__('Create account')"
                 spinner="register"
                 type="submit"
                 class="btn-primary"

@@ -36,7 +36,7 @@
                     wire:model="sendEmailModal"
                 >
                     <x-form wire:submit="sendEmail" novalidate autocomplete="off">
-                        <x-input icon="o-envelope" :placeholder="__('E-Mail')" wire:model="email" required/>
+                        <x-input icon="o-envelope" :placeholder="__('Email address')" wire:model="email" required/>
 
                         <x-slot:actions>
                             <x-button

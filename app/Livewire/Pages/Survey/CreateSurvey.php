@@ -101,7 +101,7 @@ class CreateSurvey extends Component
         ])->after(function ($validator) {
             $hasRequired = collect($this->questions)->contains(fn ($q) => $q['is_required']);
             if (! $hasRequired) {
-                $validator->errors()->add('questions', __('At least one question must be required.'));
+                $validator->errors()->add('questions', __('At least one question must be marked as required.'));
             }
         })->validate();
     }

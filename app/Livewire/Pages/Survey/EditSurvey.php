@@ -266,7 +266,7 @@ class EditSurvey extends Component
             }
         });
 
-        $this->success(__('Survey updated'));
+        $this->success(__('Updated survey'));
 
         $this->redirect(route('surveys.view', $this->survey->id), navigate: true);
     }

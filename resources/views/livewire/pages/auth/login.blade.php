@@ -25,7 +25,7 @@
         />
 
         <x-password :label="__('Password')" wire:model="password" autocomplete="current-password" required/>
-        <x-checkbox :label="__('Remember Me')" wire:model="remember"/>
+        <x-checkbox :label="__('Remember me')" wire:model="remember"/>
 
         <hr class="mt-3"/>
 

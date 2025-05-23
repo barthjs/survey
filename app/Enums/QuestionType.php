@@ -12,7 +12,7 @@ enum QuestionType: string
 
     public function label(): string
     {
-        return __('survey.question_types.'.$this->value);
+        return __('question_types.'.$this->value);
     }
 
     public static function toArray(): array

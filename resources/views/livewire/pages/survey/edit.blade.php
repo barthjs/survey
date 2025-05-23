@@ -69,7 +69,7 @@
                 <div class="divider"></div>
 
                 <x-input
-                    :label="__('Question Text')"
+                    :label="__('Question text')"
                     wire:model="questions.{{ $questionIndex }}.question_text"
                     required
                 />
