@@ -70,8 +70,10 @@ class ViewSurvey extends Component
     public function getChartData(string $id): array
     {
         $question = Question::findOrFail($id);
-        if (auth()->user()->cannot('view', $question->survey)) {
-            abort(403);
+        if (! $question->survey->is_public && ! $this->survey->is_public) {
+            if (! auth()->check() || auth()->user()->cannot('view', $question->survey)) {
+                abort(403);
+            }
         }
 
         $options = $question->options;
@@ -118,9 +120,10 @@ class ViewSurvey extends Component
     public function download(string $id): BinaryFileResponse
     {
         $answer = Answer::findOrFail($id);
-
-        if (auth()->user()->cannot('view', $answer->question->survey)) {
-            abort(403);
+        if (! $answer->question->survey->is_public && ! $this->survey->is_public) {
+            if (! auth()->check() || auth()->user()->cannot('view', $answer->question->survey)) {
+                abort(403);
+            }
         }
 
         return response()->download(
@@ -131,12 +134,15 @@ class ViewSurvey extends Component
 
     public function render(): Application|Factory|View
     {
+        $isPublic = $this->survey->is_public && ! auth()->check();
         $layout = $this->survey->is_public && ! auth()->check()
             ? 'components.layouts.web'
             : 'components.layouts.app';
 
         return view('livewire.pages.survey.view')
-            ->layout($layout)
+            ->layout($layout, [
+                'includeAppJs' => $isPublic,
+            ])
             ->title(__('View survey'));
     }
 }

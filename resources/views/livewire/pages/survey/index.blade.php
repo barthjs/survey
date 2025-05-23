@@ -57,6 +57,20 @@
             </x-popover>
             @endscope
 
+            @scope('cell_is_public', $survey)
+            <x-popover>
+                <x-slot:trigger>
+                    <x-icon
+                        :name="$survey->is_public ? 'o-check-circle' : 'o-x-circle'"
+                        :class="$survey->is_public ? 'text-success' : 'text-base-content'"
+                    />
+                </x-slot:trigger>
+                <x-slot:content>
+                    {{ $survey->is_public ? __('Public') : __('Private') }}
+                </x-slot:content>
+            </x-popover>
+            @endscope
+
             @scope('actions', $survey)
             @if(
                 (! $survey->closed_at || ! $survey->closed_at->isPast()) &&
