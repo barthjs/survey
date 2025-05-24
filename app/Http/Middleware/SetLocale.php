@@ -11,14 +11,28 @@ use Symfony\Component\HttpFoundation\Response;
 class SetLocale
 {
     /**
-     * Set the app locale based on the session.
+     * Set the app locale based on the session or browser preferences.
      *
      * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (session()->has('locale') && array_key_exists(session('locale'), config('app.locales'))) {
+        $availableLocales = config('app.locales');
+
+        if (session()->has('locale') && array_key_exists(session('locale'), $availableLocales)) {
             app()->setLocale(session('locale'));
+        } else {
+            // Get the first language from the Accept-Language header
+            $requestLocale = $request->getPreferredLanguage();
+            $locale = strtolower(substr($requestLocale, 0, 2));
+
+            if (array_key_exists($locale, $availableLocales)) {
+                app()->setLocale($locale);
+
+                return $next($request);
+            }
+
+            app()->setLocale(config('app.locale'));
         }
 
         return $next($request);

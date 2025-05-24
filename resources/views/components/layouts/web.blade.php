@@ -4,8 +4,5 @@
 
     {{ $slot }}
 
-    @if (isset($includeAppJs) && $includeAppJs)
-        @vite('resources/js/app.js')
-    @endif
     </body>
 </x-layouts.html>

@@ -22,6 +22,16 @@ Route::get('/', function () {
     return view('pages.homepage');
 })->name('home');
 
+Route::get('/language/{locale}', function ($locale) {
+    if (array_key_exists($locale, config('app.locales'))) {
+        session()->put('locale', $locale);
+
+        return redirect()->back();
+    }
+
+    abort(404);
+})->name('locale');
+
 $middlewares = ['auth', ActiveUserMiddleware::class];
 
 if (config('app.enable_email_verification')) {
@@ -29,16 +39,6 @@ if (config('app.enable_email_verification')) {
 }
 
 Route::middleware($middlewares)->group(function () {
-    Route::get('/language/{locale}', function ($locale) {
-        if (array_key_exists($locale, config('app.locales'))) {
-            session()->put('locale', $locale);
-
-            return redirect()->back();
-        }
-
-        abort(404);
-    })->name('locale');
-
     Route::get('/profile', Profile::class)
         ->name('profile');
 

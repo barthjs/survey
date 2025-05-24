@@ -21,7 +21,12 @@
                     </x-slot:trigger>
 
                     <div class="flex flex-col">
-                        <x-button icon="o-share" :label="__('Copy link')" class="btn-ghost justify-start"/>
+                        <x-button
+                            icon="o-share"
+                            :label="__('Copy link')"
+                            x-on:click="navigator.clipboard.writeText('{{ route('surveys.submit', ['id' => $survey->id]) }}')"
+                            class="btn-ghost justify-start"
+                        />
                         <x-button
                             icon="o-paper-airplane"
                             :label="__('Send email')"

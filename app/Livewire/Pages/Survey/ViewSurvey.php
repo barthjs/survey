@@ -136,7 +136,7 @@ class ViewSurvey extends Component
     {
         $isPublic = $this->survey->is_public && ! auth()->check();
         $layout = $this->survey->is_public && ! auth()->check()
-            ? 'components.layouts.web'
+            ? 'components.layouts.public'
             : 'components.layouts.app';
 
         return view('livewire.pages.survey.view')

@@ -26,7 +26,7 @@ use Mary\Traits\Toast;
 use Storage;
 use Throwable;
 
-#[Layout('components.layouts.web')]
+#[Layout('components.layouts.public')]
 class SubmitSurvey extends Component
 {
     use Toast, WithFileUploads;

@@ -43,7 +43,7 @@
     <div class="text-center text-sm mt-4 flex flex-col gap-y-3">
         @if(config('app.allow_registration'))
             <div>
-                {{ __('Don\'t have an account?') }}
+                {{ __('Don\\\'t have an account?') }}
                 <a href="{{ route('register') }}" wire:navigate.hover class="link">
                     {{ __('Sign up') }}
                 </a>
