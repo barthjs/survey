@@ -95,6 +95,6 @@ class ViewResponse extends Component
     public function render(): Application|Factory|View
     {
         return view('livewire.pages.survey.response')
-            ->title('View Response');
+            ->title(__('View answer'));
     }
 }

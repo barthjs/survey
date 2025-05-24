@@ -11,14 +11,14 @@
             />
             <x-button
                 icon="o-trash"
-                :label="__('Delete survey')"
+                :label="__('Delete')"
                 responsive
                 wire:click="confirmDeletion"
                 class="btn-error"
             />
             <x-button
-                icon="o-check"
-                :label="__('Update survey')"
+                icon="o-bookmark-square"
+                :label="__('Save')"
                 responsive
                 spinner="updateSurvey"
                 wire:click="updateSurvey"

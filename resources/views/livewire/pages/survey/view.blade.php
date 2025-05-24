@@ -11,68 +11,68 @@
                 />
                 <x-button
                     icon="o-pencil"
-                    :label="__('Edit survey')"
+                    :label="__('Edit')"
                     :link="route('surveys.edit', ['id' => $survey->id])"
                     class="btn-primary"
                 />
-                <x-dropdown :right="true">
-                    <x-slot:trigger>
-                        <x-button icon="o-share" :label="__('Share')" class="btn-info"/>
-                    </x-slot:trigger>
+                @if (
+                    (! $this->survey->closed_at || ! $this->survey->closed_at->isPast()) &&
+                    $this->survey->is_active
+                )
+                    <x-dropdown :right="true">
+                        <x-slot:trigger>
+                            <x-button icon="o-share" :label="__('Share')" responsive class="btn-info"/>
+                        </x-slot:trigger>
 
-                    <div class="flex flex-col">
-                        <x-button
-                            icon="o-share"
-                            :label="__('Copy link')"
-                            x-on:click="navigator.clipboard.writeText('{{ route('surveys.submit', ['id' => $survey->id]) }}')"
-                            class="btn-ghost justify-start"
-                        />
-                        <x-button
-                            icon="o-paper-airplane"
-                            :label="__('Send email')"
-                            x-on:click="$wire.sendEmailModal = true"
-                            class="btn-ghost  justify-start"
-                        />
-                    </div>
-                </x-dropdown>
-
-                <x-modal
-                    :title="__('Send a link to this survey via email')"
-                    wire:model="sendEmailModal"
-                >
-                    <x-form wire:submit="sendEmail" novalidate autocomplete="off">
-                        <x-input icon="o-envelope" :placeholder="__('Email address')" wire:model="email" required/>
-
-                        <x-slot:actions>
+                        <div class="flex flex-col">
                             <x-button
-                                icon="o-x-circle"
-                                :label="__('Cancel')"
-                                x-on:click="$wire.sendEmailModal = false"
-                                class="btn-secondary"
+                                icon="o-arrow-top-right-on-square"
+                                :label="__('Submit')"
+                                :link="route('surveys.submit', ['id' => $survey->id])"
+                                external
+                                class="btn-ghost justify-start"
+                            />
+                            <x-button
+                                icon="o-clipboard"
+                                :label="__('Copy link')"
+                                x-on:click="navigator.clipboard.writeText('{{ route('surveys.submit', ['id' => $survey->id]) }}')"
+                                class="btn-ghost justify-start"
                             />
                             <x-button
                                 icon="o-paper-airplane"
-                                :label="__('Send')"
-                                spinner="sendEmail"
-                                type="submit"
-                                class="btn-info"
+                                :label="__('Send email')"
+                                x-on:click="$wire.sendEmailModal = true"
+                                class="btn-ghost  justify-start"
                             />
-                        </x-slot:actions>
-                    </x-form>
-                </x-modal>
+                        </div>
+                    </x-dropdown>
+
+                    <x-modal
+                        :title="__('Send a link to this survey via email')"
+                        wire:model="sendEmailModal"
+                    >
+                        <x-form wire:submit="sendEmail" novalidate autocomplete="off">
+                            <x-input icon="o-envelope" :placeholder="__('Email address')" wire:model="email" required/>
+
+                            <x-slot:actions>
+                                <x-button
+                                    icon="o-x-circle"
+                                    :label="__('Cancel')"
+                                    x-on:click="$wire.sendEmailModal = false"
+                                    class="btn-secondary"
+                                />
+                                <x-button
+                                    icon="o-paper-airplane"
+                                    :label="__('Send')"
+                                    spinner="sendEmail"
+                                    type="submit"
+                                    class="btn-info"
+                                />
+                            </x-slot:actions>
+                        </x-form>
+                    </x-modal>
+                @endif
             @endauth
-            @if (
-                (! $this->survey->closed_at || ! $this->survey->closed_at->isPast()) &&
-                $this->survey->is_active
-            )
-                <x-button
-                    icon="o-arrow-top-right-on-square"
-                    :label="__('Submit')"
-                    :link="route('surveys.submit', ['id' => $survey->id])"
-                    external
-                    class="btn-info"
-                />
-            @endif
         </x-slot:actions>
     </x-header>
 
@@ -94,7 +94,7 @@
                     :value="$survey->responses->count()"
                 />
                 <x-stat
-                    :title="__('Closed at')"
+                    :title="__('End date')"
                     :value="$survey->closed_at ?? __('No end date')"
                 />
             </div>

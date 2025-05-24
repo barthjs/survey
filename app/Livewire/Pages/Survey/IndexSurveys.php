@@ -36,7 +36,7 @@ class IndexSurveys extends Component
         return [
             ['key' => 'title', 'label' => __('Title')],
             ['key' => 'created_at', 'label' => __('Created at'), 'format' => ['date', 'd-m-Y']],
-            ['key' => 'closed_at', 'label' => __('Closed at')],
+            ['key' => 'closed_at', 'label' => __('End date')],
             ['key' => 'is_active', 'label' => __('Status')],
             ['key' => 'is_public', 'label' => __('Public')],
         ];
@@ -72,7 +72,6 @@ class IndexSurveys extends Component
     {
         return view('livewire.pages.survey.index')
             ->with('headers', $this->tableHeaders())
-            ->with('surveys', $this->surveys())
-            ->title(__('Surveys'));
+            ->with('surveys', $this->surveys());
     }
 }

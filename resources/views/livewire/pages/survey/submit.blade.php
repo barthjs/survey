@@ -28,7 +28,7 @@
             </x-card>
         @endforeach
 
-        @if($survey->closed_at)
+        @if($survey->closed_at && !$this->survey->closed_at->isPast())
             <h2 class="text-lg text-info"> {{ __('Open until') . ': ' .   $survey->closed_at }}</h2>
         @endif
 
