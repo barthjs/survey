@@ -14,7 +14,7 @@ class QuestionOptionFactory extends Factory
     public function definition(): array
     {
         return [
-            'option_text' => $this->faker->words(5),
+            'option_text' => $this->faker->text(),
         ];
     }
 }

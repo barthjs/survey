@@ -12,7 +12,7 @@
                         :required="$question['is_required']"
                     />
                 @elseif ($question['type'] === QuestionType::MULTIPLE_CHOICE->name )
-                    @if($question['is_required'])
+                    @if ($question['is_required'])
                         <span class="text-error">*</span>
                     @endif
                     @foreach ($question['options'] as $option)
@@ -28,12 +28,13 @@
             </x-card>
         @endforeach
 
-        <h2 class="text-lg text-info"> {{ __('Open until') . ': ' .   $survey->closed_at }}</h2>
+        @if($survey->closed_at)
+            <h2 class="text-lg text-info"> {{ __('Open until') . ': ' .   $survey->closed_at }}</h2>
+        @endif
 
         <x-slot:actions class="justify-start">
             <x-button
-                icon="o-check"
-                :label="__('Submit survey')"
+                :label="__('Submit')"
                 spinner="submitSurvey"
                 type="submit"
                 class="btn-success"

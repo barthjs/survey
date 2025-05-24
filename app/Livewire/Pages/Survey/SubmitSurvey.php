@@ -29,6 +29,22 @@ use Throwable;
 #[Layout('components.layouts.public')]
 class SubmitSurvey extends Component
 {
+    public const array ALLOWED_MIME_TYPES = [
+        'text/plain',
+        'text/markdown',
+        'application/pdf',
+        'image/jpeg',
+        'image/png',
+        'image/svg+xml',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.oasis.opendocument.text',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'application/vnd.oasis.opendocument.spreadsheet',
+        'application/vnd.oasis.opendocument.presentation',
+    ];
+
     use Toast, WithFileUploads;
 
     public Survey $survey;
@@ -85,13 +101,31 @@ class SubmitSurvey extends Component
             $isRequired = $question['is_required'];
 
             $baseRule = match ($question['type']) {
-                QuestionType::TEXT->name => ['string'],
-                QuestionType::MULTIPLE_CHOICE->name => ['array'],
+                QuestionType::TEXT->name => ['string', 'max:255'],
+
+                QuestionType::MULTIPLE_CHOICE->name => [
+                    'array',
+                    function (string $attribute, $value, Closure $fail) use ($question) {
+                        $validOptionIds = collect($question['options'] ?? [])->pluck('id')->toArray();
+                        foreach (array_keys($value) as $optionId) {
+                            if (! in_array($optionId, $validOptionIds, true)) {
+                                $fail(__('Invalid option selected.'));
+                            }
+                        }
+                    },
+                ],
+
                 QuestionType::FILE->name => [
                     'file',
                     'max:10240',
-                    'mimetypes:text/plain,application/pdf,image/jpeg,image/png,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    'mimetypes:'.implode(',', self::ALLOWED_MIME_TYPES),
                     function (string $attribute, $value, Closure $fail) {
+                        if (! $value instanceof TemporaryUploadedFile || ! $value->isValid()) {
+                            $fail(__('Invalid file upload.'));
+
+                            return;
+                        }
+
                         if (mb_strlen($value->getClientOriginalName()) > 255) {
                             $fail(__('The file name must not exceed 255 characters.'));
                         }
@@ -188,6 +222,6 @@ class SubmitSurvey extends Component
     public function render(): Application|Factory|View
     {
         return view('livewire.pages.survey.submit')
-            ->title(__('Submit survey'));
+            ->title($this->title);
     }
 }
