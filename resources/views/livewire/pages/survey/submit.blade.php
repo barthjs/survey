@@ -28,8 +28,8 @@
             </x-card>
         @endforeach
 
-        @if($survey->closed_at && !$this->survey->closed_at->isPast())
-            <h2 class="text-lg text-info"> {{ __('Open until') . ': ' .   $survey->closed_at }}</h2>
+        @if($survey->end_date && !$this->survey->end_date->isPast())
+            <h2 class="text-lg text-info"> {{ __('Open until') . ': ' .   $survey->end_date }}</h2>
         @endif
 
         <x-slot:actions class="justify-start">

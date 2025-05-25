@@ -22,4 +22,18 @@ enum QuestionType: string
             'name' => $type->label(),
         ])->toArray();
     }
+
+    public static function getIconFromFilename(string $filename): string
+    {
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+        return match ($extension) {
+            'txt', 'md', 'doc', 'docx', 'odt' => 'o-document-text',
+            'pdf' => 'o-document',
+            'jpg', 'jpeg', 'png', 'svg' => 'o-photo',
+            'ppt', 'pptx', 'odp' => 'o-presentation-chart-bar',
+            'xls', 'xlsx', 'ods' => 'o-table-cells',
+            default => 'o-question-mark-circle',
+        };
+    }
 }

@@ -64,9 +64,18 @@ class SubmitSurvey extends Component
         $this->description = $this->survey->description ?? '';
 
         if (
-            ($this->survey->closed_at && $this->survey->closed_at->isPast()) ||
-            ! $this->survey->is_active
+            $this->survey->end_date?->isPast()
+            && $this->survey->is_active
+            && is_null($this->survey->auto_closed_at)
         ) {
+            $this->survey->is_active = false;
+            $this->survey->auto_closed_at = now();
+            $this->survey->save();
+
+            abort(404);
+        }
+
+        if (! $this->survey->is_active) {
             abort(404);
         }
 
@@ -109,7 +118,7 @@ class SubmitSurvey extends Component
                         $validOptionIds = collect($question['options'] ?? [])->pluck('id')->toArray();
                         foreach (array_keys($value) as $optionId) {
                             if (! in_array($optionId, $validOptionIds, true)) {
-                                $fail(__('Invalid option selected.'));
+                                $fail(__('Invalid option selected'));
                             }
                         }
                     },
@@ -121,7 +130,7 @@ class SubmitSurvey extends Component
                     'mimetypes:'.implode(',', self::ALLOWED_MIME_TYPES),
                     function (string $attribute, $value, Closure $fail) {
                         if (! $value instanceof TemporaryUploadedFile || ! $value->isValid()) {
-                            $fail(__('Invalid file upload.'));
+                            $fail(__('Invalid file upload'));
 
                             return;
                         }

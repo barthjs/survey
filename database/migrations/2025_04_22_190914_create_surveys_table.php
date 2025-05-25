@@ -23,7 +23,8 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->boolean('is_public')->default(false);
             $table->boolean('is_active')->default(true);
-            $table->dateTime('closed_at')->nullable()->index();
+            $table->dateTime('end_date')->nullable()->index();
+            $table->timestamp('auto_closed_at')->nullable();
 
             $table->foreign('user_id')->references('id')->on('sys_users')->cascadeOnUpdate()->cascadeOnDelete();
         });

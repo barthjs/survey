@@ -32,7 +32,7 @@ class CreateSurvey extends Component
 
     public bool $is_active = true;
 
-    public ?string $closed_at = null;
+    public ?string $end_date = null;
 
     public array $questions = [];
 
@@ -58,7 +58,7 @@ class CreateSurvey extends Component
 
         $this->success(__('Survey created'));
 
-        $this->reset('title', 'description', 'closed_at');
+        $this->reset();
 
         $this->redirect(route('surveys.view', $survey->id), navigate: true);
     }
@@ -73,7 +73,7 @@ class CreateSurvey extends Component
             'description' => ['nullable', 'string', 'max:1000'],
             'is_public' => ['required', 'boolean'],
             'is_active' => ['required', 'boolean'],
-            'closed_at' => ['nullable', 'string'],
+            'end_date' => ['nullable', 'string'],
         ]);
 
         return [
@@ -82,7 +82,7 @@ class CreateSurvey extends Component
             'is_public' => $this->is_public,
             'is_active' => $this->is_active,
             'user_id' => auth()->id(),
-            'closed_at' => $this->closed_at ? Carbon::parse($this->closed_at) : null,
+            'end_date' => $this->end_date ? Carbon::parse($this->end_date) : null,
         ];
     }
 

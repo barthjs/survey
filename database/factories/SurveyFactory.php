@@ -21,7 +21,8 @@ class SurveyFactory extends Factory
             'description' => $this->faker->realText(),
             'is_public' => $this->faker->boolean(),
             'is_active' => $this->faker->boolean(),
-            'closed_at' => Carbon::now()->addMonths(3),
+            'end_date' => Carbon::now()->addMonths(3),
+            'auto_closed_at' => Carbon::now()->addMonths(3),
         ];
     }
 }

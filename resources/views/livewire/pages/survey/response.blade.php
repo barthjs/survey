@@ -1,6 +1,6 @@
 @php use App\Enums\QuestionType; @endphp
 <div>
-    <x-header :title="$response->survey->title" :subtitle="__('Response from').' '.$response->submitted_at" separator>
+    <x-header :title="$response->survey->title" :subtitle="__('Response from').' '.$response->submitted_at->format('Y-m-d H:i:s')" separator>
         <x-slot:actions>
             <x-button
                 icon="o-arrow-left"
@@ -52,21 +52,10 @@
                         @endforeach
                     </ul>
                 @elseif($answer['question_type'] === QuestionType::FILE)
-                    @php
-                        $filename = $answer['original_file_name'];
-                        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-                        $icon = match($extension) {
-                            'txt','doc','docx' => 'o-document-text',
-                            'pdf' => 'o-document',
-                            'jpg', 'jpeg', 'png' => 'o-photo',
-                            default => 'o-question-mark-circle',
-                        };
-                    @endphp
-
                     <div class="mt-4 flex items-center justify-between">
                         <div class="flex items-center space-x-4">
-                            <x-icon :name="$icon"/>
-                            <span>{{ $filename }}</span>
+                            <x-icon :name="QuestionType::getIconFromFilename($answer['original_file_name'])"/>
+                            <span>{{ $answer['original_file_name'] }}</span>
                         </div>
                         <x-button
                             icon="o-arrow-down-tray"

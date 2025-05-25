@@ -32,11 +32,11 @@
                 <x-icon name="o-information-circle" :label="__('No surveys found')"/>
             </x-slot:empty>
 
-            @scope('cell_closed_at', $survey)
-            @if ($survey->closed_at)
+            @scope('cell_end_date', $survey)
+            @if ($survey->end_date)
                 <x-badge
-                    :value="$survey->closed_at"
-                    :class="($survey->closed_at->isPast() && $survey->is_active ? 'badge-warning' : '')"
+                    :value="$survey->end_date"
+                    :class="($survey->end_date->isPast() && $survey->is_active ? 'badge-warning' : '')"
                 />
             @else
                 <x-badge :value="__('No end date')" class="text-base-content/50"/>
@@ -73,7 +73,7 @@
 
             @scope('actions', $survey)
             @if(
-                (! $survey->closed_at || ! $survey->closed_at->isPast()) &&
+                (! $survey->end_date || ! $survey->end_date->isPast()) &&
                 $survey->is_active
             )
                 <x-button

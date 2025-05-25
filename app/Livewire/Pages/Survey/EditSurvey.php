@@ -35,7 +35,7 @@ class EditSurvey extends Component
 
     public bool $is_public;
 
-    public ?string $closed_at = null;
+    public ?string $end_date = null;
 
     public bool $is_active;
 
@@ -52,7 +52,7 @@ class EditSurvey extends Component
         $this->title = $this->survey->title;
         $this->description = $this->survey->description;
         $this->is_public = $this->survey->is_public;
-        $this->closed_at = $this->survey->closed_at?->format('Y-m-d\TH:i');
+        $this->end_date = $this->survey->end_date?->format('Y-m-d\TH:i');
         $this->is_active = $this->survey->is_active;
 
         $this->questions = $this->survey->questions->map(fn ($question) => [
@@ -61,7 +61,10 @@ class EditSurvey extends Component
             'type' => $question->type,
             'is_required' => $question->is_required,
             'options' => $question->type === QuestionType::MULTIPLE_CHOICE
-                ? $question->options->map(fn ($opt) => ['id' => $opt->id, 'option_text' => $opt->option_text])->toArray()
+                ? $question->options->map(fn ($option) => [
+                    'id' => $option->id,
+                    'option_text' => $option->option_text,
+                ])->toArray()
                 : [],
         ])->toArray();
     }
@@ -69,8 +72,6 @@ class EditSurvey extends Component
     public function addQuestion(): void
     {
         if (count($this->questions) >= 100) {
-            $this->error(__('You can only add up to 100 questions.'));
-
             return;
         }
 
@@ -104,8 +105,6 @@ class EditSurvey extends Component
         }
 
         if (count($this->questions[$questionIndex]['options']) >= 10) {
-            $this->error("questions.{$questionIndex}.options", __('A maximum of 10 options is allowed.'));
-
             return;
         }
 
@@ -293,7 +292,7 @@ class EditSurvey extends Component
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
             'is_public' => ['required', 'boolean'],
-            'closed_at' => ['nullable', 'string'],
+            'end_date' => ['nullable', 'string'],
             'is_active' => ['required', 'boolean'],
         ]);
 
@@ -311,7 +310,7 @@ class EditSurvey extends Component
                 'title' => mb_trim($this->title),
                 'description' => $this->description,
                 'is_public' => $this->is_public,
-                'closed_at' => $this->closed_at ? Carbon::parse($this->closed_at) : null,
+                'end_date' => $this->end_date ? Carbon::parse($this->end_date) : null,
                 'is_active' => $this->is_active,
             ],
         ];

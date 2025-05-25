@@ -24,18 +24,18 @@
         <x-card>
             <x-input :label="__('Title')" wire:model="title" required/>
             <x-textarea :label="__('Description')" :hint="__('Max 1000 chars')" wire:model="description" rows="5"/>
-            <x-datetime :label="__('End date')" wire:model="closed_at" type="datetime-local"/>
+            <div class="flex">
+                <x-datetime :label="__('End date')" wire:model="end_date" type="datetime-local"/>
+            </div>
             <div class="mt-4">
                 <x-checkbox :label="__('Public')" wire:model="is_public"/>
                 <x-checkbox :label="__('Active')" wire:model="is_active"/>
             </div>
         </x-card>
 
-        <template x-if="!questions.some(q => q.is_required)">
-            <div class="text-error">
-                {{ __('At least one question must be marked as required.') }}
-            </div>
-        </template>
+        <div x-show="!questions.some(q => q.is_required)" class="text-error">
+            {{ __('At least one question must be marked as required.') }}
+        </div>
 
         <template x-for="(question, questionIndex) in questions">
             <x-card>
@@ -51,7 +51,8 @@
                 <x-input :label="__('Question text')" x-model="question.question_text" required/>
                 <div
                     class="text-error"
-                    x-text="getError(`questions.${questionIndex}.question_text`)">
+                    x-text="getError(`questions.${questionIndex}.question_text`)"
+                >
                 </div>
 
                 <x-select
@@ -88,6 +89,7 @@
                         <x-button
                             icon="o-plus"
                             :label="__('Add option')"
+                            x-show="question.options.length < 10"
                             x-on:click="addOption(questionIndex)"
                             class="btn-outline"
                         />
@@ -111,6 +113,7 @@
             <x-button
                 icon="o-plus"
                 :label="__('Add question')"
+                x-show="questions.length < 100"
                 x-on:click="addQuestion()"
                 class="btn-warning"
             />
@@ -177,7 +180,6 @@
                     this.errors = {};
 
                     if (!this.questions.some(q => q.is_required)) {
-                        this.errors['questions'] = ['At least one question must be marked as required.'];
                         return;
                     }
 

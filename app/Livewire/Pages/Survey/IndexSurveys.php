@@ -35,8 +35,8 @@ class IndexSurveys extends Component
     {
         return [
             ['key' => 'title', 'label' => __('Title')],
-            ['key' => 'created_at', 'label' => __('Created at'), 'format' => ['date', 'd-m-Y']],
-            ['key' => 'closed_at', 'label' => __('End date')],
+            ['key' => 'created_at', 'label' => __('Created at'), 'format' => ['date', 'Y-m-d H:i:s']],
+            ['key' => 'end_date', 'label' => __('End date'), 'format' => ['date', 'Y-m-d H:i:s']],
             ['key' => 'is_active', 'label' => __('Status')],
             ['key' => 'is_public', 'label' => __('Public')],
         ];

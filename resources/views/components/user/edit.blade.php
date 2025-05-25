@@ -19,7 +19,7 @@
 
             <x-checkbox :label="__('Active')" wire:model="is_active"/>
             <x-checkbox :label="__('Admin')" wire:model="is_admin"/>
-            <x-checkbox :label="__('Verified')" wire:model="is_admin"/>
+            <x-checkbox :label="__('Verified')" wire:model="verified"/>
 
             <x-slot:actions>
                 <x-button

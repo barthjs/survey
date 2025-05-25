@@ -31,6 +31,7 @@
     <x-form wire:submit="updateSurvey" novalidate autocomplete="off">
         <x-alert
             wire:dirty
+            wire:target="questions,title,description, is_public, end_date, is_active"
             class="alert-warning"
         >
             <div class="flex items-start gap-2">
@@ -42,7 +43,9 @@
         <x-card>
             <x-input :label="__('Title')" wire:model="title" required/>
             <x-textarea :label="__('Description')" :hint="__('Max 1000 chars')" wire:model="description" rows="5"/>
-            <x-datetime :label="__('End date')" wire:model="closed_at" type="datetime-local"/>
+            <div class="flex">
+                <x-datetime :label="__('End date')" wire:model="end_date" type="datetime-local"/>
+            </div>
             <div class="mt-4">
                 <x-checkbox :label="__('Public')" wire:model="is_public"/>
                 <x-checkbox :label="__('Active')" wire:model="is_active"/>
@@ -103,14 +106,15 @@
                                 @endif
                             </div>
                         @endforeach
-
-                        <x-button
-                            icon="o-plus"
-                            :label="__('Add option')"
-                            spinner="addOption({{ $questionIndex }})"
-                            wire:click="addOption({{ $questionIndex }})"
-                            class="btn-outline"
-                        />
+                        @if(count($question['options']) < 10)
+                            <x-button
+                                icon="o-plus"
+                                :label="__('Add option')"
+                                spinner="addOption({{ $questionIndex }})"
+                                wire:click="addOption({{ $questionIndex }})"
+                                class="btn-outline"
+                            />
+                        @endif
                     </div>
                 @endif
 
@@ -130,13 +134,15 @@
         @endforeach
 
         <x-slot:actions class="justify-start">
-            <x-button
-                icon="o-plus"
-                :label="__('Add question')"
-                spinner="addQuestion"
-                wire:click="addQuestion"
-                class="btn-warning"
-            />
+            @if(count($questions) < 100)
+                <x-button
+                    icon="o-plus"
+                    :label="__('Add question')"
+                    spinner="addQuestion"
+                    wire:click="addQuestion"
+                    class="btn-warning"
+                />
+            @endif
         </x-slot:actions>
     </x-form>
 </div>

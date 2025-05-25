@@ -40,7 +40,7 @@ it('can create a survey with valid data', function () {
         ->test(CreateSurvey::class)
         ->set('title', 'Test Survey')
         ->set('description', 'A simple test survey')
-        ->set('closed_at', now()->addDays(7)->toDateTimeString())
+        ->set('end_date', now()->addDays(7)->toDateTimeString())
         ->set('questions', $questions)
         ->call('createSurvey')
         ->assertHasNoErrors();

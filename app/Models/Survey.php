@@ -22,13 +22,15 @@ class Survey extends Model
         'description',
         'is_public',
         'is_active',
-        'closed_at',
+        'end_date',
+        'auto_closed_at',
     ];
 
     protected $casts = [
         'is_public' => 'boolean',
         'is_active' => 'boolean',
-        'closed_at' => 'datetime',
+        'end_date' => 'datetime',
+        'auto_closed_at' => 'datetime',
     ];
 
     protected static function booted(): void
