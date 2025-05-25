@@ -63,8 +63,8 @@ class IndexUsers extends Component
         return [
             ['key' => 'name', 'label' => __('Name')],
             ['key' => 'email', 'label' => __('Email')],
-            ['key' => 'created_at', 'label' => __('Created at'), 'format' => ['date', 'd-m-Y']],
-            ['key' => 'updated_at', 'label' => __('Updated at'), 'format' => ['date', 'd-m-Y']],
+            ['key' => 'created_at', 'label' => __('Created at'), 'format' => ['date', 'Y-m-d H:i:s']],
+            ['key' => 'updated_at', 'label' => __('Updated at'), 'format' => ['date', 'Y-m-d H:i:s']],
             ['key' => 'email_verified_at', 'label' => __('Verified')],
             ['key' => 'is_active', 'label' => __('Status')],
             ['key' => 'is_admin', 'label' => __('Admin')],
@@ -157,6 +157,10 @@ class IndexUsers extends Component
 
         if (! empty($this->password)) {
             $rules['password'] = ['string', Password::defaults(), 'confirmed'];
+        }
+
+        if(empty($this->pasword) && !empty($this->password_confirmation)) {
+            $rules['password'] = ['nullable'];
         }
 
         $validated = $this->validate($rules);

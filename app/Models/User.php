@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\QuestionType;
+use App\Jobs\UploadsCleanupJob;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -61,6 +63,31 @@ class User extends Authenticatable implements MustVerifyEmail
     public function surveys(): HasMany
     {
         return $this->hasMany(Survey::class);
+    }
+
+    protected static function booted(): void
+    {
+        static::deleting(function (User $user) {
+            $filesToDelete = [];
+
+            $user->load([
+                'surveys.questions.answers',
+            ]);
+
+            $user->surveys->each(function (Survey $survey) use (&$filesToDelete) {
+                $survey->questions->each(function (Question $question) use (&$filesToDelete) {
+                    if ($question->type === QuestionType::FILE) {
+                        $question->answers->each(function (Answer $answer) use (&$filesToDelete) {
+                            $filesToDelete[] = $answer->file_path;
+                        });
+                    }
+                });
+            });
+
+            if (! empty($filesToDelete)) {
+                UploadsCleanupJob::dispatch($filesToDelete);
+            }
+        });
     }
 
     /**

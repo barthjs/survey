@@ -54,23 +54,25 @@ class ViewSurvey extends Component
                 'question_text' => $question->question_text,
                 'type' => $question->type,
                 'is_required' => $question->is_required,
-                'answers' => $question->answers->map(fn (Answer $answer) => [
-                    'id' => $answer->id,
-                    'answer_text' => $answer->answer_text,
-                    'file_path' => $answer->file_path,
-                    'original_file_name' => $answer->original_file_name,
-                    'response' => [
-                        'id' => $answer->response->id,
-                        'submitted_at' => $answer->response->submitted_at,
-                    ],
-                ])->toArray(),
+                'answers' => $question->answers
+                    ->sortByDesc(fn (Answer $answer) => $answer->response->submitted_at)
+                    ->map(fn (Answer $answer) => [
+                        'id' => $answer->id,
+                        'answer_text' => $answer->answer_text,
+                        'file_path' => $answer->file_path,
+                        'original_file_name' => $answer->original_file_name,
+                        'response' => [
+                            'id' => $answer->response->id,
+                            'submitted_at' => $answer->response->submitted_at,
+                        ],
+                    ])->toArray(),
             ])->toArray();
     }
 
     public function getChartData(string $id): array
     {
         $question = Question::findOrFail($id);
-        if (! $question->survey->is_public && ! $this->survey->is_public) {
+        if (! $question->survey->is_public) {
             if (! auth()->check() || auth()->user()->cannot('view', $question->survey)) {
                 abort(403);
             }
@@ -103,6 +105,7 @@ class ViewSurvey extends Component
         $cacheKey = 'link_sent_'.$this->survey->id.'_'.$this->email;
 
         if (Cache::has($cacheKey)) {
+            $this->reset('email');
             throw ValidationException::withMessages([
                 'email' => __('You can only send one survey link per email every 24 hours'),
             ]);
@@ -114,16 +117,24 @@ class ViewSurvey extends Component
 
         $this->sendEmailModal = false;
 
+        $this->reset('email');
+
         $this->success(__('Survey link has been sent successfully'));
     }
 
-    public function download(string $id): BinaryFileResponse
+    public function download(string $id): ?BinaryFileResponse
     {
         $answer = Answer::findOrFail($id);
-        if (! $answer->question->survey->is_public && ! $this->survey->is_public) {
+        if (! $answer->question->survey->is_public) {
             if (! auth()->check() || auth()->user()->cannot('view', $answer->question->survey)) {
                 abort(403);
             }
+        }
+
+        if (! Storage::disk('local')->exists($answer->file_path)) {
+            $this->error(__('File has been deleted'));
+
+            return null;
         }
 
         return response()->download(

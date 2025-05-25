@@ -36,6 +36,10 @@ class ViewResponse extends Component
             'answers.question.options',
         ])->findOrFail($id);
 
+        if (auth()->user()->cannot('view', $this->response)) {
+            abort(403);
+        }
+
         $this->answers = $this->response->answers->map(fn (Answer $answer) => [
             'id' => $answer->id,
             'question_id' => $answer->question_id,
@@ -48,10 +52,6 @@ class ViewResponse extends Component
                 'option_text' => $option->option_text,
             ])->toArray(),
         ])->toArray();
-
-        if (auth()->user()->cannot('view', $this->response)) {
-            abort(403);
-        }
     }
 
     public function deleteResponse(): void
@@ -79,11 +79,17 @@ class ViewResponse extends Component
         $this->success(__('Deleted answer'));
     }
 
-    public function download(string $id): BinaryFileResponse
+    public function download(string $id): ?BinaryFileResponse
     {
         $answer = $this->response->answers->firstWhere('id', $id);
         if (! $answer) {
             abort(404);
+        }
+
+        if (! Storage::disk('local')->exists($answer->file_path)) {
+            $this->error(__('File has been deleted'));
+
+            return null;
         }
 
         return response()->download(
