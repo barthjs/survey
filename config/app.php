@@ -8,6 +8,8 @@ return [
 
     'version' => env('APP_VERSION', 'dev'),
 
+    'url' => env('APP_URL', 'http://localhost:8080'),
+
     'locale' => env('APP_LOCALE', 'en'),
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),

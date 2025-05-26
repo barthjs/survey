@@ -1,7 +1,7 @@
 services:
   survey:
     build:
-      context: .docker
+      context: docker
       dockerfile: Dockerfile-dev
     pull_policy: never
     image: barthjs/survey:dev

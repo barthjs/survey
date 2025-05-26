@@ -7,9 +7,7 @@ services:
       survey-db:
         condition: service_healthy
     ports:
-      - 8080:80
-    volumes:
-      - ./data:/app/storage/app
+      - 8080:8080
     env_file: .env
 
   survey-db:
