@@ -11,6 +11,6 @@ function setup_dev_commands {
 
 cp .env.development .env
 docker compose -f compose.dev.yaml up -d --build
-docker compose exec survey bash -c "$(declare -f setup_dev_commands); setup_dev_commands"
+docker exec -u application survey bash -c "$(declare -f setup_dev_commands); setup_dev_commands"
 
 exit 0

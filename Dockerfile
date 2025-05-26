@@ -34,38 +34,35 @@ RUN mv /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini
 COPY docker/php/php.ini /usr/local/etc/php/conf.d/php.ini
 COPY docker/php/application.conf /usr/local/etc/php-fpm.d/application.conf
 
-# Copy nginx configuration file and set permissions
+# Copy nginx configuration files
 COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
-RUN chown -R application:application /var/lib/nginx/ /var/log/nginx/
+COPY docker/nginx/prod.conf /etc/nginx/conf.d/prod.conf
 
 # Copy Supervisor configuration files
 COPY docker/supervisord.conf /etc/supervisord.conf
 COPY docker/supervisor.d /etc/supervisor.d
 
 # App setup
-USER application
 WORKDIR /app
 COPY --chown=application:application . /app
 
 # Install app dependencies and build frontend
-USER root
-RUN apk add --no-cache --virtual .build-deps nodejs npm curl && \
+RUN apk add --no-cache --virtual .build-deps nodejs npm && \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
     composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader &&  \
     npm install &&  \
     npm run build && \
+    php artisan optimize && \
     # Remove build dependencies
     apk del .build-deps &&  \
-    rm -rf /root/.composer /usr/local/bin/composer \
+    rm -rf /usr/local/bin/composer \
     docker node_modules resources/css resources/js composer.lock package*.json *.js
-USER application
-RUN php artisan optimize
 
 # Entrypoint
 COPY docker/start.sh /start.sh
 
-EXPOSE 8080
+EXPOSE 80
 ENTRYPOINT ["/start.sh"]
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -fsS http://127.0.0.1:8080/up || exit 1
+    CMD curl -fsS http://127.0.0.1:80/up || exit 1

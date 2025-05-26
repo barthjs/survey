@@ -8,7 +8,7 @@ return [
 
     'version' => env('APP_VERSION', 'dev'),
 
-    'url' => env('APP_URL', 'http://localhost:8080'),
+    'url' => env('APP_URL', 'http://localhost'),
 
     'locale' => env('APP_LOCALE', 'en'),
 

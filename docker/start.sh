@@ -27,4 +27,6 @@ echo "#############################"
 echo "Setup completed successfully."
 echo "#############################"
 
+chown -R application:application /app/storage/app/
+
 supervisord -c /etc/supervisord.conf
