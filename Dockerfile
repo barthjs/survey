@@ -35,7 +35,7 @@ COPY docker/php/php.ini /usr/local/etc/php/conf.d/php.ini
 COPY docker/php/application.conf /usr/local/etc/php-fpm.d/application.conf
 
 # Copy nginx configuration file and set permissions
-COPY docker/nginx.conf /etc/nginx/nginx.conf
+COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
 RUN chown -R application:application /var/lib/nginx/ /var/log/nginx/
 
 # Copy Supervisor configuration files

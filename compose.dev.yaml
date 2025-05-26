@@ -7,7 +7,7 @@ services:
     image: barthjs/survey:dev
     container_name: survey
     ports:
-      - 80:80
+      - 80:8080
       - 5173:5173
     volumes:
       - ./:/app

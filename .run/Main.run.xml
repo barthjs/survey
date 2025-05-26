@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Test" type="PestRunConfigurationType" singleton="false">
+  <configuration default="false" name="Main" type="PestRunConfigurationType" singleton="false">
     <option name="pestRunnerSettings">
       <PestRunner directory="./vendor/pestphp/pest/bin/pest" method="" scope="ConfigurationFile" />
     </option>
