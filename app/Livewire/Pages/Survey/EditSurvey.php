@@ -301,9 +301,18 @@ class EditSurvey extends Component
             'questions.*.question_text' => ['required', 'string', 'max:255'],
             'questions.*.type' => ['required', Rule::enum(QuestionType::class)],
             'questions.*.is_required' => ['required', 'boolean'],
-            'questions.*.options' => ['nullable', 'array', 'min:2', 'max:10'],
+            'questions.*.options' => ['nullable', 'array', 'max:10'],
             'questions.*.options.*.option_text' => ['required_with:questions.*.options', 'string', 'max:255'],
-        ])->validate();
+        ])->after(function ($validator) {
+            foreach ($this->questions as $question) {
+                if (
+                    $question['type'] === QuestionType::MULTIPLE_CHOICE->name &&
+                    (! isset($question['options']) || count($question['options']) < 2)
+                ) {
+                    $validator->errors()->add('questions', '');
+                }
+            }
+        })->validate();
 
         return [
             'survey' => [

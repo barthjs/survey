@@ -96,12 +96,21 @@ class CreateSurvey extends Component
             'questions.*.question_text' => ['required', 'string', 'max:255'],
             'questions.*.type' => ['required', Rule::enum(QuestionType::class)],
             'questions.*.is_required' => ['required', 'boolean'],
-            'questions.*.options' => ['nullable', 'array', 'min:2', 'max:10'],
+            'questions.*.options' => ['nullable', 'array', 'max:10'],
             'questions.*.options.*' => ['required_with:questions.*.options', 'string', 'max:255'],
         ])->after(function ($validator) {
             $hasRequired = collect($this->questions)->contains(fn ($q) => $q['is_required']);
             if (! $hasRequired) {
                 $validator->errors()->add('questions', __('At least one question must be marked as required.'));
+            }
+
+            foreach ($this->questions as $question) {
+                if (
+                    $question['type'] === QuestionType::MULTIPLE_CHOICE->name &&
+                    (! isset($question['options']) || count($question['options']) < 2)
+                ) {
+                    $validator->errors()->add('questions', '');
+                }
             }
         })->validate();
     }

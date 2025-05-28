@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Session;
 
 class VerifyNewEmailController extends Controller
@@ -48,6 +49,8 @@ class VerifyNewEmailController extends Controller
         $user->new_email = null;
         $user->email_verified_at = now();
         $user->save();
+
+        RateLimiter::clear('send-new-verification-email:'.$user->email);
 
         Session::flash('new_email', __('Email address verified.'));
 

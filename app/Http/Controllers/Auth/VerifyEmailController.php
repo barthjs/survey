@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Auth\Events\Verified;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\RateLimiter;
 
 class VerifyEmailController extends Controller
 {
@@ -26,8 +27,10 @@ class VerifyEmailController extends Controller
         }
 
         if ($request->user()->markEmailAsVerified()) {
-            /** @var MustVerifyEmail $user */
+            /** @var User $user */
             $user = $request->user();
+
+            RateLimiter::clear('send-verification-email:'.$user->email);
 
             event(new Verified($user));
         }

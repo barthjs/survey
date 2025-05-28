@@ -6,9 +6,9 @@ namespace App\Livewire\Pages\Auth;
 
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Session;
@@ -79,6 +79,8 @@ class ResetPassword extends Component
 
             return;
         }
+
+        RateLimiter::clear('password-reset:'.Str::lower($this->email));
 
         Session::flash('status', __($status));
 

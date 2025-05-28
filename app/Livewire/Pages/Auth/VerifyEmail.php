@@ -35,7 +35,7 @@ class VerifyEmail extends Component
 
         $user = Auth::user();
 
-        $key = 'send-verification-email:'.$user->id;
+        $key = 'send-verification-email:'.$user->email;
 
         if (RateLimiter::tooManyAttempts($key, 3)) {
             $this->rateLimited = true;
