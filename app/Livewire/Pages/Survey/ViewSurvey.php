@@ -111,7 +111,7 @@ class ViewSurvey extends Component
             ]);
         }
 
-        Notification::route('mail', $this->email)->notify(new SurveyLinkNotification($this->survey, $this->email));
+        Notification::route('mail', $this->email)->notify((new SurveyLinkNotification($this->survey, $this->email))->locale(app()->getLocale()));
 
         Cache::put($cacheKey, true, now()->addHours(24));
 

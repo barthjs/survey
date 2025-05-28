@@ -153,14 +153,11 @@ class IndexUsers extends Component
             ],
             'is_active' => ['boolean'],
             'is_admin' => ['boolean'],
+            'verified' => ['boolean'],
         ];
 
         if (! empty($this->password)) {
             $rules['password'] = ['string', Password::defaults(), 'confirmed'];
-        }
-
-        if(empty($this->pasword) && !empty($this->password_confirmation)) {
-            $rules['password'] = ['nullable'];
         }
 
         $validated = $this->validate($rules);

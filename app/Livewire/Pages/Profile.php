@@ -40,6 +40,8 @@ class Profile extends Component
 
     public bool $confirmUserDeletionModal = false;
 
+    public string $confirm_delete_password = '';
+
     public bool $rateLimited = false;
 
     /**
@@ -102,7 +104,7 @@ class Profile extends Component
             return;
         }
 
-        $key = 'send-new-verification-email:'.$user->id;
+        $key = 'send-new-verification-email:'.$user->email;
 
         if (RateLimiter::tooManyAttempts($key, 3)) {
             $this->rateLimited = true;
@@ -113,7 +115,7 @@ class Profile extends Component
 
         RateLimiter::hit($key);
 
-        Notification::route('mail', $user->new_email)->notify(new VerifyNewEmailNotification($user, $user->new_email));
+        Notification::route('mail', $user->new_email)->notify((new VerifyNewEmailNotification($user, $user->new_email))->locale(app()->getLocale()));
 
         $this->success(__('Verification email sent. Please check your email.'));
     }
@@ -126,7 +128,7 @@ class Profile extends Component
         try {
             $validated = $this->validate([
                 'current_password' => ['required', 'string', 'current_password'],
-                'password' => ['required', 'string', Password::defaults(), 'confirmed'],
+                'password' => ['required', 'string', Password::defaults()->mixedCase()->numbers(), 'confirmed'],
             ]);
         } catch (ValidationException $e) {
             $this->reset('current_password', 'password', 'password_confirmation');
@@ -147,9 +149,14 @@ class Profile extends Component
      */
     public function deleteUser(Logout $logout): void
     {
-        $this->validate([
-            'password' => ['required', 'string', 'current_password'],
-        ]);
+        $this->validate(
+            rules: [
+                'confirm_delete_password' => ['required', 'string', 'current_password'],
+            ],
+            attributes: [
+                'confirm_delete_password' => __('validation.attributes.current_password'),
+            ]
+        );
 
         tap(Auth::user(), $logout(...))->delete();
 
@@ -158,7 +165,8 @@ class Profile extends Component
 
     public function openConfirmUserDeletionModal(): void
     {
-        $this->password = '';
+        $this->resetErrorBag('confirm_delete_password');
+        $this->reset('confirm_delete_password');
         $this->confirmUserDeletionModal = true;
     }
 

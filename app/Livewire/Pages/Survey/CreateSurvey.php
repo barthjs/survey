@@ -81,8 +81,8 @@ class CreateSurvey extends Component
             'description' => $this->description,
             'is_public' => $this->is_public,
             'is_active' => $this->is_active,
-            'user_id' => auth()->id(),
             'end_date' => $this->end_date ? Carbon::parse($this->end_date) : null,
+            'user_id' => auth()->id(),
         ];
     }
 
@@ -96,7 +96,7 @@ class CreateSurvey extends Component
             'questions.*.question_text' => ['required', 'string', 'max:255'],
             'questions.*.type' => ['required', Rule::enum(QuestionType::class)],
             'questions.*.is_required' => ['required', 'boolean'],
-            'questions.*.options' => ['nullable', 'array', 'max:10'],
+            'questions.*.options' => ['nullable', 'array', 'min:2', 'max:10'],
             'questions.*.options.*' => ['required_with:questions.*.options', 'string', 'max:255'],
         ])->after(function ($validator) {
             $hasRequired = collect($this->questions)->contains(fn ($q) => $q['is_required']);

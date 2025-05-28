@@ -69,7 +69,7 @@
         >
             <x-form wire:submit="deleteUser" novalidate autocomplete="off">
                 {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.') }}
-                <x-password :label="__('Password')" wire:model="password" required/>
+                <x-password :label="__('Password')" wire:model="confirm_delete_password" required/>
 
                 <x-slot:actions class="justify-start">
                     <x-button

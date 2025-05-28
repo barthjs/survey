@@ -292,8 +292,8 @@ class EditSurvey extends Component
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
             'is_public' => ['required', 'boolean'],
-            'end_date' => ['nullable', 'string'],
             'is_active' => ['required', 'boolean'],
+            'end_date' => ['nullable', 'string'],
         ]);
 
         Validator::make(['questions' => $this->questions], [
@@ -301,7 +301,7 @@ class EditSurvey extends Component
             'questions.*.question_text' => ['required', 'string', 'max:255'],
             'questions.*.type' => ['required', Rule::enum(QuestionType::class)],
             'questions.*.is_required' => ['required', 'boolean'],
-            'questions.*.options' => ['nullable', 'array', 'max:10'],
+            'questions.*.options' => ['nullable', 'array', 'min:2', 'max:10'],
             'questions.*.options.*.option_text' => ['required_with:questions.*.options', 'string', 'max:255'],
         ])->validate();
 
@@ -310,8 +310,8 @@ class EditSurvey extends Component
                 'title' => mb_trim($this->title),
                 'description' => $this->description,
                 'is_public' => $this->is_public,
-                'end_date' => $this->end_date ? Carbon::parse($this->end_date) : null,
                 'is_active' => $this->is_active,
+                'end_date' => $this->end_date ? Carbon::parse($this->end_date) : null,
             ],
         ];
     }
