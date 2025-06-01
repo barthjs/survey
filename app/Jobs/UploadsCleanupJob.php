@@ -15,12 +15,12 @@ class UploadsCleanupJob implements ShouldQueue
     /**
      * @var array<string>
      */
-    protected ?array $filePaths;
+    protected array $filePaths;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(?array $filePaths = null)
+    public function __construct(array $filePaths = [])
     {
         $this->filePaths = $filePaths;
     }
