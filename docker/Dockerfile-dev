@@ -32,7 +32,7 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Install php extensions
 COPY --from=mlocati/php-extension-installer:latest /usr/bin/install-php-extensions /usr/local/bin/
 RUN install-php-extensions \
-        pdo_mysql  \
+        pdo_mysql \
         xdebug && \
         rm -f /usr/local/bin/install-php-extensions
 
