@@ -52,6 +52,7 @@ RUN apk add --no-cache --virtual .build-deps nodejs npm && \
     composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader &&  \
     npm install &&  \
     npm run build && \
+    php artisan livewire:publish --assets && \
     php artisan optimize && \
     # Remove build dependencies
     apk del .build-deps &&  \

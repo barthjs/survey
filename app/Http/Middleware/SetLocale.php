@@ -23,7 +23,7 @@ class SetLocale
             app()->setLocale(session('locale'));
         } else {
             // Get the first language from the Accept-Language header
-            $requestLocale = $request->getPreferredLanguage();
+            $requestLocale = $request->getPreferredLanguage() ?? '';
             $locale = strtolower(substr($requestLocale, 0, 2));
 
             if (array_key_exists($locale, $availableLocales)) {
