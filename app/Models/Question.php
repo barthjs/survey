@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class Question extends Model
 {
@@ -111,5 +113,31 @@ class Question extends Model
     public function answers(): HasMany
     {
         return $this->hasMany(Answer::class);
+    }
+
+    public static function validateQuestions(array $questions): void
+    {
+        Validator::make(['questions' => $questions], [
+            'questions' => ['required', 'array', 'max:100'],
+            'questions.*.question_text' => ['required', 'string', 'max:255'],
+            'questions.*.type' => ['required', Rule::enum(QuestionType::class)],
+            'questions.*.is_required' => ['required', 'boolean'],
+            'questions.*.options' => ['nullable', 'array', 'max:10'],
+            'questions.*.options.*.option_text' => ['required_with:questions.*.options', 'string', 'max:255'],
+        ])->after(function ($validator) use ($questions) {
+            $hasRequired = collect($questions)->contains(fn ($q) => $q['is_required']);
+            if (! $hasRequired) {
+                $validator->errors()->add('questions', __('At least one question must be marked as required.'));
+            }
+
+            foreach ($questions as $question) {
+                if (
+                    $question['type'] === QuestionType::MULTIPLE_CHOICE->name &&
+                    (! isset($question['options']) || count($question['options']) < 2)
+                ) {
+                    $validator->errors()->add('questions', '');
+                }
+            }
+        })->validate();
     }
 }

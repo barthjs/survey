@@ -1,4 +1,3 @@
-@php use App\Enums\QuestionType; @endphp
 <div>
     <x-header :title="__('Edit survey')" separator>
         <x-slot:actions>
@@ -20,129 +19,12 @@
                 icon="o-bookmark-square"
                 :label="__('Save')"
                 responsive
-                spinner="updateSurvey"
-                wire:click="updateSurvey"
+                x-on:click="$dispatch('save-survey')"
                 class="btn-success"
             />
             <x-confirm-delete :title="__('Delete survey')" deleteAction="deleteSurvey"/>
         </x-slot:actions>
     </x-header>
 
-    <x-form wire:submit="updateSurvey" novalidate autocomplete="off">
-        <x-alert
-            wire:dirty
-            wire:target="questions,title,description, is_public, end_date, is_active"
-            class="alert-warning"
-        >
-            <div class="flex items-start gap-2">
-                <x-icon name="o-exclamation-triangle"/>
-                <div>{{ __('Unsaved changes!') }}</div>
-            </div>
-        </x-alert>
-
-        <x-card>
-            <x-input :label="__('Title')" wire:model="title" required/>
-            <x-textarea :label="__('Description')" :hint="__('Max 1000 chars')" wire:model="description" rows="5"/>
-            <div class="flex">
-                <x-datetime :label="__('End date')" wire:model="end_date" type="datetime-local"/>
-            </div>
-            <div class="mt-4">
-                <x-checkbox :label="__('Public')" wire:model="is_public"/>
-                <x-checkbox :label="__('Active')" wire:model="is_active"/>
-            </div>
-        </x-card>
-
-        @if ($errors->has('questions'))
-            <div class="text-error">
-                {{ $errors->first('questions') }}
-            </div>
-        @endif
-
-        @foreach($questions as $questionIndex => $question)
-            <x-card wire:key="question-{{ $questionIndex }}">
-                <div class="flex items-center space-x-4">
-                    <x-badge :value="__('Question') . ' ' . $questionIndex + 1" class="badge-primary"/>
-                    <x-checkbox
-                        :label="__('Required')"
-                        wire:model="questions.{{ $questionIndex }}.is_required"
-                        x-on:click="{{ count($this->questions) === 1 ? '$event.preventDefault()' : '' }}"
-                    />
-                </div>
-
-                <div class="divider"></div>
-
-                <x-input
-                    :label="__('Question text')"
-                    wire:model="questions.{{ $questionIndex }}.question_text"
-                    required
-                />
-
-                <x-select
-                    :label="__('Type')"
-                    :options="QuestionType::toArray()"
-                    wire:model="questions.{{ $questionIndex }}.type"
-                    wire:change="handleQuestionTypeChange({{ $questionIndex }}, $event.target.value)"
-                    required
-                    class="mb-4"
-                />
-
-                @if($question['type'] === QuestionType::MULTIPLE_CHOICE)
-                    <div class="space-y-4">
-                        @foreach($question['options'] as $optionIndex => $option)
-                            <div class="flex gap-2">
-                                <div class="flex-1">
-                                    <x-input
-                                        wire:model="questions.{{ $questionIndex }}.options.{{ $optionIndex }}.option_text"
-                                        class="w-full"
-                                    />
-                                </div>
-                                @if(count($question['options']) > 2)
-                                    <x-button
-                                        icon="o-x-mark"
-                                        spinner="removeOption({{ $questionIndex }}, {{ $optionIndex }})"
-                                        wire:click="removeOption({{ $questionIndex }}, {{ $optionIndex }})"
-                                        class="btn-ghost text-error"
-                                    />
-                                @endif
-                            </div>
-                        @endforeach
-                        @if(count($question['options']) < 10)
-                            <x-button
-                                icon="o-plus"
-                                :label="__('Add option')"
-                                spinner="addOption({{ $questionIndex }})"
-                                wire:click="addOption({{ $questionIndex }})"
-                                class="btn-outline"
-                            />
-                        @endif
-                    </div>
-                @endif
-
-                <x-slot:actions>
-                    @if(count($questions) > 1)
-                        <x-button
-                            icon="o-trash"
-                            :label="__('Delete')"
-                            responsive
-                            spinner="removeQuestion({{ $questionIndex }})"
-                            wire:click="removeQuestion({{ $questionIndex }})"
-                            class="btn-error"
-                        />
-                    @endif
-                </x-slot:actions>
-            </x-card>
-        @endforeach
-
-        <x-slot:actions class="justify-start">
-            @if(count($questions) < 100)
-                <x-button
-                    icon="o-plus"
-                    :label="__('Add question')"
-                    spinner="addQuestion"
-                    wire:click="addQuestion"
-                    class="btn-warning"
-                />
-            @endif
-        </x-slot:actions>
-    </x-form>
+    <x-manage-survey-form :questions="$questions"/>
 </div>

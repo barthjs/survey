@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace App\Livewire\Pages\Survey;
 
 use App\Enums\QuestionType;
+use App\Models\Question;
 use App\Models\Survey;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
@@ -34,17 +33,27 @@ class CreateSurvey extends Component
 
     public ?string $end_date = null;
 
-    public array $questions = [];
+    public array $questions;
+
+    public function mount(): void
+    {
+        $this->questions[] = [
+            'question_text' => '',
+            'type' => QuestionType::TEXT,
+            'is_required' => true,
+            'options' => [],
+        ];
+    }
 
     /**
      * @throws Throwable
      */
-    public function createSurvey(): void
+    public function save(): void
     {
-        $validatedSurvey = $this->validateSurveyData();
+        $validatedSurvey = $this->validateData();
 
         try {
-            $this->validateQuestions();
+            Question::validateQuestions($this->questions);
         } catch (ValidationException $e) {
             $this->dispatch('validationErrors', $e->errors());
 
@@ -63,59 +72,7 @@ class CreateSurvey extends Component
         $this->redirect(route('surveys.view', $survey->id), navigate: true);
     }
 
-    /**
-     * @throws ValidationException
-     */
-    protected function validateSurveyData(): array
-    {
-        $this->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:1000'],
-            'is_public' => ['required', 'boolean'],
-            'is_active' => ['required', 'boolean'],
-            'end_date' => ['nullable', 'string'],
-        ]);
-
-        return [
-            'title' => mb_trim($this->title),
-            'description' => $this->description,
-            'is_public' => $this->is_public,
-            'is_active' => $this->is_active,
-            'end_date' => $this->end_date ? Carbon::parse($this->end_date) : null,
-            'user_id' => auth()->id(),
-        ];
-    }
-
-    /**
-     * @throws ValidationException
-     */
-    protected function validateQuestions(): void
-    {
-        Validator::make(['questions' => $this->questions], [
-            'questions' => ['required', 'array', 'max:100'],
-            'questions.*.question_text' => ['required', 'string', 'max:255'],
-            'questions.*.type' => ['required', Rule::enum(QuestionType::class)],
-            'questions.*.is_required' => ['required', 'boolean'],
-            'questions.*.options' => ['nullable', 'array', 'max:10'],
-            'questions.*.options.*' => ['required_with:questions.*.options', 'string', 'max:255'],
-        ])->after(function ($validator) {
-            $hasRequired = collect($this->questions)->contains(fn ($q) => $q['is_required']);
-            if (! $hasRequired) {
-                $validator->errors()->add('questions', __('At least one question must be marked as required.'));
-            }
-
-            foreach ($this->questions as $question) {
-                if (
-                    $question['type'] === QuestionType::MULTIPLE_CHOICE->name &&
-                    (! isset($question['options']) || count($question['options']) < 2)
-                ) {
-                    $validator->errors()->add('questions', '');
-                }
-            }
-        })->validate();
-    }
-
-    protected function createSurveyQuestions(Survey $survey): void
+    private function createSurveyQuestions(Survey $survey): void
     {
         foreach ($this->questions as $questionIndex => $questionData) {
             $question = $survey->questions()->create([
@@ -125,20 +82,32 @@ class CreateSurvey extends Component
                 'order_index' => $questionIndex,
             ]);
 
-            if (
-                $questionData['type'] === QuestionType::MULTIPLE_CHOICE->name &&
-                ! empty($questionData['options'])
-            ) {
-                foreach ($questionData['options'] as $optionIndex => $optionText) {
-                    if (! empty($optionText)) {
-                        $question->options()->create([
-                            'option_text' => $optionText,
-                            'order_index' => $optionIndex,
-                        ]);
-                    }
+            if ($questionData['type'] === QuestionType::MULTIPLE_CHOICE->name) {
+                foreach ($questionData['options'] as $optionIndex => $optionData) {
+                    $question->options()->create([
+                        'option_text' => $optionData['option_text'],
+                        'order_index' => $optionIndex,
+                    ]);
                 }
             }
         }
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    private function validateData(): array
+    {
+        $this->validate(Survey::getValidationRules());
+
+        return [
+            'title' => mb_trim($this->title),
+            'description' => $this->description,
+            'is_public' => $this->is_public,
+            'is_active' => $this->is_active,
+            'end_date' => $this->end_date ? Carbon::parse($this->end_date) : null,
+            'user_id' => auth()->id(),
+        ];
     }
 
     public function render(): Application|Factory|View

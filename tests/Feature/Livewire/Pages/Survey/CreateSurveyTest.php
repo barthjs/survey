@@ -26,7 +26,11 @@ it('can create a survey with valid data', function () {
             'question_text' => 'Choose your favorite colors',
             'type' => 'MULTIPLE_CHOICE',
             'is_required' => false,
-            'options' => ['Red', 'Green', 'Blue'],
+            'options' => [
+                ['option_text' => 'RED'],
+                ['option_text' => 'GREEN'],
+                ['option_text' => 'BLUE'],
+            ],
         ],
         [
             'question_text' => 'Choose your favorite colors',
@@ -42,7 +46,7 @@ it('can create a survey with valid data', function () {
         ->set('description', 'A simple test survey')
         ->set('end_date', now()->addDays(7)->toDateTimeString())
         ->set('questions', $questions)
-        ->call('createSurvey')
+        ->call('save')
         ->assertHasNoErrors();
 
     expect(Survey::count())->toBe(1);

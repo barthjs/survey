@@ -66,4 +66,15 @@ class Survey extends Model
     {
         return $this->hasMany(Response::class);
     }
+
+    public static function getValidationRules(): array
+    {
+        return [
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:1000'],
+            'is_public' => ['required', 'boolean'],
+            'is_active' => ['required', 'boolean'],
+            'end_date' => ['nullable', 'string'],
+        ];
+    }
 }
