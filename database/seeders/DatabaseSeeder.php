@@ -13,9 +13,10 @@ use App\Models\QuestionOption;
 use App\Models\Response;
 use App\Models\Survey;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Storage;
 
 class DatabaseSeeder extends Seeder
 {
@@ -29,9 +30,11 @@ class DatabaseSeeder extends Seeder
                 'email' => 'admin@example.com',
                 'password' => Hash::make('admin'),
                 'email_verified_at' => now(),
+                'is_active' => true,
                 'is_admin' => true,
             ]
         );
+
         if (App::isLocal()) {
             $user = User::firstOrCreate(['name' => 'User User'],
                 [
@@ -40,92 +43,32 @@ class DatabaseSeeder extends Seeder
                     'email_verified_at' => now(),
                 ]
             );
-            $this->createDemoSurvey($admin);
-            $this->createDemoSurvey($user);
+
+            $this->createDemoSurveys($admin);
+            $this->createDemoSurveys($user);
 
             User::factory(10)->create(['password' => 'password']);
         }
     }
 
-    public function createDemoSurvey(User $user): void
-    {
-
-        $survey = Survey::create([
-            'user_id' => $user->id,
-            'title' => 'Demo Survey',
-            'description' => 'This is a demo survey.',
-            'is_active' => true,
-            'closed_at' => Carbon::now()->addMonths(3),
-        ]);
-
-        Question::create([
-            'survey_id' => $survey->id,
-            'question_text' => 'Question 1',
-            'is_required' => true,
-            'type' => QuestionType::TEXT,
-            'order_index' => 0,
-        ]);
-
-        $question = Question::create([
-            'survey_id' => $survey->id,
-            'question_text' => 'Question 2',
-            'type' => QuestionType::MULTIPLE_CHOICE,
-            'is_required' => false,
-            'order_index' => 1,
-        ]);
-        QuestionOption::create([
-            'question_id' => $question->id,
-            'option_text' => 'Option 1',
-            'order_index' => 0,
-        ]);
-        QuestionOption::create([
-            'question_id' => $question->id,
-            'option_text' => 'Option 2',
-            'order_index' => 1,
-        ]);
-
-        Question::create([
-            'survey_id' => $survey->id,
-            'question_text' => 'Question 3',
-            'type' => QuestionType::FILE,
-            'is_required' => false,
-            'order_index' => 2,
-        ]);
-    }
-
     private function createDemoSurveys(User $user): void
     {
-        $surveys = Survey::factory(20)->create(['user_id' => $user->id]);
+        $surveys = new Collection;
+        for ($i = 1; $i <= 10; $i++) {
+            $surveys->add(Survey::factory()->create([
+                'user_id' => $user->id,
+                'title' => "Demo $i",
+                'description' => 'This is a demo survey.',
+                'auto_closed_at' => null,
+            ]));
+        }
 
         foreach ($surveys as $survey) {
-            $questions = [];
-
-            for ($i = 1; $i <= 10; $i++) {
-
-                $question = Question::factory()->create([
-                    'survey_id' => $survey->id,
-                    'question_text' => "Question $i",
-                    'is_required' => $i % 2 === 0,
-                    'order_index' => $i,
-                ]);
-
-                if ($question->type === QuestionType::MULTIPLE_CHOICE) {
-                    for ($j = 1; $j <= 4; $j++) {
-                        QuestionOption::factory()->create([
-                            'question_id' => $question->id,
-                            'option_text' => "Option $j",
-                            'order_index' => $j,
-                        ]);
-                    }
-                }
-
-                $questions[] = $question;
-            }
+            $questions = $this->createQuestions($survey);
 
             for ($i = 1; $i <= 10; $i++) {
                 $response = Response::factory()->create([
                     'survey_id' => $survey->id,
-                    'submitted_at' => now(),
                 ]);
 
                 foreach ($questions as $question) {
@@ -141,12 +84,6 @@ class DatabaseSeeder extends Seeder
                             ]);
                             break;
 
-                        case QuestionType::FILE:
-                            $answer->update([
-                                'file_path' => 'uploads/dummy-file-'.fake()->uuid().'.pdf',
-                            ]);
-                            break;
-
                         case QuestionType::MULTIPLE_CHOICE:
                             $options = $question->options()->inRandomOrder()->take(rand(1, 2))->get();
 
@@ -157,9 +94,58 @@ class DatabaseSeeder extends Seeder
                                 ]);
                             }
                             break;
+
+                        case QuestionType::FILE:
+                            $originalName = 'dummy-file'.fake()->word().'.txt';
+                            $path = "surveys/$survey->id/$originalName";
+                            Storage::disk('local')->put($path, fake()->realText());
+                            $answer->update([
+                                'file_path' => $path,
+                                'original_file_name' => $originalName,
+                            ]);
+                            break;
                     }
                 }
             }
         }
+    }
+
+    private function createQuestions(Survey $survey): array
+    {
+        $questions = [];
+
+        $questions[] = Question::create([
+            'survey_id' => $survey->id,
+            'question_text' => 'Question 1',
+            'type' => QuestionType::TEXT,
+            'is_required' => true,
+            'order_index' => 0,
+        ]);
+
+        $questions[] = Question::create([
+            'survey_id' => $survey->id,
+            'question_text' => 'Question 2',
+            'type' => QuestionType::MULTIPLE_CHOICE,
+            'is_required' => false,
+            'order_index' => 1,
+        ]);
+
+        for ($j = 0; $j < 3; $j++) {
+            QuestionOption::factory()->create([
+                'question_id' => $questions[1]->id,
+                'option_text' => "Option $j",
+                'order_index' => $j,
+            ]);
+        }
+
+        $questions[] = Question::create([
+            'survey_id' => $survey->id,
+            'question_text' => 'Question 3',
+            'type' => QuestionType::FILE,
+            'is_required' => false,
+            'order_index' => 2,
+        ]);
+
+        return $questions;
     }
 }
