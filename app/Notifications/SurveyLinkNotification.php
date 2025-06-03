@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Notifications;
 
-use App\Models\Survey;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -15,22 +14,22 @@ class SurveyLinkNotification extends Notification implements ShouldBeUnique, Sho
 {
     use Queueable;
 
-    protected Survey $survey;
+    protected string $surveyId;
 
     protected string $email;
 
     protected string $link;
 
-    public function __construct(Survey $survey, string $email)
+    public function __construct(string $surveyId, string $email)
     {
-        $this->survey = $survey;
+        $this->surveyId = $surveyId;
         $this->email = $email;
-        $this->link = route('surveys.submit', ['id' => $survey->id]);
+        $this->link = route('surveys.submit', ['id' => $this->surveyId]);
     }
 
     public function uniqueId(): string
     {
-        return 'link_sent_'.$this->survey->id.'_'.$this->email;
+        return 'link_sent_'.$this->surveyId.'_'.$this->email;
     }
 
     /**

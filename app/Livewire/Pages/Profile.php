@@ -116,7 +116,7 @@ class Profile extends Component
 
         RateLimiter::hit($key);
 
-        Notification::route('mail', $user->new_email)->notify((new VerifyNewEmailNotification($user, $user->new_email))->locale(app()->getLocale()));
+        Notification::route('mail', $user->new_email)->notify((new VerifyNewEmailNotification($user->id, $user->new_email))->locale(app()->getLocale()));
 
         $this->success(__('Verification email sent. Please check your email.'));
     }

@@ -6,11 +6,11 @@ namespace App\Livewire\Pages\Auth;
 
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;

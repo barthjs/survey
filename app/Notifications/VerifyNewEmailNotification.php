@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Notifications;
 
-use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -20,17 +19,17 @@ class VerifyNewEmailNotification extends Notification implements ShouldBeUnique,
 
     protected string $newEmail;
 
-    protected User $user;
+    protected string $userId;
 
-    public function __construct(User $user, string $newEmail)
+    public function __construct(string $userId, string $newEmail)
     {
-        $this->user = $user;
+        $this->userId = $userId;
         $this->newEmail = $newEmail;
     }
 
     public function uniqueId(): string
     {
-        return 'new_email_verification_'.$this->user->id.'_'.$this->newEmail;
+        return 'new_email_verification_'.$this->userId.'_'.$this->newEmail;
     }
 
     /**
@@ -52,8 +51,8 @@ class VerifyNewEmailNotification extends Notification implements ShouldBeUnique,
             'verification.verify-new-email',
             Carbon::now()->addMinutes(60),
             [
-                'id' => $this->user->id,
-                'hash' => sha1($this->newEmail.$this->user->id.config('app.key')),
+                'id' => $this->userId,
+                'hash' => sha1($this->newEmail.$this->userId.config('app.key')),
             ]
         );
 

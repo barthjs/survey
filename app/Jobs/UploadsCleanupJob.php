@@ -30,9 +30,8 @@ class UploadsCleanupJob implements ShouldQueue
      */
     public function handle(): void
     {
+        $disk = Storage::disk('local');
         foreach ($this->filePaths as $path) {
-            $disk = Storage::disk('local');
-
             if ($disk->exists($path)) {
                 $disk->delete($path);
             }
