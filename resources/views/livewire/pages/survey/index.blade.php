@@ -89,9 +89,9 @@
                     wire:click="confirmDeletion('{{ $survey->id }}')"
                     class="btn-sm btn-ghost text-error"
                 />
-                <x-confirm-delete :title="__('Delete survey')"/>
             @endif
             @endscope
         </x-table>
+        <x-confirm-delete :title="__('Delete survey')"/>
     </x-card>
 </div>

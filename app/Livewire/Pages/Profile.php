@@ -86,9 +86,10 @@ class Profile extends Component
             } else {
                 $user->email = $validated['email'];
                 $user->save();
-                $this->success(__('Profile information updated'));
             }
         }
+
+        $this->success(__('Profile information updated'));
     }
 
     public function sendVerification(): void

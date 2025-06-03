@@ -88,9 +88,9 @@
                         class="btn-sm btn-ghost text-error"
                     />
                 </div>
-                <x-confirm-delete :title="__('Delete user')"/>
             @endif
             @endscope
         </x-table>
+        <x-confirm-delete :title="__('Delete user')"/>
     </x-card>
 </div>
