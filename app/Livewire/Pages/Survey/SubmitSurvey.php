@@ -13,6 +13,7 @@ use App\Models\Survey;
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -79,7 +80,7 @@ class SubmitSurvey extends Component
             abort(404);
         }
 
-        $this->questions = Question::with(['options' => function ($query) {
+        $this->questions = Question::with(['options' => function (HasMany $query) {
             $query->orderBy('order_index');
         }])
             ->whereSurveyId($this->survey->id)
@@ -114,7 +115,7 @@ class SubmitSurvey extends Component
 
                 QuestionType::MULTIPLE_CHOICE->name => [
                     'array',
-                    function (string $attribute, $value, Closure $fail) use ($question) {
+                    function (string $attribute, array $value, Closure $fail) use ($question) {
                         $validOptionIds = collect($question['options'] ?? [])->pluck('id')->toArray();
                         foreach (array_keys($value) as $optionId) {
                             if (! in_array($optionId, $validOptionIds, true)) {
@@ -128,8 +129,8 @@ class SubmitSurvey extends Component
                     'file',
                     'max:10240',
                     'mimetypes:'.implode(',', self::ALLOWED_MIME_TYPES),
-                    function (string $attribute, $value, Closure $fail) {
-                        if (! $value instanceof TemporaryUploadedFile || ! $value->isValid()) {
+                    function (string $attribute, TemporaryUploadedFile $value, Closure $fail) {
+                        if (! $value->isValid()) {
                             $fail(__('Invalid file upload'));
 
                             return;

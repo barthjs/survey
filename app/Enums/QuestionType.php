@@ -17,7 +17,7 @@ enum QuestionType: string
 
     public static function toArray(): array
     {
-        return collect(QuestionType::cases())->map(fn ($type) => [
+        return collect(QuestionType::cases())->map(fn (QuestionType $type) => [
             'id' => $type->value,
             'name' => $type->label(),
         ])->toArray();

@@ -124,8 +124,8 @@ class Question extends Model
             'questions.*.is_required' => ['required', 'boolean'],
             'questions.*.options' => ['nullable', 'array', 'max:10'],
             'questions.*.options.*.option_text' => ['required_with:questions.*.options', 'string', 'max:255'],
-        ])->after(function ($validator) use ($questions) {
-            $hasRequired = collect($questions)->contains(fn ($q) => $q['is_required']);
+        ])->after(function (\Illuminate\Validation\Validator $validator) use ($questions) {
+            $hasRequired = collect($questions)->contains(fn (array $q) => $q['is_required']);
             if (! $hasRequired) {
                 $validator->errors()->add('questions', __('At least one question must be marked as required.'));
             }

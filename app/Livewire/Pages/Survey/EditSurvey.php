@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire\Pages\Survey;
 
 use App\Enums\QuestionType;
+use App\Models\AnswerOption;
 use App\Models\Question;
 use App\Models\QuestionOption;
 use App\Models\Survey;
@@ -53,13 +54,13 @@ class EditSurvey extends Component
         $this->is_active = $this->survey->is_active;
         $this->end_date = $this->survey->end_date?->format('Y-m-d\TH:i');
 
-        $this->questions = $this->survey->questions->map(fn ($question) => [
+        $this->questions = $this->survey->questions->map(fn (Question $question) => [
             'id' => $question->id,
             'question_text' => $question->question_text,
             'type' => $question->type,
             'is_required' => $question->is_required,
             'options' => $question->type === QuestionType::MULTIPLE_CHOICE
-                ? $question->options->map(fn ($option) => [
+                ? $question->options->map(fn (QuestionOption $option) => [
                     'id' => $option->id,
                     'option_text' => $option->option_text,
                 ])->toArray()
@@ -162,7 +163,7 @@ class EditSurvey extends Component
                     /** @var QuestionOption $option */
                     $option = $existingOptions->get($optionId);
 
-                    $option->answerOptions->each(function ($answerOption) {
+                    $option->answerOptions->each(function (AnswerOption $answerOption) {
                         $answerOption->answer()->delete();
                     });
 
