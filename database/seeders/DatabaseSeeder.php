@@ -16,12 +16,15 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Random\RandomException;
 use Storage;
 
 class DatabaseSeeder extends Seeder
 {
     /**
      * Seed the application's database.
+     *
+     * @throws RandomException
      */
     public function run(): void
     {
@@ -51,6 +54,9 @@ class DatabaseSeeder extends Seeder
         }
     }
 
+    /**
+     * @throws RandomException
+     */
     private function createDemoSurveys(User $user): void
     {
         $surveys = new Collection;
@@ -85,7 +91,7 @@ class DatabaseSeeder extends Seeder
                             break;
 
                         case QuestionType::MULTIPLE_CHOICE:
-                            $options = $question->options()->inRandomOrder()->take(rand(1, 2))->get();
+                            $options = $question->options()->inRandomOrder()->take(random_int(1, 4))->get();
 
                             foreach ($options as $option) {
                                 AnswerOption::factory()->create([
