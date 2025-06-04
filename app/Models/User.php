@@ -100,7 +100,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
         foreach ($words as $word) {
             if (! empty($word)) {
-                $initials .= mb_strtoupper(substr($word, 0, 1));
+                $initials .= mb_strtoupper(mb_substr($word, 0, 1));
             }
         }
 

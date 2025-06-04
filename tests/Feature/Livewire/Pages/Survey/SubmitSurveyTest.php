@@ -137,7 +137,7 @@ it('submits a valid survey with text, multiple choice, and file', function () {
         ->call('submitSurvey')
         ->assertRedirect(route('surveys.thank-you'));
 
-    expect(\App\Models\Response::count())->toBe(1)
+    expect(App\Models\Response::count())->toBe(1)
         ->and(Answer::count())->toBe(3)
         ->and(AnswerOption::count())->toBe(1);
 });

@@ -25,7 +25,7 @@ enum QuestionType: string
 
     public static function getIconFromFilename(string $filename): string
     {
-        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        $extension = mb_strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
         return match ($extension) {
             'txt', 'md', 'doc', 'docx', 'odt' => 'o-document-text',

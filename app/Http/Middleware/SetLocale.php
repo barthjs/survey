@@ -24,7 +24,7 @@ class SetLocale
         } else {
             // Get the first language from the Accept-Language header
             $requestLocale = $request->getPreferredLanguage() ?? '';
-            $locale = strtolower(substr($requestLocale, 0, 2));
+            $locale = mb_strtolower(mb_substr($requestLocale, 0, 2));
 
             if (array_key_exists($locale, $availableLocales)) {
                 app()->setLocale($locale);
