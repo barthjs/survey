@@ -28,26 +28,31 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $admin = User::firstOrCreate(['name' => 'Admin User'],
-            [
-                'email' => 'admin@example.com',
-                'password' => Hash::make('admin'),
-                'email_verified_at' => now(),
-                'is_active' => true,
-                'is_admin' => true,
-            ]
-        );
+        $admin = null;
+        if (User::where('is_admin', '=', true)->count() === 0) {
+            $admin = User::create(
+                [
+                    'name' => 'Admin User',
+                    'email' => 'admin@example.com',
+                    'password' => Hash::make('admin'),
+                    'email_verified_at' => now(),
+                    'is_active' => true,
+                    'is_admin' => true,
+                ]
+            );
+        }
 
         if (App::isLocal()) {
-            $user = User::firstOrCreate(['name' => 'User User'],
+            $user = User::firstOrCreate(['email' => 'user@example.com'],
                 [
-                    'email' => 'user@example.com',
+                    'name' => 'Demo User',
                     'password' => Hash::make('user'),
                     'email_verified_at' => now(),
                 ]
             );
 
-            $this->createDemoSurveys($admin);
+            $admin && $this->createDemoSurveys($admin);
+
             $this->createDemoSurveys($user);
 
             User::factory(10)->create(['password' => 'password']);

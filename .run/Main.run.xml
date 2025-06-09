@@ -1,10 +1,10 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Main" type="PestRunConfigurationType" singleton="false">
     <option name="pestRunnerSettings">
-      <PestRunner directory="./vendor/pestphp/pest/bin/pest" method="" scope="ConfigurationFile" options="--type-coverage --compact --min=100" />
+      <PestRunner directory="./vendor/pestphp/pest/bin/pest" method="" scope="ConfigurationFile" />
     </option>
     <option name="runnerSettings">
-      <PhpTestRunnerSettings directory="./vendor/pestphp/pest/bin/pest" method="" scope="ConfigurationFile" options="--type-coverage --compact --min=100" />
+      <PhpTestRunnerSettings directory="./vendor/pestphp/pest/bin/pest" method="" scope="ConfigurationFile" />
     </option>
     <method v="2" />
   </configuration>
