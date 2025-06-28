@@ -3,6 +3,7 @@
         <x-form wire:submit="updateUser" novalidate autocomplete="off">
             <x-alert
                 wire:dirty
+                wire:target="name,email,password,verified,is_active,is_admin"
                 class="alert-warning"
             >
                 <div class="flex items-start gap-2">

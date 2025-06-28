@@ -83,6 +83,7 @@ class IndexUsers extends Component
     public function openCreateUserModal(): void
     {
         $this->reset('name', 'email', 'password', 'password_confirmation', 'is_active', 'is_admin');
+        $this->resetErrorBag();
 
         $this->is_active = true;
         $this->is_admin = false;
@@ -117,6 +118,7 @@ class IndexUsers extends Component
     public function editUser(string $id): void
     {
         $this->reset('name', 'email', 'verified', 'password', 'password_confirmation', 'is_active', 'is_admin');
+        $this->resetErrorBag();
 
         $user = User::findOrFail($id);
         $this->editUserId = $id;
@@ -166,6 +168,7 @@ class IndexUsers extends Component
             $validated['password'] = Hash::make($this->password);
         }
 
+        unset($validated['verified']);
         $user->fill($validated);
 
         if (! $this->verified || $user->isDirty('email')) {
