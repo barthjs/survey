@@ -30,13 +30,13 @@ class EditSurvey extends Component
 
     public string $title;
 
-    public ?string $description;
+    public ?string $description = null;
 
     public bool $is_public;
 
     public bool $is_active;
 
-    public ?string $end_date;
+    public ?string $end_date = null;
 
     public array $questions;
 

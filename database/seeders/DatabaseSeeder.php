@@ -83,7 +83,7 @@ class DatabaseSeeder extends Seeder
                 ]);
 
                 foreach ($questions as $question) {
-                    $answer = Answer::factory()->create([
+                    $answer = Answer::create([
                         'response_id' => $response->id,
                         'question_id' => $question->id,
                     ]);

@@ -1,6 +1,10 @@
 @php use App\Enums\QuestionType; @endphp
 <div>
-    <x-header :title="$response->survey->title" :subtitle="__('Response from').' '.$response->submitted_at->format('Y-m-d H:i:s')" separator>
+    <x-header
+        :title="$response->survey->title"
+        :subtitle="__('Response from').' '.$response->submitted_at->format('Y-m-d H:i:s')"
+        separator
+    >
         <x-slot:actions>
             <x-button
                 icon="o-arrow-left"
@@ -68,32 +72,12 @@
                 <x-slot:actions>
                     <x-button
                         icon="o-trash"
-                        x-on:click="$wire.confirmAnswerDeletionModal = true"
+                        wire:click="confirmDeletion('{{ $answer['id'] }}')"
                         class="btn-sm btn-ghost text-error"
                     />
-                    <x-modal
-                        :title="__('Delete answer')"
-                        wire:model="confirmAnswerDeletionModal"
-                        class="backdrop-blur"
-                    >
-                        <x-slot:actions>
-                            <x-button
-                                icon="o-x-circle"
-                                :label="__('Cancel')"
-                                x-on:click="$wire.confirmAnswerDeletionModal = false"
-                                class="btn-secondary"
-                            />
-                            <x-button
-                                icon="o-trash"
-                                :label="__('Delete')"
-                                spinner="deleteAnswer('{{ $answer['id'] }}')"
-                                wire:click="deleteAnswer('{{ $answer['id'] }}')"
-                                class="btn-error"
-                            />
-                        </x-slot:actions>
-                    </x-modal>
                 </x-slot:actions>
             </x-card>
         @endforeach
+        <x-confirm-delete :title="__('Delete answer')" deleteAction="deleteAnswer"/>
     </div>
 </div>
