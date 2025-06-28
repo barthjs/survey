@@ -55,7 +55,7 @@ class VerifyEmail extends Component
             return;
         }
 
-        SendEmailVerificationJob::dispatch(Auth::user());
+        SendEmailVerificationJob::dispatch(Auth::user(), app()->getLocale());
 
         Session::flash('status', 'verification-link-sent');
     }

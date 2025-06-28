@@ -32,7 +32,7 @@ test('reset password link can be requested', function () {
             && $job->uniqueId() === mb_strtolower($user->email);
     });
 
-    $jobInstance = new SendPasswordResetLinkJob(['email' => $user->email]);
+    $jobInstance = new SendPasswordResetLinkJob(['email' => $user->email], app()->getLocale());
     $jobInstance->handle();
 
     Notification::assertSentTo($user, ResetPasswordNotification::class);
@@ -53,7 +53,7 @@ test('reset password screen can be rendered', function () {
             && $job->uniqueId() === mb_strtolower($user->email);
     });
 
-    $jobInstance = new SendPasswordResetLinkJob(['email' => $user->email]);
+    $jobInstance = new SendPasswordResetLinkJob(['email' => $user->email], app()->getLocale());
     $jobInstance->handle();
 
     Notification::assertSentTo($user, ResetPasswordNotification::class, function ($notification) {
@@ -80,7 +80,7 @@ test('password can be reset with valid token', function () {
             && $job->uniqueId() === mb_strtolower($user->email);
     });
 
-    $jobInstance = new SendPasswordResetLinkJob(['email' => $user->email]);
+    $jobInstance = new SendPasswordResetLinkJob(['email' => $user->email], app()->getLocale());
     $jobInstance->handle();
 
     Notification::assertSentTo($user, ResetPasswordNotification::class, function ($notification) use ($user) {

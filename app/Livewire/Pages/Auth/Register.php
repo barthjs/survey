@@ -54,7 +54,7 @@ class Register extends Component
 
         $user = User::create($validated);
         if (config('app.enable_email_verification')) {
-            SendEmailVerificationJob::dispatch($user);
+            SendEmailVerificationJob::dispatch($user, app()->getLocale());
         }
 
         Auth::login($user);

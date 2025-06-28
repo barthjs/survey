@@ -26,8 +26,6 @@ class ViewResponse extends Component
 
     public array $answers = [];
 
-    public bool $confirmAnswerDeletionModal = false;
-
     public function mount(string $id): void
     {
         $this->response = Response::with([
@@ -67,16 +65,25 @@ class ViewResponse extends Component
         $this->redirect(route('surveys.view', ['id' => $this->response->survey_id]), navigate: true);
     }
 
-    public function deleteAnswer(string $id): void
+    public function deleteAnswer(): void
     {
-        $answer = $this->response->answers->firstWhere('id', $id);
+        $answer = $this->response->answers->firstWhere('id', $this->deletionId);
         if (! $answer) {
             abort(404);
         }
 
         $answer->delete();
-        $this->confirmAnswerDeletionModal = false;
+
+        if ($this->response->answers()->count() === 0) {
+            $this->redirect(route('surveys.view', ['id' => $this->response->survey_id]), navigate: true);
+
+            return;
+        }
+
+        $this->closeConfirmDeletionModal();
         $this->success(__('Deleted answer'));
+
+        $this->mount($this->response->id);
     }
 
     public function download(string $id): ?BinaryFileResponse

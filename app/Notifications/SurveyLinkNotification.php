@@ -49,7 +49,6 @@ class SurveyLinkNotification extends Notification implements ShouldBeUnique, Sho
     {
         return (new MailMessage)
             ->subject(__('Your Survey Link'))
-            ->greeting(__('Hello!'))
             ->line(__('You have received a link to a survey.'))
             ->action(__('View Survey'), $this->link)
             ->line(__('Thank you for participating!'));

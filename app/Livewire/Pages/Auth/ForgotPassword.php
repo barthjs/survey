@@ -49,7 +49,7 @@ class ForgotPassword extends Component
 
         RateLimiter::hit($key, 3600);
 
-        SendPasswordResetLinkJob::dispatch($this->only('email'));
+        SendPasswordResetLinkJob::dispatch($this->only('email'), app()->getLocale());
 
         Session::flash('status', __('A reset link will be sent if the account exists.'));
     }
