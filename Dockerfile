@@ -1,4 +1,4 @@
-FROM php:8.3-fpm-alpine
+FROM php:8.4-fpm-alpine
 
 ARG VERSION=latest
 ENV APP_VERSION=${VERSION}

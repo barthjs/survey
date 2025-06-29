@@ -11,7 +11,9 @@ tests/
 .gitignore
 
 *.yaml
+*.md
 Dockerfile
+LICENSE
 phpunit.xml
 pint.json
 setup-dev.sh

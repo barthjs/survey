@@ -185,7 +185,7 @@ Default login at [http://localhost](http://localhost)
 ### Built With
 
 - <a href="https://php.net">
-    <img alt="PHP 8.3" src="https://img.shields.io/badge/PHP-8.3-777BB4?style=flat-square&logo=php">
+    <img alt="PHP 8.4" src="https://img.shields.io/badge/PHP-8.4-777BB4?style=flat-square&logo=php">
   </a>
 - <a href="https://laravel.com">
     <img alt="Laravel v12.x" src="https://img.shields.io/badge/Laravel-v12.x-FF2D20?style=flat-square&logo=laravel">
