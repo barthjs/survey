@@ -145,15 +145,12 @@ class ViewSurvey extends Component
 
     public function render(): Application|Factory|View
     {
-        $isPublic = $this->survey->is_public && ! auth()->check();
         $layout = $this->survey->is_public && ! auth()->check()
             ? 'components.layouts.public'
             : 'components.layouts.app';
 
         return view('livewire.pages.survey.view')
-            ->layout($layout, [
-                'includeAppJs' => $isPublic,
-            ])
+            ->layout($layout)
             ->title(__('View survey'));
     }
 }

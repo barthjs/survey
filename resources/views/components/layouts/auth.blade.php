@@ -13,7 +13,7 @@
 
         <x-slot:actions>
             <x-language-selector class="btn-circle btn-ghost"/>
-            <x-theme-toggle darkTheme="night" lightTheme="nord" class="btn-circle btn-ghost"/>
+            <x-theme-toggle darkTheme="night" lightTheme="fantasy" class="btn-circle btn-ghost"/>
         </x-slot:actions>
     </x-nav>
 
@@ -23,6 +23,10 @@
                 {{ $slot }}
             </div>
         </x-slot:content>
+
+        <x-slot:footer>
+            <x-footer/>
+        </x-slot:footer>
     </x-main>
 
     </body>

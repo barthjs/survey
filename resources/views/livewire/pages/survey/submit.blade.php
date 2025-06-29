@@ -1,5 +1,5 @@
 @php use App\Enums\QuestionType; @endphp
-<div class="w-full max-w-lg mx-auto">
+<div class="w-full max-w-4xl">
     <x-header :title="$title" :subtitle="$description" separator/>
 
     <x-form wire:submit="submitSurvey" novalidate autocomplete="off">

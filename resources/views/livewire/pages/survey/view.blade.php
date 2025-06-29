@@ -1,5 +1,5 @@
 @php use App\Enums\QuestionType; @endphp
-<div>
+<div class="w-full">
     <x-header :title="$survey->title" :subtitle="$survey->description" separator>
         <x-slot:actions>
             @auth

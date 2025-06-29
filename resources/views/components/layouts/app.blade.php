@@ -48,6 +48,10 @@
         <x-slot:content>
             {{ $slot }}
         </x-slot:content>
+
+        <x-slot:footer>
+            <x-footer/>
+        </x-slot:footer>
     </x-main>
 
     <x-toast/>

@@ -13,7 +13,7 @@
 
         <x-slot:actions>
             <x-language-selector class="btn-circle btn-ghost"/>
-            <x-theme-toggle darkTheme="night" lightTheme="nord" class="btn-circle btn-ghost"/>
+            <x-theme-toggle darkTheme="night" lightTheme="fantasy" class="btn-circle btn-ghost"/>
         </x-slot:actions>
     </x-nav>
 
@@ -21,6 +21,10 @@
         <x-slot:content class="flex items-center justify-center">
             {{ $slot }}
         </x-slot:content>
+
+        <x-slot:footer>
+            <x-footer/>
+        </x-slot:footer>
     </x-main>
 
     @vite('resources/js/app.js')
