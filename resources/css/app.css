@@ -12,11 +12,29 @@
 
 /** daisyUI */
 @plugin "daisyui" {
-    themes: light --default, dark --prefersdark;
+    themes: fantasy --default, night --prefersdark;
 }
 
 /* Dark theme variant support */
 @custom-variant dark (&:where(.dark, .dark *));
+
+@plugin "daisyui/theme" {
+    name: "fantasy";
+    --radius-selector: 0.5rem;
+    --radius-field: 0.25rem;
+    --radius-box: 0.5rem;
+    --border: 1px;
+    --depth: 1;
+}
+
+@plugin "daisyui/theme" {
+    name: "night";
+    --radius-selector: 0.5rem;
+    --radius-field: 0.25rem;
+    --radius-box: 0.5rem;
+    --border: 1px;
+    --depth: 1;
+}
 
 /* maryUI */
 @source "../../vendor/robsontenorio/mary/src/View/Components/**/*.php";

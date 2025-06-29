@@ -10,9 +10,10 @@
                 </a>
             </div>
         </x-slot:brand>
+
         <x-slot:actions>
             <x-language-selector class="btn-circle btn-ghost"/>
-            <x-theme-toggle class="btn-circle btn-ghost"/>
+            <x-theme-toggle darkTheme="night" lightTheme="nord" class="btn-circle btn-ghost"/>
         </x-slot:actions>
     </x-nav>
 

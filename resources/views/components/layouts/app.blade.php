@@ -11,10 +11,9 @@
             </div>
         </x-slot:brand>
 
-        {{-- Right side actions --}}
         <x-slot:actions>
             <x-language-selector class="btn-circle btn-ghost"/>
-            <x-theme-toggle class="btn-circle btn-ghost"/>
+            <x-theme-toggle darkTheme="night" lightTheme="fantasy" class="btn-circle btn-ghost"/>
 
             <x-dropdown :right="true">
                 <x-slot:trigger>
