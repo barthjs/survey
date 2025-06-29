@@ -41,6 +41,15 @@
                                 x-on:click="$wire.sendEmailModal = true"
                                 class="btn-ghost  justify-start"
                             />
+                            @if($this->survey->is_public)
+                                <x-button
+                                    icon="o-chart-bar"
+                                    :label="__('Share results')"
+                                    :link="route('surveys.public.view', ['id' => $survey->id])"
+                                    external
+                                    class="btn-ghost justify-start"
+                                />
+                            @endif
                         </div>
                     </x-dropdown>
 
@@ -77,13 +86,15 @@
         <x-card :title="__('Details')">
             @if(auth()->check())
                 <div class="flex items-center space-x-4">
-                    <x-badge :value="$this->survey->is_public ? __('Public') : __('Private')" class="badge-primary"/>
-                    <x-badge :value="__('Created at') . ': '.  $this->survey->created_at->format('Y-m-d H:i:s')"
-                             class="badge-primary"/>
+                    <x-badge
+                        :value="__('Created at') . ': '.  $this->survey->created_at->format('Y-m-d H:i:s')"
+                        class="badge-primary"
+                    />
                     <x-badge
                         :value="$this->survey->is_active ? __('Open') : __('Closed')"
                         class="{{ $this->survey->is_active ? 'badge-success' : 'badge-error' }}"
                     />
+                    <x-badge :value="$this->survey->is_public ? __('Public') : __('Private')" class="badge-primary"/>
                 </div>
             @endif
             <div class="flex flex-col md:flex-row md:items-center md:justify-between">
