@@ -81,13 +81,13 @@ class Profile extends Component
         if ($user->email !== $validated['email']) {
             if (config('app.enable_email_verification')) {
                 $user->new_email = $validated['email'];
-                $user->save();
                 $this->sendVerification();
             } else {
                 $user->email = $validated['email'];
-                $user->save();
             }
         }
+
+        $user->save();
 
         $this->success(__('Profile information updated'));
     }
