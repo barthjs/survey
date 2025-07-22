@@ -14,7 +14,7 @@ services:
     extra_hosts:
       - host.docker.internal:host-gateway
 
-  survey-db:
+  mariadb:
     image: mariadb:11.4
     container_name: survey-db
     ports:

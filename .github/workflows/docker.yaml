@@ -43,7 +43,6 @@ jobs:
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
           flavor: latest=auto
 
       - name: Build and push Docker image

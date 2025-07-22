@@ -4,15 +4,11 @@ declare(strict_types=1);
 
 return [
 
-    'name' => env('APP_NAME', 'Survey'),
+    'name' => 'Survey',
 
     'version' => env('APP_VERSION', 'dev'),
 
     'url' => env('APP_URL', 'http://localhost'),
-
-    'locale' => env('APP_LOCALE', 'en'),
-
-    'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 
     'locales' => [
         'en' => 'English',

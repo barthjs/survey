@@ -4,7 +4,7 @@ services:
     container_name: survey
     restart: unless-stopped
     depends_on:
-      survey-db:
+      mariadb:
         condition: service_healthy
     ports:
       - 80:80
@@ -12,7 +12,7 @@ services:
       - ./data:/app/storage/app
     env_file: .env
 
-  survey-db:
+  mariadb:
     image: mariadb:11.4
     container_name: survey-db
     restart: unless-stopped

@@ -49,7 +49,7 @@ COPY --chown=application:application . /app
 # Install app dependencies and build frontend
 RUN apk add --no-cache --virtual .build-deps nodejs npm && \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
-    composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader &&  \
+    composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader && \
     npm install &&  \
     npm run build && \
     # Remove build dependencies
