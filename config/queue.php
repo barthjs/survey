@@ -10,23 +10,21 @@ return [
 
         'database' => [
             'driver' => 'database',
-            'connection' => env('DB_QUEUE_CONNECTION'),
             'table' => 'sys_jobs',
-            'queue' => env('DB_QUEUE', 'default'),
-            'retry_after' => (int) env('DB_QUEUE_RETRY_AFTER', 90),
-            'after_commit' => false,
+            'queue' => 'default',
+            'retry_after' => 90,
         ],
 
     ],
 
     'batching' => [
-        'database' => env('DB_CONNECTION', 'mariadb'),
+        'database' => env('DB_CONNECTION', 'pgsql'),
         'table' => 'sys_job_batches',
     ],
 
     'failed' => [
         'driver' => 'database-uuids',
-        'database' => env('DB_CONNECTION', 'mariadb'),
+        'database' => env('DB_CONNECTION', 'pgsql'),
         'table' => 'sys_failed_jobs',
     ],
 

@@ -4,26 +4,26 @@ services:
     container_name: survey
     restart: unless-stopped
     depends_on:
-      mariadb:
-        condition: service_healthy
+      - database
     ports:
       - 80:80
     volumes:
       - ./data:/app/storage/app
     env_file: .env
 
-  mariadb:
-    image: mariadb:11.4
+  database:
+    image: postgres:18-alpine
     container_name: survey-db
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
-      start_period: 10s
-      interval: 10s
+      test: [ "CMD-SHELL", "pg_isready -d $DB_DATABASE -U $DB_USERNAME" ]
+      interval: 30s
       timeout: 5s
+      start_period: 3s
       retries: 3
     volumes:
-      - ./db-data:/var/lib/mysql
+      - ./db-data:/var/lib/postgresql
     environment:
-      - MARIADB_DATABASE=${DB_DATABASE}
-      - MARIADB_ROOT_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_DATABASE}
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
