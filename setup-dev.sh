@@ -9,6 +9,7 @@ function setup_dev_commands {
 
     php artisan key:generate
     php artisan migrate:fresh --seed
+    php artisan storage:link
 }
 
 cp .env.development .env
