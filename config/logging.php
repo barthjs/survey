@@ -14,7 +14,7 @@ return [
 
         'file' => [
             'driver' => 'single',
-            'path' => storage_path('logs/laravel.log'),
+            'path' => storage_path('logs/survey.log'),
             'level' => env('LOG_LEVEL', 'warning'),
             'replace_placeholders' => true,
         ],

@@ -1,26 +1,26 @@
-<a id="readme-top"></a>
-
 <div align="center">
 
 <h1>Survey</h1>
 <h3>Survey Creation Tool</h3>
 
-<!-- Badges -->
 <p>
-  <a href="https://hub.docker.com/r/barthjs/survey/tags">
-    <img src="https://img.shields.io/docker/v/barthjs/survey?label=Docker&logo=docker" alt="Docker image">
+  <a href="https://github.com/barthjs/survey/releases">
+    <img src="https://img.shields.io/github/v/release/barthjs/survey?sort=semver&label=version" alt="GitHub Release">
   </a>
   <a href="https://github.com/barthjs/survey/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/barthjs/survey" alt="License"/>
+    <img src="https://img.shields.io/github/license/barthjs/survey" alt="License">
   </a>
   <a href="https://github.com/barthjs/survey/actions/workflows/tests.yaml">
-    <img alt="Tests" src="https://img.shields.io/github/actions/workflow/status/barthjs/survey/tests.yaml?logo=github&label=Tests">
+    <img src="https://img.shields.io/github/actions/workflow/status/barthjs/survey/tests.yaml?logo=github&label=Tests" alt="Tests">
  </a>
 </p>
 
 </div>
 
-<!-- Table of Contents -->
+<hr>
+
+<a id="readme-top"></a>
+
 <details>
   <summary>Table of Contents</summary>
   <ol>
@@ -68,136 +68,113 @@
 
 ### Installation
 
-Create an app directory:
+1. Create an app directory:
 
-```shell
-mkdir survey && cd ./survey
-```
+    ```shell
+    mkdir -p /opt/survey
+    cd /opt/survey
+    ```
 
-Create a `.env` file using the values from the [.env.example](.env.example) and adjust it as needed. If
-you plan to use a different database, ensure you set the correct `DB_CONNECTION` in the `.env` file.
-The only supported databases are MariaDB and MySQL.
+2. Create a `.env` file using the values from the [.env.example](.env.example) and adjust it as needed. If
+   you plan to use a different database, ensure you set the correct `DB_CONNECTION` in the `.env` file.
 
-```shell
-curl https://raw.githubusercontent.com/barthjs/survey/main/.env.example -o .env
-```
+    ```shell
+    curl https://raw.githubusercontent.com/barthjs/survey/main/.env.example -o .env
+    ```
 
-Download the [compose.yaml](compose.yaml) file.
+3. Download the [compose.yaml](compose.yaml) file.
 
-```shell
-curl https://raw.githubusercontent.com/barthjs/survey/main/compose.yaml -o compose.yaml
-```
+    ```shell
+    curl https://raw.githubusercontent.com/barthjs/survey/main/compose.yaml -o compose.yaml
+    ```
 
-Start the application:
+4. Start the application:
 
-```shell
-docker compose up -d
-```
+    ```shell
+    docker compose up -d
+    ```
 
-Access the app at [http://localhost](http://localhost) using the default credentials:
+5. Log in at  [http://localhost](http://localhost) using the default credentials:
 
-- **Username**: `admin@example.com`
-- **Password**: `admin`
+    - **Username**: `admin`
+    - **Password**: `admin`
 
-### Configuration
+## Configuration
 
 Use the `.env` file to adjust configuration settings:
 
-| Environment variable            | Default     | Description                                                                                         |
-|---------------------------------|-------------|-----------------------------------------------------------------------------------------------------|
-| `APP_KEY`                       | (required)  | The key the system uses for encryption. Generate with: `echo -n 'base64:'; openssl rand -base64 32` |
-| `APP_URL`                       | (required)  | Application URL                                                                                     |
-| `APP_LOCALE`                    | `en`        | Default locale. Supported languages: `en`, `de`                                                     |
-| `APP_ALLOW_REGISTRATION`        | `true`      | Enable/disable user self-registration                                                               |
-| `APP_ENABLE_EMAIL_VERIFICATION` | `false`     | Enable/disable user email verification                                                              |
-| `APP_ENABLE_PASSWORD_RESET`     | `false`     | Enable/disable user email password reset                                                            |
-| `DB_CONNECTION`                 | `mariadb`   | `mariadb` or `mysql`                                                                                |
-| `DB_HOST`                       | `survey-db` | Database host                                                                                       |
-| `DB_PORT`                       | `3306`      | Database port                                                                                       |
-| `DB_DATABASE`                   | `survey`    | Database name                                                                                       |
-| `DB_PASSWORD`                   | (required)  | Database password                                                                                   |
-| `MAIL_MAILER`                   | `smtp`      | Mail driver                                                                                         |
-| `MAIL_SCHEME`                   | `smtps`     | Mail scheme (e.g. `smtp`, `smtps`)                                                                  |
-| `MAIL_HOST`                     | (required)  | Mail server host                                                                                    |
-| `MAIL_PORT`                     | `465`       | Mail server port                                                                                    |
-| `MAIL_USERNAME`                 | (required)  | Mail server username                                                                                |
-| `MAIL_PASSWORD`                 | (required)  | Mail server password                                                                                |
-| `MAIL_FROM_ADDRESS`             | (required)  | Sender email address                                                                                |
-| `MAIL_FROM_NAME`                | (required)  | Sender name                                                                                         |
-
-### Updating
-
-Before updating, check the changelog on the release page for any breaking changes or new configuration options.
-
-```shell
-cd survey
-docker compose pull && docker compose up -d
-```
-
-### Backup
-
-Back up all Docker volumes used in the [compose.yaml](compose.yaml) as well as the `.env`.
+| Environment variable            | Default     | Description                                                                                       |
+|---------------------------------|-------------|---------------------------------------------------------------------------------------------------|
+| `APP_KEY`                       | (required)  | Key used to encrypt and decrypt data. Generate with: `echo -n 'base64:'; openssl rand -base64 32` |
+| `APP_URL`                       | (required)  | Application URL for notifications                                                                 |
+| `APP_LOCALE`                    | `en`        | Default locale. Supported languages: `en`, `de`                                                   |
+| `APP_ALLOW_REGISTRATION`        | `false`     | Enable/disable user self-registration                                                             |
+| `APP_ENABLE_EMAIL_VERIFICATION` | `false`     | Enable/disable user email verification                                                            |
+| `APP_ENABLE_PASSWORD_RESET`     | `false`     | Enable/disable user email password reset                                                          |
+| `LOG_CHANNEL`                   | `stdout`    | `stdout` logs to Docker, whereas `file` writes to `/app/storage/survey.log`                       |
+| `LOG_LEVEL`                     | `warning`   | Log level: `debug`, `info`, `warning`, `error`                                                    |
+| `DB_CONNECTION`                 | `pgsql`     | Database driver: `pgsql` or `mariadb`                                                             |
+| `DB_HOST`                       | `survey-db` | Database host name (service or container name in Docker Compose).                                 |
+| `DB_PORT`                       | `5432`      | Database port (`5432` for pgsql, `3306` for mariadb).                                             |
+| `DB_DATABASE`                   | `survey`    | Database name                                                                                     |
+| `DB_USERNAME`                   | `survey`    | Database username                                                                                 |
+| `DB_PASSWORD`                   | (required)  | Database password                                                                                 |
+| `MAIL_MAILER`                   | `smtp`      | Mail driver                                                                                       |
+| `MAIL_SCHEME`                   | `smtps`     | Mail scheme (e.g. `smtp`, `smtps`)                                                                |
+| `MAIL_HOST`                     | (required)  | Mail server host                                                                                  |
+| `MAIL_PORT`                     | `465`       | Mail server port                                                                                  |
+| `MAIL_USERNAME`                 | (required)  | Mail server username                                                                              |
+| `MAIL_PASSWORD`                 | (required)  | Mail server password                                                                              |
+| `MAIL_FROM_ADDRESS`             | (required)  | Sender email address                                                                              |
+| `MAIL_FROM_NAME`                | (required)  | Sender name                                                                                       |
 
 ## Screenshots
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Updating
+
+Before updating, check the changelog on the release page for any breaking changes or new configuration options.
+
+```shell
+cd /opt/survey
+docker compose pull && docker compose up -d
+```
+
+## Backup
+
+Back up all Docker volumes used in the [compose.yaml](compose.yaml) as well as the `.env`.
 
 ## Contributing
 
 Contributions are welcome. If you encounter a bug, have a feature request, or need support, feel free
 to [open an issue](https://github.com/barthjs/survey/issues/).
 
-### Requirements
+Please read the [contributing guidelines](CONTRIBUTING.md) for more details.
 
-- [Docker](https://docs.docker.com/engine/install/)
-- [Docker Compose](https://docs.docker.com/compose/install/)
+## Development
 
-A Linux environment is recommended for development. Development setup includes:
-
-- [Dockerfile-dev](docker/Dockerfile-dev)
-- [compose.dev.yaml](compose.dev.yaml)
-
-For the best experience use [PHP Storm](https://www.jetbrains.com/phpstorm/). Configure the IDE debugger:
-
-- **Name**: `survey`
-- **host:port**: `localhost:80`
-- **Debugger**: `Xdebug`
-- **Absolute path on the server**: `/app`
-
-### Building
-
-Clone the repo and prepare the development environment:
-
-```shell
-git clone https://github.com/barthjs/survey
-cd survey
-./setup-dev.sh
-```
-
-This script sets up a development container and initializes the database with demo data. Customize
-via [.env.development](.env.development).
-
-Default login at [http://localhost](http://localhost)
-
-- Username: `admin@example.com`
-- Password: `admin`
+See the [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to setup a development environment.
 
 ### Built With
 
-- <a href="https://php.net">
-    <img alt="PHP 8.4" src="https://img.shields.io/badge/PHP-8.4-777BB4?style=flat-square&logo=php">
+- <a href="https://php.net" target="_blank">
+    <img src="https://img.shields.io/badge/PHP-8.5-777BB4?style=flat-square&logo=php" alt="PHP 8.5">
   </a>
-- <a href="https://laravel.com">
-    <img alt="Laravel v12.x" src="https://img.shields.io/badge/Laravel-v12.x-FF2D20?style=flat-square&logo=laravel">
+- <a href="https://laravel.com" target="_blank">
+    <img src="https://img.shields.io/badge/Laravel-12-FF2D20?style=flat-square&logo=laravel" alt="Laravel 12">
   </a>
-- <a href="https://livewire.laravel.com/">
-    <img alt="Livewire v3.x" src="https://img.shields.io/badge/Livewire-v3.x-FB70A9?style=flat-square&logo=livewire">
+- <a href="https://livewire.laravel.com/" target="_blank">
+    <img src="https://img.shields.io/badge/Livewire-3-FB70A9?style=flat-square&logo=livewire" alt="Livewire 3">
   </a>
-- <a href="https://mary-ui.com/">
-    <img alt="maryUI v2.x" src="https://img.shields.io/badge/maryUI-v2.x-B6A4D5?style=flat-square">
+- <a href="https://alpinejs.dev/" target="_blank">
+    <img src="https://img.shields.io/badge/Alpine.js-3-77C1D2?style=flat-square&logo=alpinedotjs" alt="Alpine.js 3">
   </a>
-- <a href="https://hub.docker.com/r/barthjs/survey/tags">
-    <img src="https://img.shields.io/docker/v/barthjs/survey?label=Docker&logo=docker&style=flat-square" alt="Docker image">
+- <a href="https://tailwindcss.com/" target="_blank">
+    <img src="https://img.shields.io/badge/TailwindCSS-4-00BCFF?style=flat-square&logo=tailwindcss" alt="TailwindCSS 4">
+  </a>
+- <a href="https://mary-ui.com/" target="_blank">
+    <img src="https://img.shields.io/badge/maryUI-2-B6A4D5?style=flat-square" alt="maryUI 2">
   </a>
 
 ## License
