@@ -10,7 +10,7 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Password;
 
-class SendPasswordResetLinkJob implements ShouldBeUnique, ShouldQueue
+final class SendPasswordResetLinkJob implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 

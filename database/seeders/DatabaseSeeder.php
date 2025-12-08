@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Hash;
 use Random\RandomException;
 use Storage;
 
-class DatabaseSeeder extends Seeder
+final class DatabaseSeeder extends Seeder
 {
     /**
      * Seed the application's database.

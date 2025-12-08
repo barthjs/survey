@@ -18,7 +18,7 @@ use Mary\Traits\Toast;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 #[Layout('components.layouts.app')]
-class ViewResponse extends Component
+final class ViewResponse extends Component
 {
     use ConfirmDeletionModal, Toast;
 

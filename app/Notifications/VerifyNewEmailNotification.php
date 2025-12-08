@@ -13,7 +13,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\URL;
 
-class VerifyNewEmailNotification extends Notification implements ShouldBeUnique, ShouldQueue
+final class VerifyNewEmailNotification extends Notification implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 

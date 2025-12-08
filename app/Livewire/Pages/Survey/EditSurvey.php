@@ -22,7 +22,7 @@ use Mary\Traits\Toast;
 use Throwable;
 
 #[Layout('components.layouts.app')]
-class EditSurvey extends Component
+final class EditSurvey extends Component
 {
     use ConfirmDeletionModal, Toast;
 
@@ -190,6 +190,12 @@ class EditSurvey extends Component
         $this->redirect(route('surveys.index'), navigate: true);
     }
 
+    public function render(): Application|Factory|View
+    {
+        return view('livewire.pages.survey.edit')
+            ->title(__('Edit survey'));
+    }
+
     /**
      * @throws ValidationException
      */
@@ -204,11 +210,5 @@ class EditSurvey extends Component
             'is_active' => $this->is_active,
             'end_date' => $this->end_date ? Carbon::parse($this->end_date) : null,
         ];
-    }
-
-    public function render(): Application|Factory|View
-    {
-        return view('livewire.pages.survey.edit')
-            ->title(__('Edit survey'));
     }
 }

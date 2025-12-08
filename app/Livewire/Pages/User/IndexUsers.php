@@ -25,7 +25,7 @@ use Livewire\WithPagination;
 use Mary\Traits\Toast;
 
 #[Layout('components.layouts.app')]
-class IndexUsers extends Component
+final class IndexUsers extends Component
 {
     use ConfirmDeletionModal, Toast, WithPagination;
 
@@ -57,19 +57,6 @@ class IndexUsers extends Component
     public bool $is_active = true;
 
     public bool $is_admin = false;
-
-    private function tableHeaders(): array
-    {
-        return [
-            ['key' => 'name', 'label' => __('Name')],
-            ['key' => 'email', 'label' => __('Email')],
-            ['key' => 'created_at', 'label' => __('Created at'), 'format' => ['date', 'Y-m-d H:i:s']],
-            ['key' => 'updated_at', 'label' => __('Updated at'), 'format' => ['date', 'Y-m-d H:i:s']],
-            ['key' => 'email_verified_at', 'label' => __('Verified')],
-            ['key' => 'is_active', 'label' => __('Status')],
-            ['key' => 'is_admin', 'label' => __('Admin')],
-        ];
-    }
 
     public function users(): LengthAwarePaginator
     {
@@ -214,5 +201,18 @@ class IndexUsers extends Component
             ->with('headers', $this->tableHeaders())
             ->with('users', $this->users())
             ->title(__('Users'));
+    }
+
+    private function tableHeaders(): array
+    {
+        return [
+            ['key' => 'name', 'label' => __('Name')],
+            ['key' => 'email', 'label' => __('Email')],
+            ['key' => 'created_at', 'label' => __('Created at'), 'format' => ['date', 'Y-m-d H:i:s']],
+            ['key' => 'updated_at', 'label' => __('Updated at'), 'format' => ['date', 'Y-m-d H:i:s']],
+            ['key' => 'email_verified_at', 'label' => __('Verified')],
+            ['key' => 'is_active', 'label' => __('Status')],
+            ['key' => 'is_admin', 'label' => __('Admin')],
+        ];
     }
 }

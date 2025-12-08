@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
-class ResetPasswordCommand extends Command
+final class ResetPasswordCommand extends Command
 {
     protected $signature = 'app:reset-password {email?}';
 

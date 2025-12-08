@@ -16,7 +16,7 @@ use Livewire\Attributes\Validate;
 use Livewire\Component;
 
 #[Layout('components.layouts.auth')]
-class ForgotPassword extends Component
+final class ForgotPassword extends Component
 {
     #[Validate('required|string|email')]
     public string $email = '';

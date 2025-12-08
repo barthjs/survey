@@ -19,7 +19,7 @@ use Livewire\WithPagination;
 use Mary\Traits\Toast;
 
 #[Layout('components.layouts.app')]
-class IndexSurveys extends Component
+final class IndexSurveys extends Component
 {
     use ConfirmDeletionModal, Toast, WithPagination;
 
@@ -30,17 +30,6 @@ class IndexSurveys extends Component
     public string $search = '';
 
     public int $perPage = 10;
-
-    private function tableHeaders(): array
-    {
-        return [
-            ['key' => 'title', 'label' => __('Title')],
-            ['key' => 'created_at', 'label' => __('Created at'), 'format' => ['date', 'Y-m-d H:i:s']],
-            ['key' => 'end_date', 'label' => __('End date'), 'format' => ['date', 'Y-m-d H:i:s']],
-            ['key' => 'is_active', 'label' => __('Status')],
-            ['key' => 'is_public', 'label' => __('Public')],
-        ];
-    }
 
     public function surveys(): LengthAwarePaginator
     {
@@ -73,5 +62,16 @@ class IndexSurveys extends Component
         return view('livewire.pages.survey.index')
             ->with('headers', $this->tableHeaders())
             ->with('surveys', $this->surveys());
+    }
+
+    private function tableHeaders(): array
+    {
+        return [
+            ['key' => 'title', 'label' => __('Title')],
+            ['key' => 'created_at', 'label' => __('Created at'), 'format' => ['date', 'Y-m-d H:i:s']],
+            ['key' => 'end_date', 'label' => __('End date'), 'format' => ['date', 'Y-m-d H:i:s']],
+            ['key' => 'is_active', 'label' => __('Status')],
+            ['key' => 'is_public', 'label' => __('Public')],
+        ];
     }
 }

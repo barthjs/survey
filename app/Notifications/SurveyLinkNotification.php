@@ -10,7 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class SurveyLinkNotification extends Notification implements ShouldBeUnique, ShouldQueue
+final class SurveyLinkNotification extends Notification implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 

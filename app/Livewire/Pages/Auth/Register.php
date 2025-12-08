@@ -16,7 +16,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 #[Layout('components.layouts.auth')]
-class Register extends Component
+final class Register extends Component
 {
     public string $name = '';
 

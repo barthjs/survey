@@ -8,7 +8,7 @@ use App\Models\Response;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
 
-class ResponseFactory extends Factory
+final class ResponseFactory extends Factory
 {
     protected $model = Response::class;
 

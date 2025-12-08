@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Session;
 
-class VerifyNewEmailController
+final class VerifyNewEmailController
 {
     public function __invoke(string $id, string $hash): RedirectResponse
     {

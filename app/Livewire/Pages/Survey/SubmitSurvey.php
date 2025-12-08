@@ -28,8 +28,10 @@ use Storage;
 use Throwable;
 
 #[Layout('components.layouts.public')]
-class SubmitSurvey extends Component
+final class SubmitSurvey extends Component
 {
+    use Toast, WithFileUploads;
+
     public const array ALLOWED_MIME_TYPES = [
         'text/plain',
         'text/markdown',
@@ -45,8 +47,6 @@ class SubmitSurvey extends Component
         'application/vnd.oasis.opendocument.spreadsheet',
         'application/vnd.oasis.opendocument.presentation',
     ];
-
-    use Toast, WithFileUploads;
 
     public Survey $survey;
 

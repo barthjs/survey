@@ -10,7 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\App;
 
-class SendEmailVerificationJob implements ShouldBeUnique, ShouldQueue
+final class SendEmailVerificationJob implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 

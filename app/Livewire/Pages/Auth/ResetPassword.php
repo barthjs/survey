@@ -20,7 +20,7 @@ use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 #[Layout('components.layouts.auth')]
-class ResetPassword extends Component
+final class ResetPassword extends Component
 {
     #[Locked]
     public string $token = '';

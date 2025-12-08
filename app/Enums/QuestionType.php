@@ -10,11 +10,6 @@ enum QuestionType: string
     case MULTIPLE_CHOICE = 'MULTIPLE_CHOICE';
     case FILE = 'FILE';
 
-    public function label(): string
-    {
-        return __('question_types.'.$this->value);
-    }
-
     public static function toArray(): array
     {
         return collect(QuestionType::cases())->map(fn (QuestionType $type) => [
@@ -35,5 +30,10 @@ enum QuestionType: string
             'xls', 'xlsx', 'ods' => 'o-table-cells',
             default => 'o-question-mark-circle',
         };
+    }
+
+    public function label(): string
+    {
+        return __('question_types.'.$this->value);
     }
 }

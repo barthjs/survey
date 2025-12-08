@@ -19,7 +19,7 @@ use Mary\Traits\Toast;
 use Throwable;
 
 #[Layout('components.layouts.app')]
-class CreateSurvey extends Component
+final class CreateSurvey extends Component
 {
     use Toast;
 
@@ -72,6 +72,12 @@ class CreateSurvey extends Component
         $this->redirect(route('surveys.view', $survey->id), navigate: true);
     }
 
+    public function render(): Application|Factory|View
+    {
+        return view('livewire.pages.survey.create')
+            ->title(__('Create survey'));
+    }
+
     private function createSurveyQuestions(Survey $survey): void
     {
         foreach ($this->questions as $questionIndex => $questionData) {
@@ -108,11 +114,5 @@ class CreateSurvey extends Component
             'end_date' => $this->end_date ? Carbon::parse($this->end_date) : null,
             'user_id' => auth()->id(),
         ];
-    }
-
-    public function render(): Application|Factory|View
-    {
-        return view('livewire.pages.survey.create')
-            ->title(__('Create survey'));
     }
 }

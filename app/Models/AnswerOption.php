@@ -9,13 +9,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class AnswerOption extends Model
+final class AnswerOption extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $table = 'answer_options';
-
     public $timestamps = false;
+
+    protected $table = 'answer_options';
 
     protected $fillable = [
         'answer_id',

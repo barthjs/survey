@@ -22,7 +22,7 @@ use Livewire\Component;
 use Mary\Traits\Toast;
 
 #[Layout('components.layouts.app')]
-class Profile extends Component
+final class Profile extends Component
 {
     use Toast;
 

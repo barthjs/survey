@@ -21,7 +21,7 @@ use Livewire\WithPagination;
 use Mary\Traits\Toast;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
-class ViewSurvey extends Component
+final class ViewSurvey extends Component
 {
     use Toast, WithPagination;
 

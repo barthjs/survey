@@ -10,13 +10,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Answer extends Model
+final class Answer extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $table = 'answers';
-
     public $timestamps = false;
+
+    protected $table = 'answers';
 
     protected $fillable = [
         'question_id',
@@ -25,17 +25,6 @@ class Answer extends Model
         'file_path',
         'original_file_name',
     ];
-
-    protected static function booted(): void
-    {
-        static::deleted(function (Answer $answer) {
-            $response = $answer->response;
-
-            if ($response && $response->answers()->count() === 0) {
-                $response->delete();
-            }
-        });
-    }
 
     public function question(): BelongsTo
     {
@@ -50,5 +39,16 @@ class Answer extends Model
     public function selectedOptions(): HasMany
     {
         return $this->hasMany(AnswerOption::class);
+    }
+
+    protected static function booted(): void
+    {
+        self::deleted(function (Answer $answer) {
+            $response = $answer->response;
+
+            if ($response && $response->answers()->count() === 0) {
+                $response->delete();
+            }
+        });
     }
 }

@@ -7,7 +7,7 @@ namespace Database\Factories;
 use App\Models\Answer;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class AnswerFactory extends Factory
+final class AnswerFactory extends Factory
 {
     protected $model = Answer::class;
 

@@ -10,7 +10,7 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\RateLimiter;
 
-class VerifyEmailController
+final class VerifyEmailController
 {
     /**
      * Mark the authenticated user's email address as verified.

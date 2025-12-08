@@ -7,7 +7,7 @@ namespace App\Policies;
 use App\Models\Survey;
 use App\Models\User;
 
-class SurveyPolicy
+final class SurveyPolicy
 {
     /**
      * Determine whether the user can view the model.

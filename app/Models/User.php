@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable implements MustVerifyEmail
+final class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasUuids, Notifiable;
@@ -46,29 +46,31 @@ class User extends Authenticatable implements MustVerifyEmail
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'is_active' => 'boolean',
-            'is_admin' => 'boolean',
-        ];
-    }
-
     public function surveys(): HasMany
     {
         return $this->hasMany(Survey::class);
     }
 
+    /**
+     * Get user initials from the username
+     */
+    public function initials(): string
+    {
+        $words = explode(' ', $this->name);
+        $initials = '';
+
+        foreach ($words as $word) {
+            if (! empty($word)) {
+                $initials .= mb_strtoupper(mb_substr($word, 0, 1));
+            }
+        }
+
+        return $initials;
+    }
+
     protected static function booted(): void
     {
-        static::deleting(function (User $user) {
+        self::deleting(function (User $user) {
             $filesToDelete = [];
 
             $user->load([
@@ -92,19 +94,17 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Get user initials from the username
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
      */
-    public function initials(): string
+    protected function casts(): array
     {
-        $words = explode(' ', $this->name);
-        $initials = '';
-
-        foreach ($words as $word) {
-            if (! empty($word)) {
-                $initials .= mb_strtoupper(mb_substr($word, 0, 1));
-            }
-        }
-
-        return $initials;
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+            'is_active' => 'boolean',
+            'is_admin' => 'boolean',
+        ];
     }
 }

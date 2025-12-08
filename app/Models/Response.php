@@ -11,13 +11,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Response extends Model
+final class Response extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $table = 'responses';
-
     public $timestamps = false;
+
+    protected $table = 'responses';
 
     protected $fillable = [
         'survey_id',
@@ -30,9 +30,19 @@ class Response extends Model
         'submitted_at' => 'datetime',
     ];
 
+    public function survey(): BelongsTo
+    {
+        return $this->belongsTo(Survey::class);
+    }
+
+    public function answers(): HasMany
+    {
+        return $this->hasMany(Answer::class);
+    }
+
     protected static function booted(): void
     {
-        static::deleting(function (Response $response) {
+        self::deleting(function (Response $response) {
             $filesToDelete = [];
 
             $response->answers->each(function (Answer $answer) use (&$filesToDelete) {
@@ -45,15 +55,5 @@ class Response extends Model
                 UploadsCleanupJob::dispatch($filesToDelete);
             }
         });
-    }
-
-    public function survey(): BelongsTo
-    {
-        return $this->belongsTo(Survey::class);
-    }
-
-    public function answers(): HasMany
-    {
-        return $this->hasMany(Answer::class);
     }
 }

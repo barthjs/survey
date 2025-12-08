@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Survey extends Model
+final class Survey extends Model
 {
     use HasFactory, HasUuids;
 
@@ -33,23 +33,15 @@ class Survey extends Model
         'auto_closed_at' => 'datetime',
     ];
 
-    protected static function booted(): void
+    public static function getValidationRules(): array
     {
-        static::deleting(function (Survey $survey) {
-            $filesToDelete = [];
-
-            $survey->questions->each(function (Question $question) use (&$filesToDelete) {
-                if ($question->type === QuestionType::FILE) {
-                    $question->answers()->each(function (Answer $answer) use (&$filesToDelete) {
-                        $filesToDelete[] = $answer->file_path;
-                    });
-                }
-            });
-
-            if (! empty($filesToDelete)) {
-                UploadsCleanupJob::dispatch($filesToDelete);
-            }
-        });
+        return [
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:1000'],
+            'is_public' => ['required', 'boolean'],
+            'is_active' => ['required', 'boolean'],
+            'end_date' => ['nullable', 'string'],
+        ];
     }
 
     public function user(): BelongsTo
@@ -67,14 +59,22 @@ class Survey extends Model
         return $this->hasMany(Response::class);
     }
 
-    public static function getValidationRules(): array
+    protected static function booted(): void
     {
-        return [
-            'title' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:1000'],
-            'is_public' => ['required', 'boolean'],
-            'is_active' => ['required', 'boolean'],
-            'end_date' => ['nullable', 'string'],
-        ];
+        self::deleting(function (Survey $survey) {
+            $filesToDelete = [];
+
+            $survey->questions->each(function (Question $question) use (&$filesToDelete) {
+                if ($question->type === QuestionType::FILE) {
+                    $question->answers()->each(function (Answer $answer) use (&$filesToDelete) {
+                        $filesToDelete[] = $answer->file_path;
+                    });
+                }
+            });
+
+            if (! empty($filesToDelete)) {
+                UploadsCleanupJob::dispatch($filesToDelete);
+            }
+        });
     }
 }

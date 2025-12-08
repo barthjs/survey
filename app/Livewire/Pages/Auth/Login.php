@@ -18,7 +18,7 @@ use Livewire\Attributes\Validate;
 use Livewire\Component;
 
 #[Layout('components.layouts.auth')]
-class Login extends Component
+final class Login extends Component
 {
     #[Validate('required|string|email')]
     public string $email = '';
@@ -51,6 +51,27 @@ class Login extends Component
         $this->redirectIntended(default: route('surveys.index', absolute: false), navigate: true);
     }
 
+    public function render(): Application|Factory|View
+    {
+        /*
+         * Handles the case where a user opens the email verification link in a different browser
+         * where they are not logged in. If the intended URL is the verification page,
+         * show a notice after login to clarify why they were redirected here.
+         */
+        $wantsToVerifyEmail = false;
+        $intendedUrl = session('url.intended');
+        if (($intendedUrl) && (Str::contains($intendedUrl, route('verification.notice', absolute: false)))) {
+            $wantsToVerifyEmail = true;
+
+            // Clear the intended URL to prevent the message from showing again later
+            session()->forget('url.intended');
+        }
+
+        return view('livewire.pages.auth.login')
+            ->with('wantsToVerifyEmail', $wantsToVerifyEmail)
+            ->title(__('Log in'));
+    }
+
     /**
      * Ensure the authentication request is not rate limited.
      */
@@ -77,26 +98,5 @@ class Login extends Component
     protected function throttleKey(): string
     {
         return Str::transliterate(Str::lower($this->email).'|'.request()->ip());
-    }
-
-    public function render(): Application|Factory|View
-    {
-        /*
-         * Handles the case where a user opens the email verification link in a different browser
-         * where they are not logged in. If the intended URL is the verification page,
-         * show a notice after login to clarify why they were redirected here.
-         */
-        $wantsToVerifyEmail = false;
-        $intendedUrl = session('url.intended');
-        if (($intendedUrl) && (Str::contains($intendedUrl, route('verification.notice', absolute: false)))) {
-            $wantsToVerifyEmail = true;
-
-            // Clear the intended URL to prevent the message from showing again later
-            session()->forget('url.intended');
-        }
-
-        return view('livewire.pages.auth.login')
-            ->with('wantsToVerifyEmail', $wantsToVerifyEmail)
-            ->title(__('Log in'));
     }
 }

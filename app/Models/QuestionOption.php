@@ -10,13 +10,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class QuestionOption extends Model
+final class QuestionOption extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $table = 'question_options';
-
     public $timestamps = false;
+
+    protected $table = 'question_options';
 
     protected $fillable = [
         'question_id',

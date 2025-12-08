@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Storage;
 
-class UploadsCleanupJob implements ShouldQueue
+final class UploadsCleanupJob implements ShouldQueue
 {
     use Queueable;
 
