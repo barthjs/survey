@@ -14,20 +14,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('answer_options', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuid('answer_id');
-            $table->uuid('question_option_id');
+            $table->ulid('id')->primary();
 
-            $table->foreign('answer_id')->references('id')->on('answers')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreign('question_option_id')->references('id')->on('question_options')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignUlid('answer_id')
+                ->index()
+                ->constrained()
+                ->cascadeOnDelete();
+            $table->foreignUlid('question_option_id')
+                ->index()
+                ->constrained('question_options')
+                ->cascadeOnDelete();
         });
-    }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('answer_options');
     }
 };
