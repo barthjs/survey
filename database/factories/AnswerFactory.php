@@ -7,10 +7,18 @@ namespace Database\Factories;
 use App\Models\Answer;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends Factory<Answer>
+ */
 final class AnswerFactory extends Factory
 {
     protected $model = Answer::class;
 
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
     public function definition(): array
     {
         return [
