@@ -5,8 +5,6 @@
     shadow
     class="w-full max-w-lg mx-auto"
 >
-    <x-auth-session-status :status="session('status')" class="text-center"/>
-
     <x-form wire:submit="register" novalidate>
         <x-input icon="o-user" :label="__('Full name')" wire:model="name" autofocus autocomplete="name" required/>
         <x-input icon="o-at-symbol" :label="__('Email address')" wire:model="email" autocomplete="email" required/>

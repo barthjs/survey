@@ -7,6 +7,11 @@
     <title>{{ isset($title) ? $title.' - '.config('app.name') : config('app.name') }}</title>
     <link rel="icon" type="image/svg+xml" href="{{ Vite::asset('resources/images/favicon/favicon.svg') }}"/>
     <link rel="shortcut icon" href="{{ Vite::asset('resources/images/favicon/favicon.ico') }}"/>
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
     @vite('resources/css/app.css')
 </head>
 

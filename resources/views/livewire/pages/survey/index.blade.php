@@ -27,6 +27,7 @@
             per-page="perPage"
             striped
             with-pagination
+            class="mt-4"
         >
             <x-slot:empty>
                 <x-icon name="o-information-circle" :label="__('No surveys found')"/>
@@ -51,6 +52,7 @@
                         :class="$survey->is_active ? 'text-success' : 'text-base-content'"
                     />
                 </x-slot:trigger>
+
                 <x-slot:content>
                     {{ $survey->is_active ? __('Open') : __('Closed') }}
                 </x-slot:content>
@@ -65,6 +67,7 @@
                         :class="$survey->is_public ? 'text-success' : 'text-base-content'"
                     />
                 </x-slot:trigger>
+
                 <x-slot:content>
                     {{ $survey->is_public ? __('Public') : __('Private') }}
                 </x-slot:content>
@@ -83,6 +86,7 @@
                     class="btn-sm btn-ghost info"
                 />
             @endif
+
             @if($survey->responses()->count() === 0)
                 <x-button
                     icon="o-trash"
@@ -92,6 +96,7 @@
             @endif
             @endscope
         </x-table>
+
         <x-confirm-delete :title="__('Delete survey')"/>
     </x-card>
 </div>

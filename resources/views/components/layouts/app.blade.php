@@ -12,12 +12,13 @@
         </x-slot:brand>
 
         <x-slot:actions>
-            <x-language-selector class="btn-circle btn-ghost"/>
+            <x-language-selector/>
+
             <x-theme-toggle darkTheme="night" lightTheme="fantasy" class="btn-circle btn-ghost"/>
 
             <x-dropdown :right="true">
                 <x-slot:trigger>
-                    <x-avatar :placeholder="auth()->user()->initials()" class="!w-8"/>
+                    <x-avatar :placeholder="auth()->user()->initials()" class="w-8!"/>
                 </x-slot:trigger>
 
                 <x-menu-item icon="o-user" :link="route('profile')">
@@ -26,9 +27,11 @@
                         {{ auth()->user()->email }}
                     </div>
                 </x-menu-item>
+
                 @if(auth()->user()->is_admin)
                     <x-menu-item icon="o-users" :title="__('Users')" :link="route('users.index')"/>
                 @endif
+
                 <x-menu-separator/>
 
                 <form method="POST" action="{{ route('logout') }}">

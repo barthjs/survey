@@ -16,7 +16,8 @@
     <x-card>
         <x-input
             icon="o-magnifying-glass"
-            clearable :placeholder="__('Search...')"
+            clearable
+            :placeholder="__('Search...')"
             wire:model.live.debounce="search"
             class="max-w-md"
         />
@@ -28,6 +29,7 @@
             per-page="perPage"
             striped
             with-pagination
+            class="mt-4"
         >
             <x-slot:empty>
                 <x-icon name="o-information-circle" :label="__('No users found')"/>
@@ -47,6 +49,7 @@
                         :class="$user->email_verified_at ? 'text-success' : 'text-base-content'"
                     />
                 </x-slot:trigger>
+
                 <x-slot:content>
                     {{ $user->email_verified_at }}
                 </x-slot:content>
@@ -61,6 +64,7 @@
                         :class="$user->is_active ? 'text-success' : 'text-error'"
                     />
                 </x-slot:trigger>
+
                 <x-slot:content>
                     {{ $user->is_active ? __('Active') : __('Inactive') }}
                 </x-slot:content>
@@ -75,22 +79,26 @@
             @endscope
 
             @scope('actions', $user)
-            @if(auth()->user()->id !== $user->id)
-                <div class="flex">
+            <div class="flex">
+                @can('update', $user)
                     <x-button
                         icon="o-pencil"
-                        wire:click="editUser('{{ $user->id }}')"
+                        wire:click="openEditUserModal('{{ $user->id }}')"
                         class="btn-sm btn-ghost text-primary p-1"
                     />
+                @endcan
+
+                @can('delete', $user)
                     <x-button
                         icon="o-trash"
                         wire:click="confirmDeletion('{{ $user->id }}')"
                         class="btn-sm btn-ghost text-error"
                     />
-                </div>
-            @endif
+                @endcan
+            </div>
             @endscope
         </x-table>
+
         <x-confirm-delete :title="__('Delete user')"/>
     </x-card>
 </div>

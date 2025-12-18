@@ -2,13 +2,12 @@
     shadow
     class="w-full max-w-lg mx-auto"
 >
-    @if (session('status') == 'verification-link-sent')
+    @if (session('status') === 'verification-link-sent')
         <x-auth-session-status
             :status="__('A new verification link has been sent to the email address you provided during registration.')"
-            class="text-center"
         />
     @else
-        <x-auth-session-status :status="session('status')" class="text-center text-red-600"/>
+        <x-auth-session-status :status="session('status')" class="text-red-600"/>
     @endif
 
     <p class="py-4">{{ __('Please verify your email address by clicking on the link we just emailed to you.') }}<p>
@@ -22,7 +21,6 @@
             spinner="sendVerification"
             wire:click="sendVerification"
             class="btn-primary"
-            :disabled="$rateLimited"
         />
         <x-button
             icon="o-power"
@@ -47,11 +45,7 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.verified) {
-                        if (window.Livewire?.navigate) {
-                            Livewire.navigate(redirectRoute);
-                        } else {
-                            window.location.href = redirectRoute;
-                        }
+                        window.location.href = redirectRoute;
                     }
                 })
                 .catch(() => {
