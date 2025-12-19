@@ -7,7 +7,7 @@
     "require": {
         "php": "^8.5",
         "laravel/framework": "^12.43.1",
-        "livewire/livewire": "^3.7.2",
+        "livewire/livewire": "^3.7.3",
         "robsontenorio/mary": "^2.4.10"
     },
     "require-dev": {

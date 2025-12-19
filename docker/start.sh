@@ -14,6 +14,12 @@ if ! php artisan optimize; then
     exit 1
 fi
 
+DB_DATABASE="${DB_DATABASE:-"/app/storage/app/database.sqlite"}"
+if [ "$DB_CONNECTION" = "sqlite" ] && [ ! -f "$DB_DATABASE" ]; then
+    mkdir -p "$(dirname "$DB_DATABASE")"
+    touch "$DB_DATABASE"
+fi
+
 if ! php artisan migrate --force; then
     echo "Error: Migration failed."
     exit 1

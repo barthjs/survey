@@ -15,7 +15,6 @@ Tech stack:
 - [Alpine.js](https://alpinejs.dev/)
 - [TailwindCSS](https://tailwindcss.com/)
 - [maryUI](https://mary-ui.com/)
-- [PostgreSQL](https://www.postgresql.org/)
 
 ## Ways to contribute
 

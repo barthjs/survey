@@ -30,20 +30,15 @@
       <ul>
         <li><a href="#prerequisites">Prerequisites</a></li>
         <li><a href="#installation">Installation</a></li>
-        <li><a href="#configuration">Configuration</a></li>
-        <li><a href="#updating">Updating</a></li>
-        <li><a href="#backup">Backup</a></li>
       </ul>
     </li>
+    <li><a href="#configuration">Configuration</a></li>
     <li><a href="#screenshots">Screenshots</a></li>
-    <li>
-      <a href="#contributing">Contributing</a>
-      <ul>
-        <li><a href="#requirements">Requirements</a></li>
-        <li><a href="#building">Building</a></li>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
-    </li>
+    <li><a href="#updating">Updating</a></li>
+    <li><a href="#backup">Backup</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#development">Development</a></li>
+    <li><a href="#built-with">Built With</a></li>
     <li><a href="#license">License</a></li>
   </ol>
 </details>
@@ -113,10 +108,10 @@ Use the `.env` file to adjust configuration settings:
 | `APP_ENABLE_PASSWORD_RESET`     | `false`     | Enable/disable user email password reset                                                          |
 | `LOG_CHANNEL`                   | `stdout`    | `stdout` logs to Docker, whereas `file` writes to `/app/storage/survey.log`                       |
 | `LOG_LEVEL`                     | `warning`   | Log level: `debug`, `info`, `warning`, `error`                                                    |
-| `DB_CONNECTION`                 | `pgsql`     | Database driver: `pgsql` or `mariadb`                                                             |
-| `DB_HOST`                       | `survey-db` | Database host name (service or container name in Docker Compose).                                 |
+| `DB_CONNECTION`                 | `pgsql`     | Database driver: `pgsql`, `mariadb` or `sqlite`,                                                  |
+| `DB_HOST`                       | `survey-db` | Database host name                                                                                |
 | `DB_PORT`                       | `5432`      | Database port (`5432` for pgsql, `3306` for mariadb).                                             |
-| `DB_DATABASE`                   | `survey`    | Database name                                                                                     |
+| `DB_DATABASE`                   | `survey`    | Database name (for `sqlite`, the path to the database file).                                      |
 | `DB_USERNAME`                   | `survey`    | Database username                                                                                 |
 | `DB_PASSWORD`                   | (required)  | Database password                                                                                 |
 | `MAIL_MAILER`                   | `smtp`      | Mail driver                                                                                       |
