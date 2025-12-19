@@ -14,30 +14,19 @@ final class SendEmailVerificationJob implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 
-    private User $user;
-
-    private string $locale;
-
-    /**
-     * Create a new job instance.
-     */
-    public function __construct(User $user, string $locale)
-    {
-        $this->user = $user;
-        $this->locale = $locale;
-    }
+    public function __construct(
+        private readonly User $user,
+        private readonly string $locale
+    ) {}
 
     public function uniqueId(): string
     {
         return $this->user->email;
     }
 
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
-        if (! $this->user->hasVerifiedEmail() && config('app.enable_email_verification')) {
+        if (! $this->user->hasVerifiedEmail() && config()->boolean('app.enable_email_verification')) {
             App::setLocale($this->locale);
             $this->user->sendEmailVerificationNotification();
         }

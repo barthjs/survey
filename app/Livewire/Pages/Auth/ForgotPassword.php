@@ -6,7 +6,6 @@ namespace App\Livewire\Pages\Auth;
 
 use App\Jobs\SendPasswordResetLinkJob;
 use Illuminate\Contracts\View\Factory;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
@@ -23,7 +22,7 @@ final class ForgotPassword extends Component
 
     public function mount(): void
     {
-        if (! config('app.enable_password_reset')) {
+        if (! config()->boolean('app.enable_password_reset')) {
             abort(404);
         }
     }
@@ -36,7 +35,6 @@ final class ForgotPassword extends Component
         $this->validate();
 
         $key = 'password-reset:'.Str::lower($this->email);
-
         if (RateLimiter::tooManyAttempts($key, 3)) {
             $seconds = RateLimiter::availableIn($key);
 
@@ -49,12 +47,12 @@ final class ForgotPassword extends Component
 
         RateLimiter::hit($key, 3600);
 
-        SendPasswordResetLinkJob::dispatch($this->only('email'), app()->getLocale());
+        SendPasswordResetLinkJob::dispatch(['email' => $this->email], app()->getLocale());
 
         Session::flash('status', __('A reset link will be sent if the account exists.'));
     }
 
-    public function render(): Application|Factory|View
+    public function render(): Factory|View
     {
         return view('livewire.pages.auth.forgot-password')
             ->title(__('Forgot password'));

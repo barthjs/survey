@@ -8,7 +8,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-final class AdminMiddleware
+final class EnsureUserIsAdmin
 {
     /**
      * Check if the authenticated user is an admin

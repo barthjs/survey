@@ -23,6 +23,7 @@ use Illuminate\Notifications\Notifiable;
  * @property string $name
  * @property string $email
  * @property string|null $new_email
+ * @property CarbonInterface|null $email_verified_at
  * @property string $password
  * @property string|null $remember_token
  * @property bool $is_active
@@ -99,18 +100,20 @@ final class User extends Authenticatable implements MustVerifyEmail
 
     protected static function booted(): void
     {
-        self::deleting(function (User $user): void {
+        self::deleting(function (self $user): void {
             $filesToDelete = [];
 
             $user->load([
                 'surveys.questions.answers',
             ]);
 
-            $user->surveys->each(function (Survey $survey) use (&$filesToDelete) {
-                $survey->questions->each(function (Question $question) use (&$filesToDelete) {
+            $user->surveys->each(function (Survey $survey) use (&$filesToDelete): void {
+                $survey->questions->each(function (Question $question) use (&$filesToDelete): void {
                     if ($question->type === QuestionType::FILE) {
-                        $question->answers->each(function (Answer $answer) use (&$filesToDelete) {
-                            $filesToDelete[] = $answer->file_path;
+                        $question->answers->each(function (Answer $answer) use (&$filesToDelete): void {
+                            if (! empty($answer->file_path)) {
+                                $filesToDelete[] = $answer->file_path;
+                            }
                         });
                     }
                 });

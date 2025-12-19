@@ -10,6 +10,9 @@ return [
     'current_password' => 'Das Passwort ist falsch.',
     'email' => ':Attribute muss eine gültige E-Mail-Adresse sein.',
     'lowercase' => ':Attribute muss in Kleinbuchstaben sein.',
+    'min' => [
+        'string' => ':Attribute muss mindestens :min Zeichen lang sein.',
+    ],
     'max' => [
         'string' => ':Attribute darf maximal :max Zeichen haben.',
     ],

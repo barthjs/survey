@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Auth;
 
-use App\Models\User;
-use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\RateLimiter;
 
 final class VerifyEmailController
 {
@@ -22,18 +19,11 @@ final class VerifyEmailController
         }
 
         if ($request->user()->hasVerifiedEmail()) {
-            return redirect()->intended(route('surveys.index', absolute: false).'?verified=1');
+            return redirect()->intended(route('surveys.index', absolute: false));
         }
 
-        if ($request->user()->markEmailAsVerified()) {
-            /** @var User $user */
-            $user = $request->user();
+        $request->fulfill();
 
-            RateLimiter::clear('send-verification-email:'.$user->email);
-
-            event(new Verified($user));
-        }
-
-        return redirect()->intended(route('surveys.index', absolute: false).'?verified=1');
+        return redirect()->intended(route('surveys.index', absolute: false));
     }
 }

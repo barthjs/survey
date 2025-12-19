@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace App\Livewire\Pages\Auth;
 
 use App\Models\User;
-use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Contracts\View\Factory;
-use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
@@ -31,12 +28,9 @@ final class ResetPassword extends Component
 
     public string $password_confirmation = '';
 
-    /**
-     * Mount the component.
-     */
     public function mount(string $token): void
     {
-        if (! config('app.enable_password_reset')) {
+        if (! config()->boolean('app.enable_password_reset')) {
             abort(404);
         }
 
@@ -56,38 +50,33 @@ final class ResetPassword extends Component
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        // Here we will attempt to reset the user's password. If it is successful, we
-        // will update the password on an actual user model and persist it to the
-        // database. Otherwise, we will parse the error and return the response.
-        $status = Password::reset(
-            $this->only('email', 'password', 'password_confirmation', 'token'),
-            function (User $user) {
-                $user->forceFill([
-                    'password' => Hash::make($this->password),
-                    'remember_token' => Str::random(60),
-                ])->save();
+        /** @var string $status */
+        $status = Password::reset([
+            'token' => $this->token,
+            'email' => $this->email,
+            'password' => $this->password,
+        ], function (User $user): void {
+            $user->password = Hash::make($this->password);
+            $user->remember_token = null;
+            $user->save();
 
-                event(new PasswordReset($user));
-            }
-        );
+            DB::table(config()->string('session.table'))
+                ->where('user_id', $user->id)
+                ->delete();
+        });
 
-        // If the password was successfully reset, we will redirect the user back to
-        // the application's home authenticated view. If there is an error, we can
-        // redirect them back to where they came from with their error message.
         if ($status !== Password::PasswordReset) {
             $this->addError('email', __($status));
 
             return;
         }
 
-        RateLimiter::clear('password-reset:'.Str::lower($this->email));
-
         Session::flash('status', __($status));
 
         $this->redirectRoute('login', navigate: true);
     }
 
-    public function render(): Application|Factory|View
+    public function render(): Factory|View
     {
         return view('livewire.pages.auth.reset-password')
             ->title(__('Reset password'));
