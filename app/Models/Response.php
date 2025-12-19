@@ -71,10 +71,10 @@ final class Response extends Model
 
     protected static function booted(): void
     {
-        self::deleting(function (Response $response) {
+        self::deleting(function (self $response): void {
             $filesToDelete = [];
 
-            $response->answers->each(function (Answer $answer) use (&$filesToDelete) {
+            $response->answers->each(function (Answer $answer) use (&$filesToDelete): void {
                 if (! empty($answer->file_path)) {
                     $filesToDelete[] = $answer->file_path;
                 }

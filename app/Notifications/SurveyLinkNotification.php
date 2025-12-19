@@ -14,11 +14,11 @@ final class SurveyLinkNotification extends Notification implements ShouldBeUniqu
 {
     use Queueable;
 
-    protected string $surveyId;
+    private string $surveyId;
 
-    protected string $email;
+    private string $email;
 
-    protected string $link;
+    private string $link;
 
     public function __construct(string $surveyId, string $email)
     {

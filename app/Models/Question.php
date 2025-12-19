@@ -45,8 +45,17 @@ final class Question extends Model
         'is_required' => false,
     ];
 
+    /** @var array<string> */
     protected static array $responseIdsToCheck = [];
 
+    /**
+     * @param array<int, array{
+     *     question_text: string,
+     *     type: string,
+     *     is_required: bool,
+     *     options?: array<int, array{option_text: string}>
+     * }> $questions
+     */
     public static function validateQuestions(array $questions): void
     {
         Validator::make(['questions' => $questions], [
@@ -64,7 +73,7 @@ final class Question extends Model
 
             foreach ($questions as $question) {
                 if (
-                    $question['type'] === QuestionType::MULTIPLE_CHOICE->name &&
+                    $question['type'] === QuestionType::MULTIPLE_CHOICE->value &&
                     (! isset($question['options']) || count($question['options']) < 2)
                 ) {
                     $validator->errors()->add('questions', '');
@@ -113,7 +122,7 @@ final class Question extends Model
 
     protected static function booted(): void
     {
-        self::updated(function (Question $question) {
+        self::updated(function (self $question): void {
             if ($question->isDirty('type')) {
                 $originalType = $question->getOriginal('type');
                 $newType = $question->type;
@@ -142,12 +151,13 @@ final class Question extends Model
                         $answer->delete();
                     });
 
+                    /** @var string[] $filesToDelete */
                     UploadsCleanupJob::dispatch($filesToDelete);
                 }
             }
         });
 
-        self::deleting(function (Question $question) {
+        self::deleting(function (self $question): void {
             $filesToDelete = [];
 
             if ($question->type === QuestionType::FILE) {
@@ -155,14 +165,16 @@ final class Question extends Model
                     $filesToDelete[] = $answer->file_path;
                 });
 
+                /** @var string[] $filesToDelete */
                 UploadsCleanupJob::dispatch($filesToDelete);
             }
 
             // Collect response IDs before answers get deleted
+            /** @phpstan-ignore-next-line */
             self::$responseIdsToCheck = $question->answers()->pluck('response_id')->unique()->toArray();
         });
 
-        self::deleted(function () {
+        self::deleted(function (): void {
             foreach (self::$responseIdsToCheck as $responseId) {
                 if (Answer::where('response_id', '=', $responseId)->count() === 0) {
                     Response::find($responseId)?->delete();

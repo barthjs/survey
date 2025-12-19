@@ -58,10 +58,11 @@ final class Answer extends Model
 
     protected static function booted(): void
     {
-        self::deleted(function (Answer $answer) {
+        self::deleted(function (self $answer): void {
             $response = $answer->response;
 
-            if ($response && $response->answers()->count() === 0) {
+            // Delete the response if this was the last answer
+            if ($response->answers()->count() === 0) {
                 $response->delete();
             }
         });

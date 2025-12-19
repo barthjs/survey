@@ -45,6 +45,9 @@ final class Survey extends Model
         'is_active' => true,
     ];
 
+    /**
+     * @return array<string, array<string>>
+     */
     public static function getValidationRules(): array
     {
         return [
@@ -97,13 +100,15 @@ final class Survey extends Model
 
     protected static function booted(): void
     {
-        self::deleting(function (Survey $survey) {
+        self::deleting(function (self $survey): void {
             $filesToDelete = [];
 
-            $survey->questions->each(function (Question $question) use (&$filesToDelete) {
+            $survey->questions->each(function (Question $question) use (&$filesToDelete): void {
                 if ($question->type === QuestionType::FILE) {
-                    $question->answers()->each(function (Answer $answer) use (&$filesToDelete) {
-                        $filesToDelete[] = $answer->file_path;
+                    $question->answers()->each(function (Answer $answer) use (&$filesToDelete): void {
+                        if (! empty($answer->file_path)) {
+                            $filesToDelete[] = $answer->file_path;
+                        }
                     });
                 }
             });

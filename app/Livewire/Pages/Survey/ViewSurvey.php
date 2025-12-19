@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace App\Livewire\Pages\Survey;
 
+use App\Enums\QuestionType;
 use App\Models\Answer;
 use App\Models\Question;
 use App\Models\Survey;
 use App\Notifications\SurveyLinkNotification;
+use Carbon\CarbonInterface;
 use Illuminate\Contracts\View\Factory;
-use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -32,18 +33,36 @@ final class ViewSurvey extends Component
     #[Validate('required|string|email')]
     public string $email = '';
 
+    /**
+     * @var array<int, array{
+     *     id: string,
+     *     question_text: string,
+     *     type: QuestionType,
+     *     is_required: bool,
+     *     answers: array<int, array{
+     *         id: string,
+     *         answer_text: ?string,
+     *         file_path: ?string,
+     *         original_file_name: ?string,
+     *         response: array{
+     *             id: int,
+     *             submitted_at: CarbonInterface,
+     *         }
+     *     }>
+     * }>
+     */
     public array $questions = [];
 
     public function mount(string $id): void
     {
         $this->survey = Survey::findOrFail($id);
-
         if (! $this->survey->is_public) {
             if (! auth()->check() || auth()->user()->cannot('view', $this->survey)) {
                 abort(403);
             }
         }
 
+        /** @phpstan-ignore-next-line */
         $this->questions = Question::query()
             ->with(['answers', 'answers.response', 'answers.selectedOptions.option', 'options'])
             ->where('survey_id', $this->survey->id)
@@ -69,6 +88,15 @@ final class ViewSurvey extends Component
             ])->toArray();
     }
 
+    /**
+     * @return array{
+     *     labels: array<string>,
+     *     datasets: list<array{
+     *         label: string,
+     *         data: array<int<0, max>>
+     *     }>
+     * }
+     */
     public function getChartData(string $id): array
     {
         $question = Question::findOrFail($id);
@@ -80,6 +108,7 @@ final class ViewSurvey extends Component
 
         $options = $question->options;
 
+        /** @var array<string> $labels */
         $labels = $options->pluck('option_text')->toArray();
 
         $data = [];
@@ -98,27 +127,30 @@ final class ViewSurvey extends Component
         ];
     }
 
+    public function openSendEmailModal(): void
+    {
+        $this->reset('email');
+        $this->resetErrorBag('email');
+
+        $this->sendEmailModal = true;
+    }
+
     public function sendEmail(): void
     {
         $this->validate();
 
-        $cacheKey = 'link_sent_'.$this->survey->id.'_'.$this->email;
-
-        if (Cache::has($cacheKey)) {
-            $this->reset('email');
+        $key = 'link_sent_'.$this->survey->id.'_'.$this->email;
+        if (RateLimiter::tooManyAttempts($key, 1)) {
             throw ValidationException::withMessages([
-                'email' => __('You can only send one survey link per email every 24 hours'),
+                'email' => __('You can only send one survey link per email every 24 hours.'),
             ]);
         }
 
-        Notification::route('mail', $this->email)->notify((new SurveyLinkNotification($this->survey->id, $this->email))->locale(app()->getLocale()));
+        RateLimiter::hit($key, 86400);
 
-        Cache::put($cacheKey, true, now()->addHours(24));
+        Notification::route('mail', $this->email)->notify(new SurveyLinkNotification($this->survey->id, $this->email)->locale(app()->getLocale()));
 
         $this->sendEmailModal = false;
-
-        $this->reset('email');
-
         $this->success(__('Survey link has been sent successfully'));
     }
 
@@ -129,6 +161,10 @@ final class ViewSurvey extends Component
             if (! auth()->check() || auth()->user()->cannot('view', $answer->question->survey)) {
                 abort(403);
             }
+        }
+
+        if (! $answer->file_path) {
+            abort(404);
         }
 
         if (! Storage::disk('local')->exists($answer->file_path)) {
@@ -143,7 +179,7 @@ final class ViewSurvey extends Component
         );
     }
 
-    public function render(): Application|Factory|View
+    public function render(): Factory|View
     {
         $layout = $this->survey->is_public && ! auth()->check()
             ? 'components.layouts.public'

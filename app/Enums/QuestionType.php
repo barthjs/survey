@@ -10,12 +10,18 @@ enum QuestionType: string
     case MULTIPLE_CHOICE = 'MULTIPLE_CHOICE';
     case FILE = 'FILE';
 
+    /**
+     * @return array<int, array{id: string, name: string}>
+     */
     public static function toArray(): array
     {
-        return collect(QuestionType::cases())->map(fn (QuestionType $type) => [
-            'id' => $type->value,
-            'name' => $type->label(),
-        ])->toArray();
+        return array_map(
+            fn (QuestionType $type): array => [
+                'id' => $type->value,
+                'name' => $type->label(),
+            ],
+            QuestionType::cases()
+        );
     }
 
     public static function getIconFromFilename(string $filename): string

@@ -14,7 +14,6 @@ use Carbon\Carbon;
 use Closure;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
@@ -54,8 +53,21 @@ final class SubmitSurvey extends Component
 
     public string $description;
 
+    /**
+     * @var array<int, array{
+     *     id: string,
+     *     question_text: string,
+     *     type: string,
+     *     is_required: bool,
+     *     order_index: int,
+     *     options: array<int, array{id: string, option_text: string}>
+     * }>
+     */
     public array $questions;
 
+    /**
+     * @var array<string, TemporaryUploadedFile|array<string>|string|null>
+     */
     public array $response = [];
 
     public function mount(string $id): void
@@ -80,13 +92,7 @@ final class SubmitSurvey extends Component
             abort(404);
         }
 
-        $this->questions = Question::with(['options' => function (HasMany $query) {
-            $query->orderBy('order_index');
-        }])
-            ->whereSurveyId($this->survey->id)
-            ->orderBy('order_index')
-            ->get(['id', 'question_text', 'type', 'is_required', 'order_index'])
-            ->toArray();
+        $this->questions = $this->loadQuestions();
 
         if (empty($this->questions)) {
             abort(404);
@@ -97,6 +103,28 @@ final class SubmitSurvey extends Component
                 $this->response[$question['id']] = null;
             }
         }
+    }
+
+    /**
+     * @return array<int, array{
+     *     id: string,
+     *     question_text: string,
+     *     type: string,
+     *     is_required: bool,
+     *     order_index: int,
+     *     options: array<int, array{id: string, option_text: string}>
+     * }>
+     */
+    public function loadQuestions(): array
+    {
+        /** @phpstan-ignore-next-line */
+        return Question::with(['options' => function (HasMany $query) {
+            $query->orderBy('order_index');
+        }])
+            ->whereSurveyId($this->survey->id)
+            ->orderBy('order_index')
+            ->get(['id', 'question_text', 'type', 'is_required', 'order_index'])
+            ->toArray();
     }
 
     /**
@@ -111,12 +139,12 @@ final class SubmitSurvey extends Component
             $isRequired = $question['is_required'];
 
             $baseRule = match ($question['type']) {
-                QuestionType::TEXT->name => ['string', 'max:255'],
+                QuestionType::TEXT->value => ['string', 'max:255'],
 
-                QuestionType::MULTIPLE_CHOICE->name => [
+                QuestionType::MULTIPLE_CHOICE->value => [
                     'array',
                     function (string $attribute, array $value, Closure $fail) use ($question) {
-                        $validOptionIds = collect($question['options'] ?? [])->pluck('id')->toArray();
+                        $validOptionIds = collect($question['options'])->pluck('id')->toArray();
                         foreach (array_keys($value) as $optionId) {
                             if (! in_array($optionId, $validOptionIds, true)) {
                                 $fail(__('Invalid option selected'));
@@ -125,7 +153,7 @@ final class SubmitSurvey extends Component
                     },
                 ],
 
-                QuestionType::FILE->name => [
+                QuestionType::FILE->value => [
                     'file',
                     'max:10240',
                     'mimetypes:'.implode(',', self::ALLOWED_MIME_TYPES),
@@ -198,24 +226,24 @@ final class SubmitSurvey extends Component
                     continue;
                 }
 
-                /** @var TemporaryUploadedFile|string|null $data */
+                /** @var TemporaryUploadedFile|array<string>|string|null $data */
                 $data = $this->response[$question['id']];
 
                 $answer = Answer::create([
                     'question_id' => $question['id'],
                     'response_id' => $response->id,
-                    'answer_text' => $question['type'] === QuestionType::TEXT->name
+                    'answer_text' => $question['type'] === QuestionType::TEXT->value
                         ? $data
                         : null,
-                    'file_path' => $question['type'] === QuestionType::FILE->name
+                    'file_path' => $question['type'] === QuestionType::FILE->value && $data instanceof TemporaryUploadedFile
                         ? $data->store('surveys/'.$response->id)
                         : null,
-                    'original_file_name' => $question['type'] === QuestionType::FILE->name
+                    'original_file_name' => $question['type'] === QuestionType::FILE->value && $data instanceof TemporaryUploadedFile
                         ? $data->getClientOriginalName()
                         : null,
                 ]);
 
-                if (is_array($data) && $question['type'] === QuestionType::MULTIPLE_CHOICE->name) {
+                if (is_array($data) && $question['type'] === QuestionType::MULTIPLE_CHOICE->value) {
                     foreach (array_keys($data) as $optionId) {
                         AnswerOption::create([
                             'answer_id' => $answer->id,
@@ -229,7 +257,7 @@ final class SubmitSurvey extends Component
         $this->redirect(route('surveys.thank-you'));
     }
 
-    public function render(): Application|Factory|View
+    public function render(): Factory|View
     {
         return view('livewire.pages.survey.submit')
             ->title($this->title);
