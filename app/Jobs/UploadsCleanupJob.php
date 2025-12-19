@@ -13,21 +13,12 @@ final class UploadsCleanupJob implements ShouldQueue
     use Queueable;
 
     /**
-     * @var array<string>
+     * @param  array<string>  $filePaths
      */
-    protected array $filePaths;
+    public function __construct(
+        private readonly array $filePaths = []
+    ) {}
 
-    /**
-     * Create a new job instance.
-     */
-    public function __construct(array $filePaths = [])
-    {
-        $this->filePaths = $filePaths;
-    }
-
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
         $disk = Storage::disk('local');
@@ -42,9 +33,16 @@ final class UploadsCleanupJob implements ShouldQueue
             }
         }
 
-        foreach (Storage::disk('local')->allFiles('livewire-tmp') as $path) {
-            if (Storage::lastModified($path) < (time() - 60 * 60 * 24 * 30)) {
-                Storage::delete($path);
+        $storage = Storage::disk('local');
+
+        /** @var string $path */
+        foreach ($storage->files('livewire-tmp') as $path) {
+            if (! $storage->exists($path)) {
+                continue;
+            }
+
+            if (now()->subHours(24)->timestamp > $storage->lastModified($path)) {
+                $storage->delete($path);
             }
         }
     }

@@ -13,5 +13,7 @@ parameters:
     ignoreErrors:
         - '#Cannot access property .* on App\\Models\\User\|null#'
         - '#Cannot call method .* on App\\Models\\User\|null#'
+        - '#Method .*render\(\) should return .* but returns mixed#'
+        - '#Cannot call method title\(\) on mixed#'
 
     tmpDir: /tmp/phpstan

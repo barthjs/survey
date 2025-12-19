@@ -17,10 +17,13 @@ final class SetLocale
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $availableLocales = config('app.locales');
+        $availableLocales = config()->array('app.locales');
 
-        if (session()->has('locale') && array_key_exists(session('locale'), $availableLocales)) {
-            app()->setLocale(session('locale'));
+        /** @var string $sessionLocale */
+        $sessionLocale = session()->get('locale');
+
+        if (session()->has('locale') && array_key_exists($sessionLocale, $availableLocales)) {
+            app()->setLocale($sessionLocale);
         } else {
             // Get the first language from the Accept-Language header
             $requestLocale = $request->getPreferredLanguage() ?? '';
@@ -32,7 +35,8 @@ final class SetLocale
                 return $next($request);
             }
 
-            app()->setLocale(config('app.locale'));
+            // Fallback to the default locale
+            app()->setLocale(config()->string('app.locale'));
         }
 
         return $next($request);
