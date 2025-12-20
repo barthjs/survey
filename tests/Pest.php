@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithCachedConfig;
 use Illuminate\Foundation\Testing\WithCachedRoutes;
@@ -9,6 +10,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Sleep;
 use Illuminate\Support\Str;
 use Tests\TestCase;
+
+use function Pest\Laravel\actingAs;
 
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class, WithCachedConfig::class, WithCachedRoutes::class)
@@ -23,3 +26,13 @@ pest()->extend(TestCase::class)
         $this->freezeTime();
     })
     ->in('Feature', 'Unit');
+
+function asUser(): void
+{
+    actingAs(User::factory()->create());
+}
+
+function asAdmin(): void
+{
+    actingAs(User::factory()->admin()->create());
+}
