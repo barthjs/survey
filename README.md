@@ -10,9 +10,6 @@
   <a href="https://github.com/barthjs/survey/blob/main/LICENSE">
     <img src="https://img.shields.io/github/license/barthjs/survey" alt="License">
   </a>
-  <a href="https://github.com/barthjs/survey/actions/workflows/tests.yaml">
-    <img src="https://img.shields.io/github/actions/workflow/status/barthjs/survey/tests.yaml?logo=github&label=Tests" alt="Tests">
- </a>
 </p>
 
 </div>
