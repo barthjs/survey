@@ -4,51 +4,67 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Database\Factories\AnswerFactory;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Answer extends Model
+/**
+ * @property-read string $id
+ * @property string $question_id
+ * @property string $response_id
+ * @property string|null $answer_text
+ * @property string|null $file_path
+ * @property string|null $original_file_name
+ * @property-read Question $question
+ * @property-read Response $response
+ * @property-read Collection<int, AnswerOption> $selectedOptions
+ */
+final class Answer extends Model
 {
-    use HasFactory, HasUuids;
-
-    protected $table = 'answers';
+    /** @use HasFactory<AnswerFactory> */
+    use HasFactory, HasUlids;
 
     public $timestamps = false;
 
-    protected $fillable = [
-        'question_id',
-        'response_id',
-        'answer_text',
-        'file_path',
-        'original_file_name',
-    ];
+    protected $table = 'answers';
 
-    protected static function booted(): void
-    {
-        static::deleted(function (Answer $answer) {
-            $response = $answer->response;
-
-            if ($response && $response->answers()->count() === 0) {
-                $response->delete();
-            }
-        });
-    }
-
+    /**
+     * @return BelongsTo<Question, $this>
+     */
     public function question(): BelongsTo
     {
         return $this->belongsTo(Question::class);
     }
 
+    /**
+     * @return BelongsTo<Response, $this>
+     */
     public function response(): BelongsTo
     {
         return $this->belongsTo(Response::class);
     }
 
+    /**
+     * @return HasMany<AnswerOption, $this>
+     */
     public function selectedOptions(): HasMany
     {
         return $this->hasMany(AnswerOption::class);
+    }
+
+    protected static function booted(): void
+    {
+        self::deleted(function (self $answer): void {
+            $response = $answer->response;
+
+            // Delete the response if this was the last answer
+            if ($response->answers()->count() === 0) {
+                $response->delete();
+            }
+        });
     }
 }

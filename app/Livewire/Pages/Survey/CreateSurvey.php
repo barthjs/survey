@@ -8,6 +8,7 @@ use App\Enums\QuestionType;
 use App\Models\Question;
 use App\Models\Survey;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\DB;
@@ -16,10 +17,9 @@ use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Mary\Traits\Toast;
-use Throwable;
 
 #[Layout('components.layouts.app')]
-class CreateSurvey extends Component
+final class CreateSurvey extends Component
 {
     use Toast;
 
@@ -33,21 +33,26 @@ class CreateSurvey extends Component
 
     public ?string $end_date = null;
 
+    /**
+     * @var array<int, array{
+     *     question_text: string,
+     *     type: string,
+     *     is_required: bool,
+     *     options: array<int, array{option_text: string}>
+     * }>
+     */
     public array $questions;
 
     public function mount(): void
     {
         $this->questions[] = [
             'question_text' => '',
-            'type' => QuestionType::TEXT,
+            'type' => QuestionType::TEXT->value,
             'is_required' => true,
             'options' => [],
         ];
     }
 
-    /**
-     * @throws Throwable
-     */
     public function save(): void
     {
         $validatedSurvey = $this->validateData();
@@ -60,16 +65,23 @@ class CreateSurvey extends Component
             return;
         }
 
-        DB::transaction(function () use ($validatedSurvey, &$survey) {
+        $survey = DB::transaction(function () use ($validatedSurvey, &$survey): Survey {
+            $validatedSurvey['user_id'] = auth()->id();
             $survey = Survey::create($validatedSurvey);
             $this->createSurveyQuestions($survey);
+
+            return $survey;
         });
 
         $this->success(__('Survey created'));
 
-        $this->reset();
-
         $this->redirect(route('surveys.view', $survey->id), navigate: true);
+    }
+
+    public function render(): Application|Factory|View
+    {
+        return view('livewire.pages.survey.create')
+            ->title(__('Create survey'));
     }
 
     private function createSurveyQuestions(Survey $survey): void
@@ -82,7 +94,7 @@ class CreateSurvey extends Component
                 'order_index' => $questionIndex,
             ]);
 
-            if ($questionData['type'] === QuestionType::MULTIPLE_CHOICE->name) {
+            if ($questionData['type'] === QuestionType::MULTIPLE_CHOICE->value) {
                 foreach ($questionData['options'] as $optionIndex => $optionData) {
                     $question->options()->create([
                         'option_text' => $optionData['option_text'],
@@ -94,7 +106,13 @@ class CreateSurvey extends Component
     }
 
     /**
-     * @throws ValidationException
+     * @return array{
+     *     title: string,
+     *     description: ?string,
+     *     is_public: bool,
+     *     is_active: bool,
+     *     end_date: ?CarbonInterface,
+     * }
      */
     private function validateData(): array
     {
@@ -106,13 +124,6 @@ class CreateSurvey extends Component
             'is_public' => $this->is_public,
             'is_active' => $this->is_active,
             'end_date' => $this->end_date ? Carbon::parse($this->end_date) : null,
-            'user_id' => auth()->id(),
         ];
-    }
-
-    public function render(): Application|Factory|View
-    {
-        return view('livewire.pages.survey.create')
-            ->title(__('Create survey'));
     }
 }

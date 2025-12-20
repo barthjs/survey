@@ -1,7 +1,6 @@
 <x-card
     :title="__('Log in to your account')"
     separator
-    shadow
     class="w-full max-w-lg mx-auto"
 >
     <x-slot:subtitle>
@@ -49,6 +48,7 @@
                 </a>
             </div>
         @endif
+
         @if(config('app.enable_password_reset'))
             <div>
                 <a href="{{ route('password.request') }}" wire:navigate.hover class="link">

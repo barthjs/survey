@@ -16,7 +16,7 @@
             <x-input icon="o-at-symbol" :label="__('Email address')" wire:model="email" required/>
 
             <x-password :label="__('Password')" clearable wire:model="password"/>
-            <x-password :label=" __('Confirm Password')" clearable wire:model="password_confirmation" required/>
+            <x-password :label=" __('Confirm password')" clearable wire:model="password_confirmation" required/>
 
             <x-checkbox :label="__('Active')" wire:model="is_active"/>
             <x-checkbox :label="__('Admin')" wire:model="is_admin"/>
@@ -27,13 +27,11 @@
                     icon="o-x-circle"
                     :label="__('Cancel')"
                     x-on:click="$wire.editUserModal = false"
-                    responsive
                     class="btn-secondary"
                 />
                 <x-button
                     icon="o-check"
                     :label="__('Save')"
-                    responsive
                     spinner="updateUser"
                     wire:click="updateUser"
                     class="btn-success"

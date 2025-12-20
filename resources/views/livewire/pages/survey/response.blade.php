@@ -78,6 +78,7 @@
                 </x-slot:actions>
             </x-card>
         @endforeach
+
         <x-confirm-delete :title="__('Delete answer')" deleteAction="deleteAnswer"/>
     </div>
 </div>

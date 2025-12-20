@@ -12,7 +12,8 @@
         </x-slot:brand>
 
         <x-slot:actions>
-            <x-language-selector class="btn-circle btn-ghost"/>
+            <x-language-selector/>
+
             <x-theme-toggle darkTheme="night" lightTheme="fantasy" class="btn-circle btn-ghost"/>
         </x-slot:actions>
     </x-nav>

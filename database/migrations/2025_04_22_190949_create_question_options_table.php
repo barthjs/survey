@@ -14,21 +14,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('question_options', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuid('question_id');
+            $table->ulid('id')->primary();
+
+            $table->foreignUlid('question_id')
+                ->index()
+                ->constrained()
+                ->cascadeOnDelete();
 
             $table->string('option_text');
             $table->integer('order_index');
-
-            $table->foreign('question_id')->references('id')->on('questions')->cascadeOnUpdate()->cascadeOnDelete();
         });
-    }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('question_options');
     }
 };

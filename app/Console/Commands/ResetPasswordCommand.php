@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
-class ResetPasswordCommand extends Command
+final class ResetPasswordCommand extends Command
 {
     protected $signature = 'app:reset-password {email?}';
 
@@ -35,6 +35,7 @@ class ResetPasswordCommand extends Command
         }
 
         try {
+            /** @var string $email */
             $user = User::where('email', $email)->firstOrFail();
         } catch (ModelNotFoundException) {
             $this->error(__('User not found'));
@@ -48,29 +49,37 @@ class ResetPasswordCommand extends Command
 
         $password = '';
         while (empty($password)) {
-            $password = $this->secret(__('Enter new password for user: ').$user->name);
-            if (empty($password)) {
+            /** @var string|null $inputPassword */
+            $inputPassword = $this->secret('Enter new password for user: '.$user->name);
+            if ($inputPassword === null || $inputPassword === '') {
                 $this->error(__('Password cannot be empty'));
 
                 continue;
             }
 
-            $confirmPassword = $this->secret(__('Confirm password'));
-            if ($password !== $confirmPassword) {
+            /** @var string|null $confirmPassword */
+            $confirmPassword = $this->secret('Confirm password');
+            if ($confirmPassword === null || $inputPassword !== $confirmPassword) {
                 $this->error(__('Passwords do not match'));
-                $password = '';
+
+                continue;
             }
+
+            $password = $inputPassword;
         }
 
         try {
             $user->password = Hash::make($password);
             $user->remember_token = null;
-            $user->email_verified_at = null;
-
-            DB::table(config('auth.passwords.users.table'))->where('email', $email)->delete();
-            DB::table(config('session.table'))->where('user_id', $user->id)->delete();
-
             $user->save();
+
+            DB::table(config()->string('auth.passwords.users.table'))
+                ->where('email', $email)
+                ->delete();
+
+            DB::table(config()->string('session.table'))
+                ->where('user_id', $user->id)
+                ->delete();
 
             $this->info(__('Password reset successfully'));
         } catch (Exception $e) {

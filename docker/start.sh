@@ -6,32 +6,34 @@ if [ -z "$APP_KEY" ]; then
 fi
 
 if [ ! -d "/app/public/vendor/livewire" ]; then
-    echo "Publishing Livewire assets..."
     php artisan livewire:publish --assets
 fi
 
-echo "Optimizing the application..."
 if ! php artisan optimize; then
     echo "Error: Optimization failed."
     exit 1
 fi
 
-echo "Starting database migrations..."
+DB_DATABASE="${DB_DATABASE:-"/app/storage/app/database.sqlite"}"
+if [ "$DB_CONNECTION" = "sqlite" ] && [ ! -f "$DB_DATABASE" ]; then
+    mkdir -p "$(dirname "$DB_DATABASE")"
+    touch "$DB_DATABASE"
+fi
+
 if ! php artisan migrate --force; then
     echo "Error: Migration failed."
     exit 1
 fi
 
-echo "Running database seeding..."
 if ! php artisan db:seed --force; then
     echo "Error: Seeding failed."
     exit 1
 fi
 
+chown -R application:application /app/storage/app/
+
 echo "#############################"
 echo "Setup completed successfully."
 echo "#############################"
-
-chown -R application:application /app/storage/app/
 
 supervisord -c /etc/supervisord.conf

@@ -18,7 +18,7 @@
             />
             <x-button
                 icon="o-check"
-                :label="__('Create User')"
+                :label="__('Create user')"
                 spinner="createUser"
                 wire:click="createUser"
                 class="btn-success"

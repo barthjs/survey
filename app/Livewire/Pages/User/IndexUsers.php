@@ -7,34 +7,33 @@ namespace App\Livewire\Pages\User;
 use App\Models\User;
 use App\Traits\ConfirmDeletionModal;
 use Carbon\Carbon;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
-use Livewire\Attributes\Session;
 use Livewire\Attributes\Url;
-use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Mary\Traits\Toast;
 
 #[Layout('components.layouts.app')]
-class IndexUsers extends Component
+final class IndexUsers extends Component
 {
     use ConfirmDeletionModal, Toast, WithPagination;
 
-    #[Session]
+    /** @var array<string, string> */
+    #[Url]
     public array $sortBy = ['column' => 'name', 'direction' => 'asc'];
 
     #[Url]
     public string $search = '';
 
+    #[Url]
     public int $perPage = 10;
 
     public bool $createUserModal = false;
@@ -47,7 +46,6 @@ class IndexUsers extends Component
 
     public string $email = '';
 
-    #[Validate('boolean')]
     public bool $verified = true;
 
     public string $password = '';
@@ -58,35 +56,25 @@ class IndexUsers extends Component
 
     public bool $is_admin = false;
 
-    private function tableHeaders(): array
-    {
-        return [
-            ['key' => 'name', 'label' => __('Name')],
-            ['key' => 'email', 'label' => __('Email')],
-            ['key' => 'created_at', 'label' => __('Created at'), 'format' => ['date', 'Y-m-d H:i:s']],
-            ['key' => 'updated_at', 'label' => __('Updated at'), 'format' => ['date', 'Y-m-d H:i:s']],
-            ['key' => 'email_verified_at', 'label' => __('Verified')],
-            ['key' => 'is_active', 'label' => __('Status')],
-            ['key' => 'is_admin', 'label' => __('Admin')],
-        ];
-    }
-
+    /**
+     * @return LengthAwarePaginator<int, User>
+     */
+    #[Computed]
     public function users(): LengthAwarePaginator
     {
+        $allowedPerPage = [10, 20, 50, 100];
+
         return User::query()
             ->when($this->search, fn (Builder $query) => $query->where('name', 'like', "%$this->search%")
                 ->orWhere('email', 'like', "%$this->search%"))
             ->orderBy(...array_values($this->sortBy))
-            ->paginate($this->perPage);
+            ->paginate(in_array($this->perPage, $allowedPerPage) ? $this->perPage : $allowedPerPage[0]);
     }
 
     public function openCreateUserModal(): void
     {
         $this->reset('name', 'email', 'password', 'password_confirmation', 'is_active', 'is_admin');
         $this->resetErrorBag();
-
-        $this->is_active = true;
-        $this->is_admin = false;
 
         $this->createUserModal = true;
     }
@@ -95,6 +83,15 @@ class IndexUsers extends Component
     {
         $this->email = mb_strtolower($this->email);
 
+        /** @var array{
+         *     name: string,
+         *     email: string,
+         *     password: string,
+         *     is_active: bool,
+         *     is_admin: bool
+         * }
+         * $validated
+         */
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
@@ -106,33 +103,26 @@ class IndexUsers extends Component
         $validated['password'] = Hash::make($validated['password']);
         $validated['email_verified_at'] = Carbon::now();
 
-        event(new Registered(User::create($validated)));
-
-        $this->reset('name', 'email', 'password', 'password_confirmation', 'is_active', 'is_admin');
+        User::create($validated);
 
         $this->createUserModal = false;
-
         $this->success(__('User created successfully'));
     }
 
-    public function editUser(string $id): void
+    public function openEditUserModal(string $id): void
     {
-        $this->reset('name', 'email', 'verified', 'password', 'password_confirmation', 'is_active', 'is_admin');
-        $this->resetErrorBag();
-
         $user = User::findOrFail($id);
+
         $this->editUserId = $id;
         $this->name = $user->name;
         $this->email = $user->email;
         $this->password = '';
         $this->password_confirmation = '';
-        if ($user->email_verified_at) {
-            $this->verified = true;
-        } else {
-            $this->verified = false;
-        }
+        $this->verified = $user->email_verified_at !== null;
         $this->is_active = $user->is_active;
         $this->is_admin = $user->is_admin;
+
+        $this->resetErrorBag();
 
         $this->editUserModal = true;
     }
@@ -140,6 +130,9 @@ class IndexUsers extends Component
     public function updateUser(): void
     {
         $user = User::findOrFail($this->editUserId);
+        if (auth()->user()->cannot('update', $user)) {
+            return;
+        }
 
         $this->email = mb_strtolower($this->email);
 
@@ -162,6 +155,15 @@ class IndexUsers extends Component
             $rules['password'] = ['string', Password::defaults(), 'confirmed'];
         }
 
+        /** @var array{
+         *     name: string,
+         *     email: string,
+         *     password: string,
+         *     is_active: bool,
+         *     is_admin: bool,
+         *     verified: bool,
+         * } $validated
+         */
         $validated = $this->validate($rules);
 
         if (! empty($this->password)) {
@@ -182,36 +184,34 @@ class IndexUsers extends Component
         $user->save();
 
         $this->editUserModal = false;
-
         $this->success(__('User updated successfully'));
     }
 
     public function delete(): void
     {
         $user = User::findOrFail($this->deletionId);
-
-        if ($user->is_admin) {
-            $this->closeConfirmDeletionModal();
-            $this->error(__('You cannot delete an admin'));
-
+        if (auth()->user()->cannot('delete', $user)) {
             return;
-        }
-
-        if (auth()->user()->id === $user->id) {
-            abort(403);
         }
 
         $user->delete();
 
         $this->closeConfirmDeletionModal();
-
         $this->warning(__('Deleted user'));
     }
 
-    public function render(): Application|Factory|View
+    public function render(): Factory|View
     {
         return view('livewire.pages.user.index')
-            ->with('headers', $this->tableHeaders())
+            ->with('headers', [
+                ['key' => 'name', 'label' => __('Name')],
+                ['key' => 'email', 'label' => __('Email')],
+                ['key' => 'created_at', 'label' => __('Created at'), 'format' => ['date', 'Y-m-d H:i:s']],
+                ['key' => 'updated_at', 'label' => __('Updated at'), 'format' => ['date', 'Y-m-d H:i:s']],
+                ['key' => 'email_verified_at', 'label' => __('Verified')],
+                ['key' => 'is_active', 'label' => __('Status')],
+                ['key' => 'is_admin', 'label' => __('Admin')],
+            ])
             ->with('users', $this->users())
             ->title(__('Users'));
     }

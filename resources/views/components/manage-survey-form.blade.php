@@ -110,7 +110,7 @@
                 questionTemplate() {
                     return {
                         question_text: '',
-                        type: 'TEXT',
+                        type:  @json(QuestionType::TEXT->value),
                         is_required: true,
                         options: [],
                     };

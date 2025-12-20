@@ -6,7 +6,9 @@ namespace App\Models;
 
 use App\Enums\QuestionType;
 use App\Jobs\UploadsCleanupJob;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Database\Factories\QuestionFactory;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,33 +16,113 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
-class Question extends Model
+/**
+ * @property-read string $id
+ * @property string $survey_id
+ * @property string $question_text
+ * @property QuestionType $type
+ * @property bool $is_required
+ * @property int $order_index
+ * @property-read Survey $survey
+ * @property-read Collection<int, QuestionOption> $options
+ * @property-read Collection<int, Answer> $answers
+ */
+final class Question extends Model
 {
-    use HasFactory, HasUuids;
-
-    protected $table = 'questions';
+    /** @use HasFactory<QuestionFactory> */
+    use HasFactory, HasUlids;
 
     public $timestamps = false;
 
-    protected $fillable = [
-        'survey_id',
-        'question_text',
-        'type',
-        'is_required',
-        'order_index',
+    protected $table = 'questions';
+
+    /**
+     * The model's default values for attributes.
+     *
+     * @var array<string, string|bool>
+     */
+    protected $attributes = [
+        'is_required' => false,
     ];
 
-    protected $casts = [
-        'type' => QuestionType::class,
-        'is_required' => 'bool',
-        'order_index' => 'int',
-    ];
-
+    /** @var array<string> */
     protected static array $responseIdsToCheck = [];
+
+    /**
+     * @param array<int, array{
+     *     question_text: string,
+     *     type: string,
+     *     is_required: bool,
+     *     options?: array<int, array{option_text: string}>
+     * }> $questions
+     */
+    public static function validateQuestions(array $questions): void
+    {
+        Validator::make(['questions' => $questions], [
+            'questions' => ['required', 'array', 'max:100'],
+            'questions.*.question_text' => ['required', 'string', 'max:255'],
+            'questions.*.type' => ['required', Rule::enum(QuestionType::class)],
+            'questions.*.is_required' => ['required', 'boolean'],
+            'questions.*.options' => ['nullable', 'array', 'max:10'],
+            'questions.*.options.*.option_text' => ['required_with:questions.*.options', 'string', 'max:255'],
+        ])->after(function (\Illuminate\Validation\Validator $validator) use ($questions) {
+            $hasRequired = collect($questions)->contains(fn (array $q) => $q['is_required']);
+            if (! $hasRequired) {
+                $validator->errors()->add('questions', __('At least one question must be marked as required.'));
+            }
+
+            foreach ($questions as $question) {
+                if (
+                    $question['type'] === QuestionType::MULTIPLE_CHOICE->value &&
+                    (! isset($question['options']) || count($question['options']) < 2)
+                ) {
+                    $validator->errors()->add('questions', '');
+                }
+            }
+        })->validate();
+    }
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    public function casts(): array
+    {
+        return [
+            'type' => QuestionType::class,
+            'is_required' => 'bool',
+            'order_index' => 'int',
+        ];
+    }
+
+    /**
+     * @return BelongsTo<Survey, $this>
+     */
+    public function survey(): BelongsTo
+    {
+        return $this->belongsTo(Survey::class);
+    }
+
+    /**
+     * @return HasMany<QuestionOption, $this>
+     */
+    public function options(): HasMany
+    {
+        return $this->hasMany(QuestionOption::class);
+    }
+
+    /**
+     * @return HasMany<Answer, $this>
+     */
+    public function answers(): HasMany
+    {
+        return $this->hasMany(Answer::class);
+    }
 
     protected static function booted(): void
     {
-        static::updated(function (Question $question) {
+        self::updated(function (self $question): void {
             if ($question->isDirty('type')) {
                 $originalType = $question->getOriginal('type');
                 $newType = $question->type;
@@ -69,12 +151,13 @@ class Question extends Model
                         $answer->delete();
                     });
 
+                    /** @var string[] $filesToDelete */
                     UploadsCleanupJob::dispatch($filesToDelete);
                 }
             }
         });
 
-        static::deleting(function (Question $question) {
+        self::deleting(function (self $question): void {
             $filesToDelete = [];
 
             if ($question->type === QuestionType::FILE) {
@@ -82,14 +165,16 @@ class Question extends Model
                     $filesToDelete[] = $answer->file_path;
                 });
 
+                /** @var string[] $filesToDelete */
                 UploadsCleanupJob::dispatch($filesToDelete);
             }
 
             // Collect response IDs before answers get deleted
+            /** @phpstan-ignore-next-line */
             self::$responseIdsToCheck = $question->answers()->pluck('response_id')->unique()->toArray();
         });
 
-        static::deleted(function () {
+        self::deleted(function (): void {
             foreach (self::$responseIdsToCheck as $responseId) {
                 if (Answer::where('response_id', '=', $responseId)->count() === 0) {
                     Response::find($responseId)?->delete();
@@ -98,46 +183,5 @@ class Question extends Model
 
             self::$responseIdsToCheck = [];
         });
-    }
-
-    public function survey(): BelongsTo
-    {
-        return $this->belongsTo(Survey::class);
-    }
-
-    public function options(): HasMany
-    {
-        return $this->hasMany(QuestionOption::class);
-    }
-
-    public function answers(): HasMany
-    {
-        return $this->hasMany(Answer::class);
-    }
-
-    public static function validateQuestions(array $questions): void
-    {
-        Validator::make(['questions' => $questions], [
-            'questions' => ['required', 'array', 'max:100'],
-            'questions.*.question_text' => ['required', 'string', 'max:255'],
-            'questions.*.type' => ['required', Rule::enum(QuestionType::class)],
-            'questions.*.is_required' => ['required', 'boolean'],
-            'questions.*.options' => ['nullable', 'array', 'max:10'],
-            'questions.*.options.*.option_text' => ['required_with:questions.*.options', 'string', 'max:255'],
-        ])->after(function (\Illuminate\Validation\Validator $validator) use ($questions) {
-            $hasRequired = collect($questions)->contains(fn (array $q) => $q['is_required']);
-            if (! $hasRequired) {
-                $validator->errors()->add('questions', __('At least one question must be marked as required.'));
-            }
-
-            foreach ($questions as $question) {
-                if (
-                    $question['type'] === QuestionType::MULTIPLE_CHOICE->name &&
-                    (! isset($question['options']) || count($question['options']) < 2)
-                ) {
-                    $validator->errors()->add('questions', '');
-                }
-            }
-        })->validate();
     }
 }

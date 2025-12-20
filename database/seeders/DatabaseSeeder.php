@@ -16,21 +16,21 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Random\RandomException;
-use Storage;
+use Illuminate\Support\Facades\Storage;
 
-class DatabaseSeeder extends Seeder
+final class DatabaseSeeder extends Seeder
 {
     /**
      * Seed the application's database.
-     *
-     * @throws RandomException
      */
     public function run(): void
     {
-        $admin = null;
+        if (App::environment('testing')) {
+            return;
+        }
+
         if (User::where('is_admin', '=', true)->count() === 0) {
-            $admin = User::create(
+            User::create(
                 [
                     'name' => 'Admin User',
                     'email' => 'admin@example.com',
@@ -39,39 +39,36 @@ class DatabaseSeeder extends Seeder
                     'is_active' => true,
                     'is_admin' => true,
                 ]
-            );
+            ) |> $this->createDemoSurveys(...);
         }
 
-        if (App::isLocal()) {
-            $user = User::firstOrCreate(['email' => 'user@example.com'],
-                [
-                    'name' => 'Demo User',
-                    'password' => Hash::make('user'),
-                    'email_verified_at' => now(),
-                ]
-            );
-
-            $admin && $this->createDemoSurveys($admin);
-
-            $this->createDemoSurveys($user);
-
-            User::factory(10)->create(['password' => 'password']);
+        if (! App::isLocal()) {
+            return;
         }
+
+        User::firstOrCreate(['email' => 'user@example.com'],
+            [
+                'name' => 'Demo User',
+                'password' => Hash::make('user'),
+                'email_verified_at' => now(),
+            ]
+        ) |> $this->createDemoSurveys(...);
+
+        User::factory(10)->create(['password' => 'password']);
     }
 
-    /**
-     * @throws RandomException
-     */
     private function createDemoSurveys(User $user): void
     {
+        /** @var Collection<int, Survey> $surveys */
         $surveys = new Collection;
         for ($i = 1; $i <= 10; $i++) {
-            $surveys->add(Survey::factory()->create([
-                'user_id' => $user->id,
-                'title' => "Demo $i",
-                'description' => 'This is a demo survey.',
-                'auto_closed_at' => null,
-            ]));
+            $surveys->add(Survey::factory()
+                ->public()
+                ->create([
+                    'user_id' => $user->id,
+                    'title' => "Demo $i",
+                    'auto_closed_at' => null,
+                ]));
         }
 
         foreach ($surveys as $survey) {
@@ -99,7 +96,7 @@ class DatabaseSeeder extends Seeder
                             $options = $question->options()->inRandomOrder()->take(random_int(1, 4))->get();
 
                             foreach ($options as $option) {
-                                AnswerOption::factory()->create([
+                                AnswerOption::create([
                                     'answer_id' => $answer->id,
                                     'question_option_id' => $option->id,
                                 ]);
@@ -121,6 +118,9 @@ class DatabaseSeeder extends Seeder
         }
     }
 
+    /**
+     * @return list<Question>
+     */
     private function createQuestions(Survey $survey): array
     {
         $questions = [];
@@ -142,7 +142,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         for ($j = 0; $j < 3; $j++) {
-            QuestionOption::factory()->create([
+            QuestionOption::create([
                 'question_id' => $questions[1]->id,
                 'option_text' => "Option $j",
                 'order_index' => $j,

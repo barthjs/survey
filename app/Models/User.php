@@ -6,34 +6,46 @@ namespace App\Models;
 
 use App\Enums\QuestionType;
 use App\Jobs\UploadsCleanupJob;
+use Carbon\CarbonInterface;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable implements MustVerifyEmail
+/**
+ * @property-read string $id
+ * @property-read CarbonInterface $created_at
+ * @property-read CarbonInterface $updated_at
+ * @property string $name
+ * @property string $email
+ * @property string|null $new_email
+ * @property CarbonInterface|null $email_verified_at
+ * @property string $password
+ * @property string|null $remember_token
+ * @property bool $is_active
+ * @property bool $is_admin
+ * @property-read string $initials
+ * @property-read Collection<int, Survey> $surveys
+ */
+final class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasUuids, Notifiable;
+    use HasFactory, HasUlids, Notifiable;
 
     protected $table = 'sys_users';
 
     /**
-     * The attributes that are mass assignable.
+     * The model's default values for attributes.
      *
-     * @var list<string>
+     * @var array<string, string|bool>
      */
-    protected $fillable = [
-        'name',
-        'email',
-        'email_verified_at',
-        'new_email',
-        'password',
-        'is_active',
-        'is_admin',
+    protected $attributes = [
+        'is_active' => true,
+        'is_admin' => false,
     ];
 
     /**
@@ -51,7 +63,7 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @return array<string, string>
      */
-    protected function casts(): array
+    public function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
@@ -59,36 +71,6 @@ class User extends Authenticatable implements MustVerifyEmail
             'is_active' => 'boolean',
             'is_admin' => 'boolean',
         ];
-    }
-
-    public function surveys(): HasMany
-    {
-        return $this->hasMany(Survey::class);
-    }
-
-    protected static function booted(): void
-    {
-        static::deleting(function (User $user) {
-            $filesToDelete = [];
-
-            $user->load([
-                'surveys.questions.answers',
-            ]);
-
-            $user->surveys->each(function (Survey $survey) use (&$filesToDelete) {
-                $survey->questions->each(function (Question $question) use (&$filesToDelete) {
-                    if ($question->type === QuestionType::FILE) {
-                        $question->answers->each(function (Answer $answer) use (&$filesToDelete) {
-                            $filesToDelete[] = $answer->file_path;
-                        });
-                    }
-                });
-            });
-
-            if (! empty($filesToDelete)) {
-                UploadsCleanupJob::dispatch($filesToDelete);
-            }
-        });
     }
 
     /**
@@ -106,5 +88,40 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         return $initials;
+    }
+
+    /**
+     * @return HasMany<Survey, $this>
+     */
+    public function surveys(): HasMany
+    {
+        return $this->hasMany(Survey::class);
+    }
+
+    protected static function booted(): void
+    {
+        self::deleting(function (self $user): void {
+            $filesToDelete = [];
+
+            $user->load([
+                'surveys.questions.answers',
+            ]);
+
+            $user->surveys->each(function (Survey $survey) use (&$filesToDelete): void {
+                $survey->questions->each(function (Question $question) use (&$filesToDelete): void {
+                    if ($question->type === QuestionType::FILE) {
+                        $question->answers->each(function (Answer $answer) use (&$filesToDelete): void {
+                            if (! empty($answer->file_path)) {
+                                $filesToDelete[] = $answer->file_path;
+                            }
+                        });
+                    }
+                });
+            });
+
+            if (! empty($filesToDelete)) {
+                UploadsCleanupJob::dispatch($filesToDelete);
+            }
+        });
     }
 }

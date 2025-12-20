@@ -14,17 +14,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('sys_users', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->ulid('id')->primary();
+            $table->timestamps();
+
             $table->string('name');
             $table->string('email')->unique();
             $table->string('new_email')->unique()->nullable()->comment('New email until confirmed');
             $table->timestamp('email_verified_at')->nullable();
+
             $table->string('password');
+            $table->rememberToken();
+
             $table->boolean('is_active')->default(true);
             $table->boolean('is_admin')->default(false);
-            $table->rememberToken();
-            $table->timestamps();
-            $table->index(['created_at', 'updated_at']);
         });
 
         Schema::create('sys_password_reset_tokens', function (Blueprint $table) {
@@ -35,21 +37,11 @@ return new class extends Migration
 
         Schema::create('sys_sessions', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->foreignUuid('user_id')->nullable()->index();
+            $table->foreignUlid('user_id')->nullable()->index();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
-    }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('sys_users');
-        Schema::dropIfExists('sys_password_reset_tokens');
-        Schema::dropIfExists('sys_sessions');
     }
 };

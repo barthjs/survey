@@ -13,19 +13,14 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\URL;
 
-class VerifyNewEmailNotification extends Notification implements ShouldBeUnique, ShouldQueue
+final class VerifyNewEmailNotification extends Notification implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 
-    protected string $newEmail;
-
-    protected string $userId;
-
-    public function __construct(string $userId, string $newEmail)
-    {
-        $this->userId = $userId;
-        $this->newEmail = $newEmail;
-    }
+    public function __construct(
+        private readonly string $userId,
+        private readonly string $newEmail
+    ) {}
 
     public function uniqueId(): string
     {
@@ -52,7 +47,7 @@ class VerifyNewEmailNotification extends Notification implements ShouldBeUnique,
             Carbon::now()->addMinutes(60),
             [
                 'id' => $this->userId,
-                'hash' => sha1($this->newEmail.$this->userId.config('app.key')),
+                'hash' => sha1($this->newEmail.$this->userId.config()->string('app.key')),
             ]
         );
 

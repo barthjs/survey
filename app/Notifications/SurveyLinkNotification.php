@@ -10,15 +10,15 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class SurveyLinkNotification extends Notification implements ShouldBeUnique, ShouldQueue
+final class SurveyLinkNotification extends Notification implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 
-    protected string $surveyId;
+    private string $surveyId;
 
-    protected string $email;
+    private string $email;
 
-    protected string $link;
+    private string $link;
 
     public function __construct(string $surveyId, string $email)
     {

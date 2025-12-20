@@ -10,6 +10,9 @@ return [
     'current_password' => 'The password is incorrect.',
     'email' => 'The :attribute field must be a valid email address.',
     'lowercase' => 'The :attribute field must be lowercase.',
+    'min' => [
+        'string' => 'The :attribute field must be at least :min characters.',
+    ],
     'max' => [
         'string' => 'The :attribute field must not be greater than :max characters.',
     ],

@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Http\Middleware\ActiveUserMiddleware;
-use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\EnsureUserIsActive;
+use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Livewire\Pages\Profile;
 use App\Livewire\Pages\Survey\CreateSurvey;
 use App\Livewire\Pages\Survey\EditSurvey;
@@ -22,8 +22,8 @@ Route::get('/', function () {
     return view('pages.homepage');
 })->name('home');
 
-Route::get('/language/{locale}', function ($locale) {
-    if (array_key_exists($locale, config('app.locales'))) {
+Route::get('/language/{locale}', function (string $locale) {
+    if (array_key_exists($locale, config()->array('app.locales'))) {
         session()->put('locale', $locale);
 
         return redirect()->back();
@@ -32,7 +32,7 @@ Route::get('/language/{locale}', function ($locale) {
     abort(404);
 })->name('locale');
 
-$middlewares = ['auth', ActiveUserMiddleware::class];
+$middlewares = ['auth', EnsureUserIsActive::class];
 
 if (config('app.enable_email_verification')) {
     $middlewares[] = 'verified';
@@ -42,7 +42,7 @@ Route::middleware($middlewares)->group(function () {
     Route::get('/profile', Profile::class)
         ->name('profile');
 
-    Route::middleware(AdminMiddleware::class)->group(function () {
+    Route::middleware(EnsureUserIsAdmin::class)->group(function () {
         Route::get('/users', IndexUsers::class)
             ->name('users.index');
     });
@@ -69,6 +69,6 @@ Route::get('/results/{id}', ViewSurvey::class)
 Route::get('/s/{id}', SubmitSurvey::class)
     ->name('surveys.submit');
 
-Route::get('thank-you', function () {
+Route::get('/thank-you', function () {
     return view('pages.thank-you');
 })->name('surveys.thank-you');

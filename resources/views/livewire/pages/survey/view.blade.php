@@ -38,7 +38,7 @@
                             <x-button
                                 icon="o-paper-airplane"
                                 :label="__('Send email')"
-                                x-on:click="$wire.sendEmailModal = true"
+                                wire:click="openSendEmailModal"
                                 class="btn-ghost  justify-start"
                             />
                             @if($this->survey->is_public)

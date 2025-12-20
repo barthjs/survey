@@ -64,11 +64,11 @@
     <x-card :title="__('Delete account')" :subtitle="__('Delete your account and all of its resources')">
         <x-modal
             :title="__('Are you sure you want to delete your account?')"
+            :subtitle="__('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.')"
             wire:model="confirmUserDeletionModal"
             class="backdrop-blur"
         >
             <x-form wire:submit="deleteUser" novalidate autocomplete="off">
-                {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.') }}
                 <x-password :label="__('Password')" wire:model="confirm_delete_password" required/>
 
                 <x-slot:actions class="justify-start">

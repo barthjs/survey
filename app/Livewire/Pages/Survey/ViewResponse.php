@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Livewire\Pages\Survey;
 
+use App\Enums\QuestionType;
 use App\Models\Answer;
 use App\Models\QuestionOption;
 use App\Models\Response;
 use App\Traits\ConfirmDeletionModal;
 use Illuminate\Contracts\View\Factory;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
@@ -18,12 +18,24 @@ use Mary\Traits\Toast;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 #[Layout('components.layouts.app')]
-class ViewResponse extends Component
+final class ViewResponse extends Component
 {
     use ConfirmDeletionModal, Toast;
 
     public Response $response;
 
+    /**
+     * @var array<int, array{
+     *     id: string,
+     *     question_id: string,
+     *     question_type: QuestionType,
+     *     question_text: string,
+     *     question_order_index: int,
+     *     answer_text: ?string,
+     *     original_file_name: ?string,
+     *     options: array<int, array{option_text: string}>
+     * }>
+     */
     public array $answers = [];
 
     public function mount(string $id): void
@@ -38,6 +50,7 @@ class ViewResponse extends Component
             abort(403);
         }
 
+        /** @phpstan-ignore-next-line */
         $this->answers = $this->response->answers->map(fn (Answer $answer) => [
             'id' => $answer->id,
             'question_id' => $answer->question_id,
@@ -59,6 +72,7 @@ class ViewResponse extends Component
         }
 
         $this->response->delete();
+
         $this->closeConfirmDeletionModal();
         $this->warning(__('Deleted response'));
 
@@ -93,6 +107,10 @@ class ViewResponse extends Component
             abort(404);
         }
 
+        if (! $answer->file_path) {
+            abort(404);
+        }
+
         if (! Storage::disk('local')->exists($answer->file_path)) {
             $this->error(__('File has been deleted'));
 
@@ -105,7 +123,7 @@ class ViewResponse extends Component
         );
     }
 
-    public function render(): Application|Factory|View
+    public function render(): Factory|View
     {
         return view('livewire.pages.survey.response')
             ->title(__('View answer'));

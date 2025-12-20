@@ -8,10 +8,18 @@ use App\Enums\QuestionType;
 use App\Models\Question;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class QuestionFactory extends Factory
+/**
+ * @extends Factory<Question>
+ */
+final class QuestionFactory extends Factory
 {
     protected $model = Question::class;
 
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
     public function definition(): array
     {
         return [

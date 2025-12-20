@@ -10,17 +10,18 @@ enum QuestionType: string
     case MULTIPLE_CHOICE = 'MULTIPLE_CHOICE';
     case FILE = 'FILE';
 
-    public function label(): string
-    {
-        return __('question_types.'.$this->value);
-    }
-
+    /**
+     * @return array<int, array{id: string, name: string}>
+     */
     public static function toArray(): array
     {
-        return collect(QuestionType::cases())->map(fn (QuestionType $type) => [
-            'id' => $type->value,
-            'name' => $type->label(),
-        ])->toArray();
+        return array_map(
+            fn (QuestionType $type): array => [
+                'id' => $type->value,
+                'name' => $type->label(),
+            ],
+            QuestionType::cases()
+        );
     }
 
     public static function getIconFromFilename(string $filename): string
@@ -35,5 +36,10 @@ enum QuestionType: string
             'xls', 'xlsx', 'ods' => 'o-table-cells',
             default => 'o-question-mark-circle',
         };
+    }
+
+    public function label(): string
+    {
+        return __('question_types.'.$this->value);
     }
 }

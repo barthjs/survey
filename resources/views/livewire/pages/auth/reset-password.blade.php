@@ -5,7 +5,7 @@
     shadow
     class="w-full max-w-lg mx-auto"
 >
-    <x-auth-session-status :status="session('status')" class="text-center"/>
+    <x-auth-session-status :status="session('status')"/>
 
     <x-form wire:submit="resetPassword" novalidate>
         <x-input

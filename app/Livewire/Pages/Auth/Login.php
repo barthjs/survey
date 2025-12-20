@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Livewire\Pages\Auth;
 
-use Illuminate\Auth\Events\Lockout;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\View\Factory;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Session;
@@ -18,7 +17,7 @@ use Livewire\Attributes\Validate;
 use Livewire\Component;
 
 #[Layout('components.layouts.auth')]
-class Login extends Component
+final class Login extends Component
 {
     #[Validate('required|string|email')]
     public string $email = '';
@@ -37,30 +36,48 @@ class Login extends Component
 
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
-            RateLimiter::hit($this->throttleKey());
+        $user = $this->validateCredentials();
 
-            throw ValidationException::withMessages([
-                'email' => __('Invalid login credentials.'),
-            ]);
-        }
-
+        Auth::login($user, remember: $this->remember);
         RateLimiter::clear($this->throttleKey());
         Session::regenerate();
 
         $this->redirectIntended(default: route('surveys.index', absolute: false), navigate: true);
     }
 
+    public function render(): Factory|View
+    {
+        /*
+         * Handles the case where a user opens the email verification link in a different browser
+         * where they are not logged in. Show a notice to clarify why they were redirected here.
+         */
+        $wantsToVerifyEmail = false;
+        $intendedUrl = session('url.intended');
+        if (is_string($intendedUrl) && (Str::contains($intendedUrl, route('verification.notice', absolute: false)))) {
+            $wantsToVerifyEmail = true;
+        }
+
+        return view('livewire.pages.auth.login')
+            ->with('wantsToVerifyEmail', $wantsToVerifyEmail)
+            ->title(__('Login'));
+    }
+
+    /**
+     * Get the authentication rate limiting throttle key.
+     */
+    private function throttleKey(): string
+    {
+        return Str::transliterate(Str::lower($this->email).'|'.request()->ip());
+    }
+
     /**
      * Ensure the authentication request is not rate limited.
      */
-    protected function ensureIsNotRateLimited(): void
+    private function ensureIsNotRateLimited(): void
     {
         if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
-
-        event(new Lockout(request()));
 
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
@@ -72,31 +89,20 @@ class Login extends Component
     }
 
     /**
-     * Get the authentication rate limiting throttle key.
+     * Validate the user's credentials.
      */
-    protected function throttleKey(): string
+    private function validateCredentials(): Authenticatable
     {
-        return Str::transliterate(Str::lower($this->email).'|'.request()->ip());
-    }
+        $user = Auth::getProvider()->retrieveByCredentials(['email' => $this->email, 'password' => $this->password]);
 
-    public function render(): Application|Factory|View
-    {
-        /*
-         * Handles the case where a user opens the email verification link in a different browser
-         * where they are not logged in. If the intended URL is the verification page,
-         * show a notice after login to clarify why they were redirected here.
-         */
-        $wantsToVerifyEmail = false;
-        $intendedUrl = session('url.intended');
-        if (($intendedUrl) && (Str::contains($intendedUrl, route('verification.notice', absolute: false)))) {
-            $wantsToVerifyEmail = true;
+        if (! $user || ! Auth::getProvider()->validateCredentials($user, ['password' => $this->password])) {
+            RateLimiter::hit($this->throttleKey());
 
-            // Clear the intended URL to prevent the message from showing again later
-            session()->forget('url.intended');
+            throw ValidationException::withMessages([
+                'email' => __('Invalid login credentials.'),
+            ]);
         }
 
-        return view('livewire.pages.auth.login')
-            ->with('wantsToVerifyEmail', $wantsToVerifyEmail)
-            ->title(__('Log in'));
+        return $user;
     }
 }

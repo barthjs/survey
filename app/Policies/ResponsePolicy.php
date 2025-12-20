@@ -7,7 +7,7 @@ namespace App\Policies;
 use App\Models\Response;
 use App\Models\User;
 
-class ResponsePolicy
+final class ResponsePolicy
 {
     /**
      * Determine whether the user can view the model.

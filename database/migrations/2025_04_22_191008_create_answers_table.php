@@ -14,24 +14,20 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('answers', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuid('question_id');
-            $table->uuid('response_id');
+            $table->ulid('id')->primary();
+
+            $table->foreignUlid('question_id')
+                ->index()
+                ->constrained()
+                ->cascadeOnDelete();
+            $table->foreignUlid('response_id')
+                ->index()
+                ->constrained()
+                ->cascadeOnDelete();
 
             $table->text('answer_text')->nullable();
             $table->string('file_path')->nullable();
             $table->string('original_file_name')->nullable();
-
-            $table->foreign('response_id')->references('id')->on('responses')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreign('question_id')->references('id')->on('questions')->cascadeOnUpdate()->cascadeOnDelete();
         });
-    }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('answers');
     }
 };

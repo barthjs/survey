@@ -19,7 +19,7 @@
         <x-button
             icon="o-trash"
             :label="__('Delete')"
-            spinner="{{ $deleteAction }}"
+            :spinner="$deleteAction"
             wire:click="{{ $deleteAction }}"
             class="btn-error"
         />

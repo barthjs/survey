@@ -8,10 +8,10 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class ActiveUserMiddleware
+final class EnsureUserIsActive
 {
     /**
-     * Handle an incoming request.
+     * Only allow authenticated users to access the application when their account is active.
      *
      * @param  Closure(Request): (Response)  $next
      */

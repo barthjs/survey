@@ -14,22 +14,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('responses', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuid('survey_id');
+            $table->ulid('id')->primary();
+
+            $table->foreignUlid('survey_id')
+                ->index()
+                ->constrained()
+                ->cascadeOnDelete();
 
             $table->ipAddress()->nullable();
             $table->string('user_agent')->nullable();
             $table->timestamp('submitted_at')->useCurrent()->index();
-
-            $table->foreign('survey_id')->references('id')->on('surveys')->cascadeOnUpdate()->cascadeOnDelete();
         });
-    }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('responses');
     }
 };

@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace App\Livewire\Pages;
 
-use App\Livewire\Actions\Logout;
+use App\Actions\Logout;
 use App\Models\User;
 use App\Notifications\VerifyNewEmailNotification;
 use Illuminate\Contracts\View\Factory;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
@@ -22,7 +21,7 @@ use Livewire\Component;
 use Mary\Traits\Toast;
 
 #[Layout('components.layouts.app')]
-class Profile extends Component
+final class Profile extends Component
 {
     use Toast;
 
@@ -44,9 +43,6 @@ class Profile extends Component
 
     public bool $rateLimited = false;
 
-    /**
-     * Mount the component.
-     */
     public function mount(): void
     {
         $this->name = Auth::user()->name;
@@ -63,6 +59,7 @@ class Profile extends Component
 
         $this->email = mb_strtolower($this->email);
 
+        /** @var array{name: string, email: string} $validated */
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => [
@@ -79,7 +76,7 @@ class Profile extends Component
         $validated['email'] = mb_strtolower($validated['email']);
 
         if ($user->email !== $validated['email']) {
-            if (config('app.enable_email_verification')) {
+            if (config()->boolean('app.enable_email_verification')) {
                 $user->new_email = $validated['email'];
                 $this->sendVerification();
             } else {
@@ -94,8 +91,8 @@ class Profile extends Component
 
     public function sendVerification(): void
     {
-        if (! config('app.enable_email_verification')) {
-            abort(404);
+        if (! config()->boolean('app.enable_email_verification')) {
+            return;
         }
 
         $user = Auth::user();
@@ -106,7 +103,6 @@ class Profile extends Component
         }
 
         $key = 'send-new-verification-email:'.$user->email;
-
         if (RateLimiter::tooManyAttempts($key, 3)) {
             $this->rateLimited = true;
             $this->error(__('Too many verification requests. Please try again later.'));
@@ -116,7 +112,7 @@ class Profile extends Component
 
         RateLimiter::hit($key);
 
-        Notification::route('mail', $user->new_email)->notify((new VerifyNewEmailNotification($user->id, $user->new_email))->locale(app()->getLocale()));
+        Notification::route('mail', $user->new_email)->notify(new VerifyNewEmailNotification($user->id, $user->new_email)->locale(app()->getLocale()));
 
         $this->success(__('Verification email sent. Please check your email.'));
     }
@@ -127,9 +123,10 @@ class Profile extends Component
     public function updatePassword(): void
     {
         try {
+            /** @var array{current_password: string, password: string} $validated */
             $validated = $this->validate([
                 'current_password' => ['required', 'string', 'current_password'],
-                'password' => ['required', 'string', Password::defaults()->mixedCase()->numbers(), 'confirmed'],
+                'password' => ['required', 'string', Password::defaults(), 'confirmed'],
             ]);
         } catch (ValidationException $e) {
             $this->reset('current_password', 'password', 'password_confirmation');
@@ -176,7 +173,7 @@ class Profile extends Component
         $this->confirmUserDeletionModal = false;
     }
 
-    public function render(): Application|Factory|View
+    public function render(): Factory|View
     {
         return view('livewire.pages.profile')
             ->title(__('Profile'));

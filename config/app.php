@@ -15,10 +15,10 @@ return [
         'de' => 'Deutsch',
     ],
 
-    'allow_registration' => env('APP_ALLOW_REGISTRATION', true),
+    'allow_registration' => (bool) env('APP_ALLOW_REGISTRATION', true),
 
-    'enable_email_verification' => env('APP_ENABLE_EMAIL_VERIFICATION', false),
+    'enable_email_verification' => (bool) env('APP_ENABLE_EMAIL_VERIFICATION', false),
 
-    'enable_password_reset' => env('APP_ENABLE_PASSWORD_RESET', false),
+    'enable_password_reset' => (bool) env('APP_ENABLE_PASSWORD_RESET', false),
 
 ];

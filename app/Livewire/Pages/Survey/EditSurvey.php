@@ -11,6 +11,7 @@ use App\Models\QuestionOption;
 use App\Models\Survey;
 use App\Traits\ConfirmDeletionModal;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\DB;
@@ -19,10 +20,9 @@ use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Mary\Traits\Toast;
-use Throwable;
 
 #[Layout('components.layouts.app')]
-class EditSurvey extends Component
+final class EditSurvey extends Component
 {
     use ConfirmDeletionModal, Toast;
 
@@ -38,12 +38,23 @@ class EditSurvey extends Component
 
     public ?string $end_date = null;
 
+    /**
+     * @var array<int, array{
+     *     id?: string,
+     *     question_text: string,
+     *     type: string,
+     *     is_required: bool,
+     *     options: array<int, array{
+     *         id?: string,
+     *         option_text: string
+     *     }>
+     * }>
+     */
     public array $questions;
 
     public function mount(string $id): void
     {
         $this->survey = Survey::with('questions.options')->findOrFail($id);
-
         if (auth()->user()->cannot('update', $this->survey)) {
             abort(403);
         }
@@ -54,6 +65,7 @@ class EditSurvey extends Component
         $this->is_active = $this->survey->is_active;
         $this->end_date = $this->survey->end_date?->format('Y-m-d\TH:i');
 
+        /** @phpstan-ignore-next-line */
         $this->questions = $this->survey->questions->map(fn (Question $question) => [
             'id' => $question->id,
             'question_text' => $question->question_text,
@@ -68,9 +80,6 @@ class EditSurvey extends Component
         ])->toArray();
     }
 
-    /**
-     * @throws Throwable
-     */
     public function save(): void
     {
         $validatedSurveyData = $this->validateData();
@@ -83,7 +92,7 @@ class EditSurvey extends Component
             return;
         }
 
-        DB::transaction(function () use ($validatedSurveyData) {
+        DB::transaction(function () use ($validatedSurveyData): void {
             $this->survey->update($validatedSurveyData);
 
             $existingQuestions = $this->survey
@@ -92,6 +101,7 @@ class EditSurvey extends Component
                 ->get()
                 ->keyBy('id');
 
+            /** @var array<int, string> $submittedQuestionIds */
             $submittedQuestionIds = collect($this->questions)
                 ->pluck('id')
                 ->filter()
@@ -130,7 +140,7 @@ class EditSurvey extends Component
                     ]);
                 }
 
-                if ($questionData['type'] !== QuestionType::MULTIPLE_CHOICE->name) {
+                if ($questionData['type'] !== QuestionType::MULTIPLE_CHOICE->value) {
                     continue;
                 }
 
@@ -156,6 +166,7 @@ class EditSurvey extends Component
                     ]);
                 }
 
+                /** @var array<int, string> $submittedOptionIds */
                 $submittedOptionIds = $submittedOptions->pluck('id')->filter()->all();
                 $optionsToDelete = $existingOptions->keys()->diff($submittedOptionIds);
 
@@ -184,14 +195,27 @@ class EditSurvey extends Component
         }
 
         $this->survey->delete();
+
         $this->closeConfirmDeletionModal();
         $this->warning(__('Deleted survey'));
 
         $this->redirect(route('surveys.index'), navigate: true);
     }
 
+    public function render(): Application|Factory|View
+    {
+        return view('livewire.pages.survey.edit')
+            ->title(__('Edit survey'));
+    }
+
     /**
-     * @throws ValidationException
+     * @return array{
+     *     title: string,
+     *     description: ?string,
+     *     is_public: bool,
+     *     is_active: bool,
+     *     end_date: ?CarbonInterface,
+     * }
      */
     private function validateData(): array
     {
@@ -204,11 +228,5 @@ class EditSurvey extends Component
             'is_active' => $this->is_active,
             'end_date' => $this->end_date ? Carbon::parse($this->end_date) : null,
         ];
-    }
-
-    public function render(): Application|Factory|View
-    {
-        return view('livewire.pages.survey.edit')
-            ->title(__('Edit survey'));
     }
 }

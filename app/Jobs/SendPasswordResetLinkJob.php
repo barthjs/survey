@@ -10,31 +10,23 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Password;
 
-class SendPasswordResetLinkJob implements ShouldBeUnique, ShouldQueue
+final class SendPasswordResetLinkJob implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 
-    private array $credentials;
-
-    private string $locale;
-
     /**
-     * Create a new job instance.
+     * @param  array{email: string}  $credentials
      */
-    public function __construct(array $credentials, string $locale)
-    {
-        $this->credentials = $credentials;
-        $this->locale = $locale;
-    }
+    public function __construct(
+        private readonly array $credentials,
+        private readonly string $locale
+    ) {}
 
     public function uniqueId(): string
     {
         return mb_strtolower($this->credentials['email']);
     }
 
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
         App::setLocale($this->locale);
