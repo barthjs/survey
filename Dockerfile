@@ -3,14 +3,8 @@ FROM php:8.5-cli-alpine AS composer-builder
 WORKDIR /app
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-COPY --parents \
-    bootstrap \
-    storage \
-    routes \
-    artisan \
-    composer.* \
-    ./
-RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+COPY composer.* ./
+RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-scripts
 
 FROM node:24-alpine AS node-builder
 WORKDIR /app
