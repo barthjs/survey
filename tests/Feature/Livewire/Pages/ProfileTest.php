@@ -3,49 +3,84 @@
 declare(strict_types=1);
 
 use App\Livewire\Pages\Profile;
-use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Livewire;
 
-uses(RefreshDatabase::class);
+use function Pest\Laravel\assertDatabaseHas;
+use function Pest\Laravel\assertDatabaseMissing;
 
-it('logs out other browser sessions on the profile page', function () {
-    $user = User::factory()->create([
-        'password' => Hash::make('password'),
-    ]);
+beforeEach(function () {
+    asUser();
 
-    $this->actingAs($user);
+    $this->user = auth()->user();
+});
 
-    $otherSessionId = 'other-session-id';
-    DB::table(config()->string('session.table'))->insert([
-        'id' => $otherSessionId,
-        'user_id' => $user->id,
-        'ip_address' => '127.0.0.1',
-        'user_agent' => 'TestAgent',
-        'last_activity' => now()->timestamp,
-        'payload' => [],
-    ]);
-
-    $this->assertDatabaseHas(config()->string('session.table'), [
-        'id' => $otherSessionId,
-        'user_id' => $user->id,
-    ]);
-
+it('renders the profile page', function () {
     Livewire::test(Profile::class)
-        ->set('confirm_logout_password', 'password')
-        ->call('logoutOtherBrowserSessions')
-        ->assertSet('confirmLogoutOtherBrowserSessionsModal', false)
-        ->assertSee('All other browser sessions have been logged out successfully.');
+        ->assertStatus(200)
+        ->assertSet('name', $this->user->name)
+        ->assertSet('email', $this->user->email);
+});
 
-    $this->assertDatabaseMissing(config()->string('session.table'), [
-        'id' => $otherSessionId,
-        'user_id' => $user->id,
+it('updates profile information', function () {
+    Livewire::test(Profile::class)
+        ->set('name', 'Updated Name')
+        ->set('email', 'updated@example.com')
+        ->call('updateProfileInformation')
+        ->assertHasNoErrors();
+
+    assertDatabaseHas('sys_users', [
+        'id' => $this->user->id,
+        'name' => 'Updated Name',
+        'new_email' => 'updated@example.com',
     ]);
+});
 
-    $this->assertDatabaseHas(config()->string('session.table'), [
-        'id' => session()->getId(),
-        'user_id' => $user->id,
+it('updates the password', function () {
+    Livewire::test(Profile::class)
+        ->set('current_password', 'password')
+        ->set('password', 'new-password')
+        ->set('password_confirmation', 'new-password')
+        ->call('updatePassword')
+        ->assertHasNoErrors()
+        ->assertSet('current_password', '')
+        ->assertSet('password', '')
+        ->assertSet('password_confirmation', '');
+
+    $this->user->refresh();
+    expect(Hash::check('new-password', $this->user->password))->toBeTrue();
+});
+
+it('requires the correct current password to update password', function () {
+    Livewire::test(Profile::class)
+        ->set('current_password', 'wrong-password')
+        ->set('password', 'new-password')
+        ->set('password_confirmation', 'new-password')
+        ->call('updatePassword')
+        ->assertHasErrors(['current_password']);
+
+    expect(Hash::check('password', $this->user->refresh()->password))->toBeTrue();
+});
+
+it('deletes the user account', function () {
+    Livewire::test(Profile::class)
+        ->set('confirm_delete_password', 'password')
+        ->call('deleteUser')
+        ->assertHasNoErrors()
+        ->assertRedirect(route('home'));
+
+    assertDatabaseMissing('sys_users', [
+        'id' => $this->user->id,
+    ]);
+});
+
+it('requires correct password for account deletion', function () {
+    Livewire::test(Profile::class)
+        ->set('confirm_delete_password', 'wrong-password')
+        ->call('deleteUser')
+        ->assertHasErrors(['confirm_delete_password']);
+
+    assertDatabaseHas('sys_users', [
+        'id' => $this->user->id,
     ]);
 });
