@@ -8,7 +8,9 @@ use App\Actions\Logout;
 use App\Models\User;
 use App\Notifications\VerifyNewEmailNotification;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\RateLimiter;
@@ -16,6 +18,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Jenssegers\Agent\Agent;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Mary\Traits\Toast;
@@ -37,6 +40,13 @@ final class Profile extends Component
 
     public string $password_confirmation = '';
 
+    /** @var array<int, array<string, mixed>> */
+    public array $sessions = [];
+
+    public bool $confirmLogoutOtherBrowserSessionsModal = false;
+
+    public string $confirm_logout_password = '';
+
     public bool $confirmUserDeletionModal = false;
 
     public string $confirm_delete_password = '';
@@ -48,6 +58,8 @@ final class Profile extends Component
         $this->name = Auth::user()->name;
         $this->email = Auth::user()->email;
         $this->new_email = Auth::user()->new_email ?? '';
+
+        $this->sessions = $this->getSessions();
     }
 
     /**
@@ -142,6 +154,52 @@ final class Profile extends Component
         $this->success(__('Password updated'));
     }
 
+    public function openConfirmLogoutOtherBrowserSessionsModal(): void
+    {
+        $this->reset('confirm_logout_password');
+        $this->resetErrorBag('confirm_logout_password');
+
+        $this->confirmLogoutOtherBrowserSessionsModal = true;
+    }
+
+    /**
+     * Log out from other browser sessions.
+     */
+    public function logoutOtherBrowserSessions(): void
+    {
+        $this->validate(
+            rules: [
+                'confirm_logout_password' => ['required', 'string', 'current_password'],
+            ],
+            attributes: [
+                'confirm_logout_password' => __('validation.attributes.current_password'),
+            ]
+        );
+
+        $user = auth()->user();
+
+        Auth::logoutOtherDevices($this->confirm_logout_password);
+
+        request()->session()->put([
+            'password_hash_'.Auth::getDefaultDriver() => $user->password,
+        ]);
+
+        DB::table(config()->string('session.table'))
+            ->where('user_id', $user->id)
+            ->where('id', '!=', request()->session()->getId())
+            ->delete();
+
+        $this->mount();
+
+        $this->confirmLogoutOtherBrowserSessionsModal = false;
+        $this->success(__('All other browser sessions have been logged out successfully.'));
+    }
+
+    public function closeConfirmLogoutOtherBrowserSessionsModal(): void
+    {
+        $this->confirmLogoutOtherBrowserSessionsModal = false;
+    }
+
     /**
      * Delete the currently authenticated user.
      */
@@ -177,5 +235,45 @@ final class Profile extends Component
     {
         return view('livewire.pages.profile')
             ->title(__('Profile'));
+    }
+
+    /**
+     * @return array<int, array{
+     *     device: array{
+     *         is_desktop: bool,
+     *         platform: bool|string,
+     *         browser: bool|string
+     *     },
+     *     ip_address: string|null,
+     *     is_current_device: bool,
+     *     last_active: int
+     * }>
+     */
+    private function getSessions(): array
+    {
+        /** @var Collection<int, object{ id: string, user_agent: string|null, ip_address: string|null, last_activity: int }> $sessions */
+        $sessions = DB::table('sys_sessions')
+            ->where('user_id', '=', auth()->user()->id)
+            ->latest('last_activity')
+            ->get();
+
+        $result = [];
+        $agent = new Agent();
+        foreach ($sessions as $session) {
+            $agent->setUserAgent($session->user_agent);
+
+            $result[] = [
+                'device' => [
+                    'is_desktop' => $agent->isDesktop(),
+                    'platform' => $agent->platform(),
+                    'browser' => $agent->browser(),
+                ],
+                'ip_address' => $session->ip_address,
+                'is_current_device' => $session->id === request()->session()->getId(),
+                'last_active' => $session->last_activity,
+            ];
+        }
+
+        return $result;
     }
 }
