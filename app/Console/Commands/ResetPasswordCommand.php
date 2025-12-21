@@ -50,7 +50,7 @@ final class ResetPasswordCommand extends Command
         $password = '';
         while (empty($password)) {
             /** @var string|null $inputPassword */
-            $inputPassword = $this->secret('Enter new password for user: '.$user->name);
+            $inputPassword = $this->secret(__('Enter new password for user: ').$user->name);
             if ($inputPassword === null || $inputPassword === '') {
                 $this->error(__('Password cannot be empty'));
 
@@ -58,7 +58,7 @@ final class ResetPasswordCommand extends Command
             }
 
             /** @var string|null $confirmPassword */
-            $confirmPassword = $this->secret('Confirm password');
+            $confirmPassword = $this->secret(__('Confirm password'));
             if ($confirmPassword === null || $inputPassword !== $confirmPassword) {
                 $this->error(__('Passwords do not match'));
 

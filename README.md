@@ -30,6 +30,7 @@
       </ul>
     </li>
     <li><a href="#configuration">Configuration</a></li>
+    <li><a href="#account-management">Account Management</a></li>
     <li><a href="#screenshots">Screenshots</a></li>
     <li><a href="#updating">Updating</a></li>
     <li><a href="#backup">Backup</a></li>
@@ -119,6 +120,26 @@ Use the `.env` file to adjust configuration settings:
 | `MAIL_PASSWORD`                 | (required)  | Mail server password                                                                              |
 | `MAIL_FROM_ADDRESS`             | (required)  | Sender email address                                                                              |
 | `MAIL_FROM_NAME`                | (required)  | Sender name                                                                                       |
+
+## Account Management
+
+If you lose access to your account, you can reset your password or disable 2FA via the command line.
+
+### Reset Password
+
+To reset a user's password:
+
+```shell
+docker compose exec survey php artisan app:reset-password
+```
+
+### Disable 2FA
+
+To disable two-factor authentication for a user:
+
+```shell
+docker compose exec survey php artisan app:disable-2fa
+```
 
 ## Screenshots
 

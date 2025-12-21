@@ -16,9 +16,9 @@ it('resets the password via email', function () {
     $newPassword = 'newpassword123';
 
     $this->artisan('app:reset-password', ['email' => $this->user->email])
-        ->expectsConfirmation('Resetting password for user: '.$this->user->name, 'yes')
-        ->expectsQuestion('Enter new password for user: '.$this->user->name, $newPassword)
-        ->expectsQuestion('Confirm password', $newPassword)
+        ->expectsConfirmation(__('Resetting password for user: ').$this->user->name, 'yes')
+        ->expectsQuestion(__('Enter new password for user: ').$this->user->name, $newPassword)
+        ->expectsQuestion(__('Confirm password'), $newPassword)
         ->assertExitCode(0);
 
     $this->user->refresh();
@@ -27,6 +27,6 @@ it('resets the password via email', function () {
 
 it('fails when user is not found', function () {
     $this->artisan('app:reset-password', ['email' => 'nonexistent@example.com'])
-        ->assertExitCode(1)
-        ->expectsOutput('User not found');
+        ->expectsOutput(__('User not found'))
+        ->assertExitCode(1);
 });
