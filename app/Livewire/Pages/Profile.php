@@ -7,6 +7,7 @@ namespace App\Livewire\Pages;
 use App\Actions\Logout;
 use App\Models\User;
 use App\Notifications\VerifyNewEmailNotification;
+use App\Services\TwoFactorAuthenticationService;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -20,6 +21,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Jenssegers\Agent\Agent;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Mary\Traits\Toast;
 
@@ -39,6 +41,24 @@ final class Profile extends Component
     public string $password = '';
 
     public string $password_confirmation = '';
+
+    public bool $confirmTwoFactorAuthenticationModal = false;
+
+    public string $confirm_2fa_password = '';
+
+    #[Locked]
+    public bool $showingTwoFactorQrCode = false;
+
+    public string $two_factor_code = '';
+
+    public bool $showingRecoveryCodes = false;
+
+    /** @var array<int, string> */
+    public array $recovery_codes = [];
+
+    public bool $confirmRegenerateRecoveryCodesModal = false;
+
+    public bool $confirmDisableTwoFactorAuthenticationModal = false;
 
     /** @var array<int, array<string, mixed>> */
     public array $sessions = [];
@@ -154,6 +174,130 @@ final class Profile extends Component
         $this->success(__('Password updated'));
     }
 
+    public function getTwoFactorQrCodeSvgProperty(TwoFactorAuthenticationService $service): string
+    {
+        $user = Auth::user();
+        if (empty($user->two_factor_secret)) {
+            return '';
+        }
+
+        return $service->getQRCodeSvg(
+            config()->string('app.name'),
+            $user->email,
+            $user->two_factor_secret
+        );
+    }
+
+    public function openConfirmTwoFactorAuthenticationModal(): void
+    {
+        $this->reset('confirm_2fa_password');
+        $this->resetErrorBag('confirm_2fa_password');
+
+        $this->confirmTwoFactorAuthenticationModal = true;
+    }
+
+    public function enableTwoFactorAuthentication(TwoFactorAuthenticationService $service): void
+    {
+        $this->validate(
+            rules: [
+                'confirm_2fa_password' => ['required', 'string', 'current_password'],
+            ],
+            attributes: [
+                'confirm_2fa_password' => __('validation.attributes.current_password'),
+            ]);
+
+        $user = Auth::user();
+        $user->two_factor_secret = $service->generateSecretKey();
+        $user->two_factor_recovery_codes = [];
+        $user->save();
+
+        $this->showingTwoFactorQrCode = true;
+
+        $this->confirmTwoFactorAuthenticationModal = false;
+    }
+
+    public function confirmTwoFactorAuthentication(TwoFactorAuthenticationService $service): void
+    {
+        $user = Auth::user();
+        if (! $service->verify($user->two_factor_secret, $this->two_factor_code)) {
+            throw ValidationException::withMessages([
+                'two_factor_code' => [__('The provided two factor authentication code was invalid.')],
+            ]);
+        }
+
+        $this->recovery_codes = $service->generateRecoveryCodes();
+
+        $user->two_factor_recovery_codes = $service->hashRecoveryCodes($this->recovery_codes);
+        $user->two_factor_enabled_at = now();
+        $user->save();
+
+        $this->showingTwoFactorQrCode = false;
+        $this->showingRecoveryCodes = true;
+
+        $this->two_factor_code = '';
+
+        $this->success(__('Two factor authentication enabled.'));
+    }
+
+    public function openConfirmRegenerateRecoveryCodesModal(): void
+    {
+        $this->reset('confirm_2fa_password');
+        $this->resetErrorBag('confirm_2fa_password');
+
+        $this->confirmRegenerateRecoveryCodesModal = true;
+    }
+
+    public function regenerateRecoveryCodes(TwoFactorAuthenticationService $service): void
+    {
+        $this->validate(
+            rules: [
+                'confirm_2fa_password' => ['required', 'string', 'current_password'],
+            ],
+            attributes: [
+                'confirm_2fa_password' => __('validation.attributes.current_password'),
+            ]);
+
+        $user = Auth::user();
+
+        $this->recovery_codes = $service->generateRecoveryCodes();
+        $user->two_factor_recovery_codes = $service->hashRecoveryCodes($this->recovery_codes);
+        $user->save();
+
+        $this->showingRecoveryCodes = true;
+
+        $this->confirmRegenerateRecoveryCodesModal = false;
+        $this->success(__('Recovery codes regenerated.'));
+    }
+
+    public function openConfirmDisableTwoFactorAuthenticationModal(): void
+    {
+        $this->reset('confirm_2fa_password');
+        $this->resetErrorBag('confirm_2fa_password');
+
+        $this->confirmDisableTwoFactorAuthenticationModal = true;
+    }
+
+    public function disableTwoFactorAuthentication(): void
+    {
+        $this->validate(
+            rules: [
+                'confirm_2fa_password' => ['required', 'string', 'current_password'],
+            ],
+            attributes: [
+                'confirm_2fa_password' => __('validation.attributes.current_password'),
+            ]);
+
+        $user = Auth::user();
+
+        $user->two_factor_secret = null;
+        $user->two_factor_recovery_codes = null;
+        $user->two_factor_enabled_at = null;
+        $user->save();
+
+        $this->confirmDisableTwoFactorAuthenticationModal = false;
+        $this->success(__('Two factor authentication disabled.'));
+    }
+
     public function openConfirmLogoutOtherBrowserSessionsModal(): void
     {
         $this->reset('confirm_logout_password');
@@ -192,12 +336,7 @@ final class Profile extends Component
         $this->mount();
 
         $this->confirmLogoutOtherBrowserSessionsModal = false;
-        $this->success(__('All other browser sessions have been logged out successfully.'));
-    }
-
-    public function closeConfirmLogoutOtherBrowserSessionsModal(): void
-    {
-        $this->confirmLogoutOtherBrowserSessionsModal = false;
+        $this->success(__('All other sessions have been logged out successfully.'));
     }
 
     /**
@@ -224,11 +363,6 @@ final class Profile extends Component
         $this->resetErrorBag('confirm_delete_password');
         $this->reset('confirm_delete_password');
         $this->confirmUserDeletionModal = true;
-    }
-
-    public function closeConfirmUserDeletionModal(): void
-    {
-        $this->confirmUserDeletionModal = false;
     }
 
     public function render(): Factory|View

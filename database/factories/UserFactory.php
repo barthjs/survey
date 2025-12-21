@@ -36,6 +36,9 @@ final class UserFactory extends Factory
             'remember_token' => Str::random(10),
             'is_active' => true,
             'is_admin' => false,
+            'two_factor_secret' => null,
+            'two_factor_recovery_codes' => null,
+            'two_factor_enabled_at' => null,
         ];
     }
 

@@ -10,6 +10,7 @@ use App\Livewire\Pages\Auth\ForgotPassword;
 use App\Livewire\Pages\Auth\Login;
 use App\Livewire\Pages\Auth\Register;
 use App\Livewire\Pages\Auth\ResetPassword;
+use App\Livewire\Pages\Auth\TwoFactorChallenge;
 use App\Livewire\Pages\Auth\VerifyEmail;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +20,9 @@ Route::middleware('guest')->group(function () {
 
     Route::get('/login', Login::class)
         ->name('login');
+
+    Route::get('/two-factor-challenge', TwoFactorChallenge::class)
+        ->name('two-factor');
 
     Route::get('/forgot-password', ForgotPassword::class)
         ->name('password.request');

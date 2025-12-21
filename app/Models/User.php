@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Hash;
 
 /**
  * @property-read string $id
@@ -28,6 +29,9 @@ use Illuminate\Notifications\Notifiable;
  * @property string|null $remember_token
  * @property bool $is_active
  * @property bool $is_admin
+ * @property string|null $two_factor_secret
+ * @property array<string>|null $two_factor_recovery_codes
+ * @property CarbonInterface|null $two_factor_enabled_at
  * @property-read string $initials
  * @property-read Collection<int, Survey> $surveys
  */
@@ -56,6 +60,8 @@ final class User extends Authenticatable implements MustVerifyEmail
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
     ];
 
     /**
@@ -70,6 +76,9 @@ final class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
             'is_active' => 'boolean',
             'is_admin' => 'boolean',
+            'two_factor_secret' => 'encrypted',
+            'two_factor_recovery_codes' => 'encrypted:array',
+            'two_factor_enabled_at' => 'datetime',
         ];
     }
 
@@ -96,6 +105,26 @@ final class User extends Authenticatable implements MustVerifyEmail
     public function surveys(): HasMany
     {
         return $this->hasMany(Survey::class);
+    }
+
+    /**
+     * Consume a recovery code for the user.
+     */
+    public function consumeRecoveryCode(string $recoveryCode): bool
+    {
+        $codes = $this->two_factor_recovery_codes ?? [];
+
+        foreach ($codes as $index => $hashed) {
+            if (Hash::check($recoveryCode, $hashed)) {
+                unset($codes[$index]);
+                $this->two_factor_recovery_codes = array_values($codes);
+                $this->save();
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     protected static function booted(): void

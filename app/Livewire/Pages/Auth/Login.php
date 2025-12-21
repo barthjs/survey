@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Pages\Auth;
 
+use App\Models\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Facades\Auth;
@@ -37,6 +38,16 @@ final class Login extends Component
         $this->ensureIsNotRateLimited();
 
         $user = $this->validateCredentials();
+
+        /** @var User $user */
+        if ($user->two_factor_enabled_at) {
+            Session::put('login.id', $user->id);
+            Session::put('login.remember', $this->remember);
+
+            $this->redirect(route('two-factor'), navigate: true);
+
+            return;
+        }
 
         Auth::login($user, remember: $this->remember);
         RateLimiter::clear($this->throttleKey());
