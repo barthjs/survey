@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Actions\Logout;
+use App\Http\Controllers\Auth\OidcController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\VerifyNewEmailController;
 use App\Http\Middleware\EnsureUserIsActive;
@@ -48,6 +49,11 @@ Route::middleware(['auth', EnsureUserIsActive::class])->group(function () {
             'verified' => auth()->user()->hasVerifiedEmail(),
         ]);
     })->name('verification.verified');
+});
+
+Route::prefix('auth')->group(function (): void {
+    Route::get('/{provider}/redirect', [OidcController::class, 'redirect'])->name('auth.oidc.redirect');
+    Route::get('/{provider}/callback', [OidcController::class, 'callback'])->name('auth.oidc.callback');
 });
 
 Route::post('/logout', Logout::class)

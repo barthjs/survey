@@ -16,6 +16,7 @@
     "Are you sure you want to regenerate your recovery codes? Once you regenerate your recovery codes, the old ones will no longer work.": "Are you sure you want to regenerate your recovery codes? Once you regenerate your recovery codes, the old ones will no longer work.",
     "Are you sure you would like to disable two factor authentication?": "Are you sure you would like to disable two factor authentication?",
     "At least one question must be marked as required.": "At least one question must be marked as required.",
+    "Authentication via :provider failed.": "Authentication via :Provider failed.",
     "Back to survey": "Back to survey",
     "Cancel": "Cancel",
     "Closed": "Closed",

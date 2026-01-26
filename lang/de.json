@@ -16,6 +16,7 @@
     "Are you sure you want to regenerate your recovery codes? Once you regenerate your recovery codes, the old ones will no longer work.": "Bist du sicher, dass du deine Wiederherstellungscodes neu generieren möchtest? Sobald du sie neu generierst, funktionieren die alten Codes nicht mehr.",
     "Are you sure you would like to disable two factor authentication?": "Bist du sicher, dass du die Zwei-Faktor-Authentifizierung deaktivieren möchtest?",
     "At least one question must be marked as required.": "Mindestens eine Frage muss als Pflichtfrage markiert sein.",
+    "Authentication via :provider failed.": "Anmeldung via :Provider fehlgeschlagen.",
     "Back to survey": "Zurück zur Umfrage",
     "Cancel": "Abbrechen",
     "Closed": "Geschlossen",
