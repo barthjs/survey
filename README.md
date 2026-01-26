@@ -101,7 +101,7 @@ Use the `.env` file to adjust configuration settings:
 | `APP_KEY`                       | (required)  | Key used to encrypt and decrypt data. Generate with: `echo -n 'base64:'; openssl rand -base64 32` |
 | `APP_URL`                       | (required)  | Application URL for notifications                                                                 |
 | `APP_LOCALE`                    | `en`        | Default locale. Supported languages: `en`, `de`                                                   |
-| `APP_ALLOW_REGISTRATION`        | `false`     | Enable/disable user self-registration                                                             |
+| `APP_ALLOW_REGISTRATION`        | `true`      | Enable/disable user self-registration                                                             |
 | `APP_ENABLE_EMAIL_VERIFICATION` | `false`     | Enable/disable user email verification                                                            |
 | `APP_ENABLE_PASSWORD_RESET`     | `false`     | Enable/disable user email password reset                                                          |
 | `LOG_CHANNEL`                   | `stdout`    | `stdout` logs to Docker, whereas `file` writes to `/app/storage/survey.log`                       |
