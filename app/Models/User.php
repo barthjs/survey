@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\Hash;
  * @property string $email
  * @property string|null $new_email
  * @property CarbonInterface|null $email_verified_at
- * @property string $password
+ * @property string|null $password
  * @property string|null $remember_token
  * @property bool $is_active
  * @property bool $is_admin
@@ -33,6 +33,7 @@ use Illuminate\Support\Facades\Hash;
  * @property array<string>|null $two_factor_recovery_codes
  * @property CarbonInterface|null $two_factor_enabled_at
  * @property-read string $initials
+ * @property-read Collection<int, UserProvider> $providers
  * @property-read Collection<int, Survey> $surveys
  */
 final class User extends Authenticatable implements MustVerifyEmail
@@ -97,6 +98,14 @@ final class User extends Authenticatable implements MustVerifyEmail
         }
 
         return $initials;
+    }
+
+    /**
+     * @return HasMany<UserProvider, $this>
+     */
+    public function providers(): HasMany
+    {
+        return $this->hasMany(UserProvider::class, 'user_id');
     }
 
     /**
