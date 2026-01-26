@@ -26,17 +26,9 @@ WORKDIR /app
 ARG VERSION=latest
 ENV APP_VERSION=${VERSION}
 
-LABEL org.opencontainers.image.title="Survey" \
-    org.opencontainers.image.description="Survey creation tool" \
-    org.opencontainers.image.url="https://github.com/barthjs/survey" \
-    org.opencontainers.image.source="https://github.com/barthjs/survey" \
-    org.opencontainers.image.version=${VERSION} \
-    org.opencontainers.image.licenses="MIT"
-
 RUN addgroup -g 1000 application && \
-    adduser -D -u 1000 -G application -h /home/application -s /bin/sh application
-
-RUN apk add --no-cache \
+    adduser -D -u 1000 -G application -h /home/application -s /bin/sh application && \
+    apk add --no-cache \
         curl \
         nginx \
         supervisor
@@ -46,10 +38,10 @@ RUN install-php-extensions \
         opcache \
         pdo_mysql \
         pdo_pgsql && \
-    rm -f /usr/local/bin/install-php-extensions && \
-    rm -rf /usr/local/etc/php-fpm.d/*.conf
+    rm /usr/local/bin/install-php-extensions && \
+    rm -rf /usr/local/etc/php-fpm.d/*.conf && \
+    mv /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini
 
-RUN mv /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini
 COPY docker/php/php.ini docker/php/php-prod.ini /usr/local/etc/php/conf.d/
 COPY docker/php/application.conf /usr/local/etc/php-fpm.d/application.conf
 
@@ -60,6 +52,7 @@ COPY docker/supervisord.conf /etc/supervisord.conf
 COPY docker/supervisor.d /etc/supervisor.d
 
 COPY docker/start.sh /start.sh
+COPY docker/entrypoint.d/*.sh /entrypoint.d/
 
 COPY --chown=application:application --parents \
     app \
