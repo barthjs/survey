@@ -40,6 +40,20 @@ test('users can not authenticate with invalid password', function () {
     $this->assertGuest();
 });
 
+test('oidc redirect route redirects to provider authorization endpoint', function () {
+    $baseUrl = config()->string('services.oidc.base_url');
+    Http::fake([
+        config()->string('services.oidc.base_url').'/.well-known/openid-configuration' => Http::response([
+            'authorization_endpoint' => $baseUrl.'/auth',
+            'token_endpoint' => $baseUrl.'/token',
+            'userinfo_endpoint' => $baseUrl.'/userinfo',
+        ]),
+    ]);
+
+    $this->get(route('auth.oidc.redirect', ['provider' => 'oidc']))
+        ->assertRedirectContains($baseUrl.'/auth');
+});
+
 test('users can logout', function () {
     $user = User::factory()->create();
 

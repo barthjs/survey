@@ -7,6 +7,7 @@ namespace App\Livewire\Pages;
 use App\Actions\Logout;
 use App\Models\User;
 use App\Notifications\VerifyNewEmailNotification;
+use App\Services\Oidc\OidcService;
 use App\Services\TwoFactorAuthenticationService;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Collection;
@@ -60,7 +61,25 @@ final class Profile extends Component
 
     public bool $confirmDisableTwoFactorAuthenticationModal = false;
 
-    /** @var array<int, array<string, mixed>> */
+    /** @var array<array{label: string, is_connected: bool, id?: int|string|null}> */
+    public array $oidcProviders = [];
+
+    public bool $confirmRemoveProviderModal = false;
+
+    public ?string $selectedProviderId = null;
+
+    /**
+     * @var array<int, array{
+     *     device: array{
+     *         is_desktop: bool,
+     *         platform: bool|string,
+     *         browser: bool|string
+     *     },
+     *     ip_address: string|null,
+     *     is_current_device: bool,
+     *     last_active: int
+     * }>
+     */
     public array $sessions = [];
 
     public bool $confirmLogoutOtherBrowserSessionsModal = false;
@@ -79,7 +98,8 @@ final class Profile extends Component
         $this->email = Auth::user()->email;
         $this->new_email = Auth::user()->new_email ?? '';
 
-        $this->sessions = $this->getSessions();
+        $this->loadOidcProviders();
+        $this->loadSessions();
     }
 
     /**
@@ -154,22 +174,30 @@ final class Profile extends Component
      */
     public function updatePassword(): void
     {
+        $user = Auth::user();
+
+        $rules = [
+            'password' => ['required', 'string', Password::defaults(), 'confirmed'],
+        ];
+
+        if ($user->password !== null) {
+            $rules['current_password'] = ['required', 'string', 'current_password'];
+        }
+
         try {
-            /** @var array{current_password: string, password: string} $validated */
-            $validated = $this->validate([
-                'current_password' => ['required', 'string', 'current_password'],
-                'password' => ['required', 'string', Password::defaults(), 'confirmed'],
-            ]);
+            /** @var array{current_password?: string, password: string} $validated */
+            $validated = $this->validate($rules);
         } catch (ValidationException $e) {
             $this->reset('current_password', 'password', 'password_confirmation');
             throw $e;
         }
 
-        Auth::user()->update([
+        $user->update([
             'password' => Hash::make($validated['password']),
         ]);
 
         $this->reset('current_password', 'password', 'password_confirmation');
+        $this->loadOidcProviders();
 
         $this->success(__('Password updated'));
     }
@@ -260,6 +288,7 @@ final class Profile extends Component
         $user = Auth::user();
 
         $this->recovery_codes = $service->generateRecoveryCodes();
+
         $user->two_factor_recovery_codes = $service->hashRecoveryCodes($this->recovery_codes);
         $user->save();
 
@@ -298,6 +327,26 @@ final class Profile extends Component
         $this->success(__('Two factor authentication disabled.'));
     }
 
+    public function openConfirmRemoveProviderModal(string $id): void
+    {
+        $this->selectedProviderId = $id;
+        $this->confirmRemoveProviderModal = true;
+    }
+
+    public function removeProvider(): void
+    {
+        $user = Auth::user();
+        if ($user->password === null && $user->providers()->count() <= 1) {
+            return;
+        }
+
+        $user->providers()->where('id', $this->selectedProviderId)->delete();
+        $this->loadOidcProviders();
+
+        $this->confirmRemoveProviderModal = false;
+        $this->success(__('The connection has been successfully removed.'));
+    }
+
     public function openConfirmLogoutOtherBrowserSessionsModal(): void
     {
         $this->reset('confirm_logout_password');
@@ -311,29 +360,25 @@ final class Profile extends Component
      */
     public function logoutOtherBrowserSessions(): void
     {
-        $this->validate(
-            rules: [
+        $user = Auth::user();
+        if ($user->password !== null) {
+            $this->validate([
                 'confirm_logout_password' => ['required', 'string', 'current_password'],
-            ],
-            attributes: [
-                'confirm_logout_password' => __('validation.attributes.current_password'),
-            ]
-        );
+            ]);
 
-        $user = auth()->user();
+            Auth::logoutOtherDevices($this->confirm_logout_password);
 
-        Auth::logoutOtherDevices($this->confirm_logout_password);
-
-        request()->session()->put([
-            'password_hash_'.Auth::getDefaultDriver() => $user->password,
-        ]);
+            request()->session()->put([
+                'password_hash_'.Auth::getDefaultDriver() => $user->password,
+            ]);
+        }
 
         DB::table(config()->string('session.table'))
             ->where('user_id', $user->id)
             ->where('id', '!=', request()->session()->getId())
             ->delete();
 
-        $this->mount();
+        $this->loadSessions();
 
         $this->confirmLogoutOtherBrowserSessionsModal = false;
         $this->success(__('All other sessions have been logged out successfully.'));
@@ -344,16 +389,15 @@ final class Profile extends Component
      */
     public function deleteUser(Logout $logout): void
     {
-        $this->validate(
-            rules: [
-                'confirm_delete_password' => ['required', 'string', 'current_password'],
-            ],
-            attributes: [
-                'confirm_delete_password' => __('validation.attributes.current_password'),
-            ]
-        );
+        $user = Auth::user();
 
-        tap(Auth::user(), $logout(...))->delete();
+        if ($user->password !== null) {
+            $this->validate([
+                'confirm_delete_password' => ['required', 'string', 'current_password'],
+            ]);
+        }
+
+        tap($user, $logout(...))->delete();
 
         $this->redirect(route('home'), navigate: true);
     }
@@ -362,6 +406,7 @@ final class Profile extends Component
     {
         $this->resetErrorBag('confirm_delete_password');
         $this->reset('confirm_delete_password');
+
         $this->confirmUserDeletionModal = true;
     }
 
@@ -371,43 +416,54 @@ final class Profile extends Component
             ->title(__('Profile'));
     }
 
-    /**
-     * @return array<int, array{
-     *     device: array{
-     *         is_desktop: bool,
-     *         platform: bool|string,
-     *         browser: bool|string
-     *     },
-     *     ip_address: string|null,
-     *     is_current_device: bool,
-     *     last_active: int
-     * }>
-     */
-    private function getSessions(): array
+    private function loadOidcProviders(): void
+    {
+        $service = app(OidcService::class);
+        $enabled = $service->getEnabledProviders();
+
+        $user = Auth::user();
+        $connected = $user->providers;
+        $connectedCount = $connected->count();
+        $hasPassword = $user->password !== null;
+
+        $this->oidcProviders = [];
+        foreach ($enabled as $slug => $data) {
+            $connection = $connected->firstWhere('provider_name', $slug);
+            $this->oidcProviders[$slug] = [
+                'icon' => $data['icon'],
+                'label' => $data['label'],
+                'is_connected' => $connection !== null,
+                'can_be_removed' => $hasPassword || $connectedCount > 1,
+                'id' => $connection?->id,
+            ];
+        }
+    }
+
+    private function loadSessions(): void
     {
         /** @var Collection<int, object{ id: string, user_agent: string|null, ip_address: string|null, last_activity: int }> $sessions */
-        $sessions = DB::table('sys_sessions')
+        $sessions = DB::table(config()->string('session.table'))
             ->where('user_id', '=', auth()->user()->id)
             ->latest('last_activity')
             ->get();
 
-        $result = [];
+        $currentSessionId = request()->hasSession() ? request()->session()->getId() : null;
+
         $agent = new Agent();
+        $this->sessions = [];
         foreach ($sessions as $session) {
             $agent->setUserAgent($session->user_agent);
 
-            $result[] = [
+            $this->sessions[] = [
                 'device' => [
                     'is_desktop' => $agent->isDesktop(),
                     'platform' => $agent->platform(),
                     'browser' => $agent->browser(),
                 ],
                 'ip_address' => $session->ip_address,
-                'is_current_device' => $session->id === request()->session()->getId(),
+                'is_current_device' => $session->id === $currentSessionId,
                 'last_active' => $session->last_activity,
             ];
         }
-
-        return $result;
     }
 }

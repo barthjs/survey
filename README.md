@@ -30,6 +30,7 @@
       </ul>
     </li>
     <li><a href="#configuration">Configuration</a></li>
+    <li><a href="#openid-connect-sso">OpenID Connect (SSO)</a></li>
     <li><a href="#account-management">Account Management</a></li>
     <li><a href="#screenshots">Screenshots</a></li>
     <li><a href="#updating">Updating</a></li>
@@ -104,7 +105,7 @@ Use the `.env` file to adjust configuration settings:
 | `APP_ALLOW_REGISTRATION`        | `true`      | Enable/disable user self-registration                                                             |
 | `APP_ENABLE_EMAIL_VERIFICATION` | `false`     | Enable/disable user email verification                                                            |
 | `APP_ENABLE_PASSWORD_RESET`     | `false`     | Enable/disable user email password reset                                                          |
-| `LOG_CHANNEL`                   | `stdout`    | `stdout` logs to Docker, whereas `file` writes to `/app/storage/survey.log`                       |
+| `LOG_CHANNEL`                   | `stdout`    | `stdout` logs to Docker, whereas `file` writes to `/app/storage/logs/survey.log`                  |
 | `LOG_LEVEL`                     | `warning`   | Log level: `debug`, `info`, `warning`, `error`                                                    |
 | `DB_CONNECTION`                 | `pgsql`     | Database driver: `pgsql`, `mariadb` or `sqlite`,                                                  |
 | `DB_HOST`                       | `survey-db` | Database host name                                                                                |
@@ -120,6 +121,63 @@ Use the `.env` file to adjust configuration settings:
 | `MAIL_PASSWORD`                 | (required)  | Mail server password                                                                              |
 | `MAIL_FROM_ADDRESS`             | (required)  | Sender email address                                                                              |
 | `MAIL_FROM_NAME`                | (required)  | Sender name                                                                                       |
+
+## OpenID Connect (SSO)
+
+Fin-Tracker supports authentication via OpenID Connect (OIDC). You can configure a generic provider or use
+pre-configured integrations for common identity providers.
+
+### Generic Provider
+
+To use a generic OIDC provider, set the following variables in your `.env`. The provider must support OIDC Discovery via
+the provided base URL.
+
+```dotenv
+OIDC_ENABLED=true
+OIDC_URL=https://auth.example.com
+OIDC_CLIENT_ID=your-client-id
+OIDC_CLIENT_SECRET=your-client-secret
+```
+
+### Specialized Providers
+
+Fin-Tracker includes built-in support for the following identity providers. These follow a consistent environment
+variable pattern:
+
+```dotenv
+PREFIX_OIDC_ENABLED=true
+PREFIX_OIDC_URL=https://auth.example.com
+PREFIX_OIDC_CLIENT_ID=your-client-id
+PREFIX_OIDC_CLIENT_SECRET=your-client-secret
+```
+
+- [Google](https://developers.google.com/identity/openid-connect/openid-connect): Use prefix `GOOGLE`
+- [GitHub](https://docs.github.com/en/developers/apps/building-oauth-apps/authorizing-oauth-apps): Use prefix `GITHUB`
+- [Authelia](https://www.authelia.com/configuration/identity-providers/openid-connect/clients/): Use prefix `AUTHELIA`
+- [Authentik](https://docs.goauthentik.io/add-secure-apps/providers/oauth2/): Use prefix `AUTHENTIK`
+- [Gitea](https://docs.gitea.com/development/oauth2-provider): Use prefix `GITEA`
+- [Keycloak](https://www.keycloak.org/documentation): Use prefix `KEYCLOAK` (see specific configuration below)
+
+#### Keycloak Configuration
+
+Keycloak requires a realm name in addition to the base URL:
+
+```dotenv
+KEYCLOAK_OIDC_ENABLED=true
+KEYCLOAK_OIDC_URL=https://auth.example.com
+KEYCLOAK_OIDC_REALM=master
+KEYCLOAK_OIDC_CLIENT_ID=your-client-id
+KEYCLOAK_OIDC_CLIENT_SECRET=your-client-secret
+```
+
+### Redirect URI
+
+When configuring your Identity Provider (IdP), you must use the following callback URL:
+
+`https://your-domain.com/auth/oidc/[provider]/callback`
+
+Replace `[provider]` with the identifier of your provider (`google`, `github`,`authelia`, `authentik`, `gitea`,
+`keycloak`, or `oidc` for the generic provider).
 
 ## Account Management
 
