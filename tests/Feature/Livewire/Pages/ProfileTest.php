@@ -17,12 +17,12 @@ beforeEach(function () {
 
 it('renders the profile page', function () {
     Livewire::test(Profile::class)
-        ->assertStatus(200)
+        ->assertOk()
         ->assertSet('name', $this->user->name)
         ->assertSet('email', $this->user->email);
 });
 
-it('updates profile information', function () {
+it('can update profile information', function () {
     Livewire::test(Profile::class)
         ->set('name', 'Updated Name')
         ->set('email', 'updated@example.com')
@@ -36,7 +36,7 @@ it('updates profile information', function () {
     ]);
 });
 
-it('updates the password', function () {
+it('can update the password', function () {
     Livewire::test(Profile::class)
         ->set('current_password', 'password')
         ->set('password', 'new-password')
@@ -62,16 +62,25 @@ it('requires the correct current password to update password', function () {
     expect(Hash::check('password', $this->user->refresh()->password))->toBeTrue();
 });
 
-it('deletes the user account', function () {
+it('can remove a linked OIDC provider', function () {
+    $provider = $this->user->providers()->create(['provider_name' => 'oidc', 'provider_id' => '1']);
+
+    Livewire::test(Profile::class)
+        ->set('selectedProviderId', $provider->id)
+        ->call('removeProvider', $provider->id)
+        ->assertHasNoErrors();
+
+    assertDatabaseMissing('sys_user_providers', ['id' => $provider->id]);
+});
+
+it('can delete the user account', function () {
     Livewire::test(Profile::class)
         ->set('confirm_delete_password', 'password')
         ->call('deleteUser')
         ->assertHasNoErrors()
         ->assertRedirect(route('home'));
 
-    assertDatabaseMissing('sys_users', [
-        'id' => $this->user->id,
-    ]);
+    assertDatabaseMissing('sys_users', ['id' => $this->user->id]);
 });
 
 it('requires correct password for account deletion', function () {
@@ -80,7 +89,5 @@ it('requires correct password for account deletion', function () {
         ->call('deleteUser')
         ->assertHasErrors(['confirm_delete_password']);
 
-    assertDatabaseHas('sys_users', [
-        'id' => $this->user->id,
-    ]);
+    assertDatabaseHas('sys_users', ['id' => $this->user->id]);
 });

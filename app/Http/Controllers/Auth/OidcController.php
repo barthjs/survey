@@ -40,7 +40,7 @@ final readonly class OidcController
         $returnTo = Session::pull('oidc_return_to', route('login'));
 
         if ($request->has('error')) {
-            Session::flash('oidc_error', __('Authentication via :Provider failed.', ['provider' => $provider]));
+            Session::flash('oidc_error', __('Authentication via :provider failed.', ['provider' => $provider]));
 
             return redirect($returnTo);
         }
