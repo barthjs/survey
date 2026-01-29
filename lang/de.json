@@ -200,6 +200,8 @@
     "Your Survey Link": "Dein Umfragelink",
     "log in": "Anmelden",
     "of": "von",
+    "or sign in with": "oder anmelden mit",
+    "or sign up with": "oder registrieren mit",
     "question_types.FILE": "Dateiupload",
     "question_types.MULTIPLE_CHOICE": "Mehrfachauswahl",
     "question_types.TEXT": "Text",

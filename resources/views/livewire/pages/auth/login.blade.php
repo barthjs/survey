@@ -11,7 +11,8 @@
         @endif
     </x-slot:subtitle>
 
-    <x-auth-session-status :status="session('status')" class="text-center"/>
+    <x-auth-session-status :status="session('status')"/>
+    <x-auth-session-status :status="session('oidc_error')" class="text-red-600"/>
 
     <x-form wire:submit="login" novalidate>
         <x-input
@@ -38,6 +39,8 @@
             />
         </div>
     </x-form>
+
+    <x-auth.oidc mode="login"/>
 
     <div class="text-center text-sm mt-4 flex flex-col gap-y-3">
         @if(config('app.allow_registration'))
