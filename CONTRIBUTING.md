@@ -11,7 +11,7 @@ Tech stack:
 
 - [PHP](https://php.net/)
 - [Laravel](https://laravel.com/)
-- [Livewire](https://laravel-livewire.com/)
+- [Livewire](https://livewire.laravel.com/)
 - [Alpine.js](https://alpinejs.dev/)
 - [TailwindCSS](https://tailwindcss.com/)
 - [maryUI](https://mary-ui.com/)
@@ -31,27 +31,25 @@ Prerequisites:
 - [Docker](https://docs.docker.com/engine/install/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 
-The repository includes a development Dockerfile and a helper script that prepares everything (containers, dependencies,
-database, demo data and assets).
-
-Quick start:
+The repository includes a development Dockerfile and Docker Compose configuration.
 
 ```shell
 git clone https://github.com/barthjs/survey
 cd survey
-./setup-dev.sh
+cp .env.development .env
+docker compose -f compose.dev.yaml up -d --build
 ```
 
-This will:
+After that, open a shell inside the container and run the composer setup script:
 
-- Build and start the dev containers defined in [compose.dev.yaml](compose.dev.yaml)
-- Install composer and npm dependencies
-- Run database migrations and seed demo data
-- Publish Livewire assets
+```shell
+docker exec -u application -it survey zsh
+composer setup-dev
+```
 
 Customize the environment via [.env.development](.env.development).
 
-App URL: http://localhost
+App URL: http://localhost:8080
 
 Default admin credentials:
 
@@ -98,10 +96,10 @@ composer update:requirements
 
 Notes:
 
-- After `composer update`, hooks will automatically publish Livewire assets and clear caches.
+- After `composer update`, hooks will automatically publish Livewire assets, and clear caches.
 - When running commands, prefer executing them inside the container as the application user to avoid permission issues.
 
-## Coding style & conventions
+## Coding style and conventions
 
 - Follow [.editorconfig](.editorconfig).
 - Use Laravel Pint with the rules defined in [pint.json](pint.json).
@@ -118,7 +116,7 @@ Notes:
 Livewire asset publishing is handled by the setup script and after Composer updates. To publish assets manually:
 
 ```shell
-php artisan livewire:publish --assets
+composer publish-assets
 ```
 
 After making changes to assets in the [resources](resources) directory, rebuild with:
@@ -130,7 +128,7 @@ npm run build
 For hot reload run the Vite dev server inside the container:
 
 ```shell
-docker exec -u application -it survey bash -c "npm run dev"
+docker exec -u application -it survey zsh -c "npm run dev"
 ```
 
 ## Translations

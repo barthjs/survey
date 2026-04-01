@@ -48,6 +48,5 @@ jobs:
       - name: Prepare PHPStan cache directory
         run: mkdir -p /tmp/phpstan
 
-
       - name: Run test suite
         run: composer test

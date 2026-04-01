@@ -29,8 +29,9 @@ final class DatabaseSeeder extends Seeder
             return;
         }
 
+        $admin = null;
         if (User::where('is_admin', '=', true)->count() === 0) {
-            User::create(
+            $admin = User::create(
                 [
                     'name' => 'Admin User',
                     'email' => 'admin@example.com',
@@ -39,12 +40,14 @@ final class DatabaseSeeder extends Seeder
                     'is_active' => true,
                     'is_admin' => true,
                 ]
-            ) |> $this->createDemoSurveys(...);
+            );
         }
 
         if (! App::isLocal()) {
             return;
         }
+
+        $admin && $this->createDemoSurveys($admin);
 
         User::firstOrCreate(['email' => 'user@example.com'],
             [

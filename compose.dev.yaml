@@ -1,14 +1,14 @@
 services:
   survey:
     build:
-      context: docker
-      dockerfile: Dockerfile-dev
+      context: .
+      target: dev
     pull_policy: never
     image: barthjs/survey:dev
     container_name: survey
     ports:
-      - 80:80
       - 5173:5173
+      - 8080:8080
     volumes:
       - ./:/app
     extra_hosts:

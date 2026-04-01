@@ -8,7 +8,7 @@ return [
 
     'version' => env('APP_VERSION', 'dev'),
 
-    'url' => env('APP_URL', 'http://localhost'),
+    'url' => mb_rtrim(env('APP_URL', 'http://localhost:8080'), '/'),
 
     'locales' => [
         'en' => 'English',
