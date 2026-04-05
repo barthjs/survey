@@ -10,8 +10,8 @@
         </x-slot:actions>
     </x-header>
 
-    <x-user.create/>
-    <x-user.edit/>
+    <x-user.create />
+    <x-user.edit />
 
     <x-card>
         <x-input
@@ -32,73 +32,71 @@
             class="mt-4"
         >
             <x-slot:empty>
-                <x-icon name="o-information-circle" :label="__('No users found')"/>
+                <x-icon name="o-information-circle" :label="__('No users found')" />
             </x-slot:empty>
 
-            @scope('cell_email', $user)
-            <a href="mailto:{{ $user->email }}" class="link">
-                {{ $user->email }}
-            </a>
+            @scope ('cell_email', $user)
+                <a href="mailto:{{ $user->email }}" class="link"> {{ $user->email }} </a>
             @endscope
 
-            @scope('cell_email_verified_at', $user)
-            <x-popover>
-                <x-slot:trigger>
-                    <x-icon
-                        :name="$user->email_verified_at ? 'o-check-circle' : 'o-x-circle'"
-                        :class="$user->email_verified_at ? 'text-success' : 'text-base-content'"
-                    />
-                </x-slot:trigger>
+            @scope ('cell_email_verified_at', $user)
+                <x-popover>
+                    <x-slot:trigger>
+                        <x-icon
+                            :name="$user->email_verified_at ? 'o-check-circle' : 'o-x-circle'"
+                            :class="$user->email_verified_at ? 'text-success' : 'text-base-content'"
+                        />
+                    </x-slot:trigger>
 
-                <x-slot:content>
-                    {{ $user->email_verified_at }}
-                </x-slot:content>
-            </x-popover>
+                    <x-slot:content>
+                        {{ $user->email_verified_at }}
+                    </x-slot:content>
+                </x-popover>
             @endscope
 
-            @scope('cell_is_active', $user)
-            <x-popover>
-                <x-slot:trigger>
-                    <x-icon
-                        :name="$user->is_active ? 'o-check-circle' : 'o-x-circle'"
-                        :class="$user->is_active ? 'text-success' : 'text-error'"
-                    />
-                </x-slot:trigger>
+            @scope ('cell_is_active', $user)
+                <x-popover>
+                    <x-slot:trigger>
+                        <x-icon
+                            :name="$user->is_active ? 'o-check-circle' : 'o-x-circle'"
+                            :class="$user->is_active ? 'text-success' : 'text-error'"
+                        />
+                    </x-slot:trigger>
 
-                <x-slot:content>
-                    {{ $user->is_active ? __('Active') : __('Inactive') }}
-                </x-slot:content>
-            </x-popover>
+                    <x-slot:content>
+                        {{ $user->is_active ? __('Active') : __('Inactive') }}
+                    </x-slot:content>
+                </x-popover>
             @endscope
 
-            @scope('cell_is_admin', $user)
-            <x-icon
-                :name="$user->is_admin ? 'o-check-circle' : 'o-x-circle'"
-                :class="$user->is_admin ? 'text-success' : 'text-base-content'"
-            />
+            @scope ('cell_is_admin', $user)
+                <x-icon
+                    :name="$user->is_admin ? 'o-check-circle' : 'o-x-circle'"
+                    :class="$user->is_admin ? 'text-success' : 'text-base-content'"
+                />
             @endscope
 
-            @scope('actions', $user)
-            <div class="flex">
-                @can('update', $user)
-                    <x-button
-                        icon="o-pencil"
-                        wire:click="openEditUserModal('{{ $user->id }}')"
-                        class="btn-sm btn-ghost text-primary p-1"
-                    />
-                @endcan
+            @scope ('actions', $user)
+                <div class="flex">
+                    @can ('update', $user)
+                        <x-button
+                            icon="o-pencil"
+                            wire:click="openEditUserModal('{{ $user->id }}')"
+                            class="btn-sm btn-ghost text-primary p-1"
+                        />
+                    @endcan
 
-                @can('delete', $user)
-                    <x-button
-                        icon="o-trash"
-                        wire:click="confirmDeletion('{{ $user->id }}')"
-                        class="btn-sm btn-ghost text-error"
-                    />
-                @endcan
-            </div>
+                    @can ('delete', $user)
+                        <x-button
+                            icon="o-trash"
+                            wire:click="confirmDeletion('{{ $user->id }}')"
+                            class="btn-sm btn-ghost text-error"
+                        />
+                    @endcan
+                </div>
             @endscope
         </x-table>
 
-        <x-confirm-delete :title="__('Delete user')"/>
+        <x-confirm-delete :title="__('Delete user')" />
     </x-card>
 </div>

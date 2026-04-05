@@ -3,9 +3,9 @@
     :subtitle="__('Enter your email to receive a password reset link')"
     separator
     shadow
-    class="w-full max-w-lg mx-auto"
+    class="mx-auto w-full max-w-lg"
 >
-    <x-auth-session-status :status="session('status')" class="text-center"/>
+    <x-auth-session-status :status="session('status')" class="text-center" />
 
     <x-form wire:submit="sendPasswordResetLink" novalidate>
         <x-input
@@ -17,9 +17,9 @@
             required
         />
 
-        <hr class="mt-3"/>
+        <hr class="mt-3" />
 
-        <div class="w-full flex justify-center">
+        <div class="flex w-full justify-center">
             <x-button
                 icon="o-envelope"
                 :label="__('Email password reset link')"
@@ -30,10 +30,8 @@
         </div>
     </x-form>
 
-    <div class="text-center text-sm mt-4">
+    <div class="mt-4 text-center text-sm">
         {{ __('Or, return to') }}
-        <a href="{{ route('login') }}" wire:navigate.hover class="link">
-            {{ __('log in') }}
-        </a>
+        <a href="{{ route('login') }}" wire:navigate.hover class="link"> {{ __('log in') }} </a>
     </div>
 </x-card>

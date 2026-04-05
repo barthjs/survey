@@ -1,15 +1,19 @@
 @php
     use Carbon\Carbon;
 @endphp
-<div class="max-w-4xl mx-auto space-y-8">
-    <x-header :title="__('Profile')" :subtitle="__('Manage your profile and account settings')" separator/>
+<div class="mx-auto max-w-4xl space-y-8">
+    <x-header
+        :title="__('Profile')"
+        :subtitle="__('Manage your profile and account settings')"
+        separator
+    />
 
     <x-card :title="__('Profile')" :subtitle="__('Update your name and email address')">
         <x-form wire:submit="updateProfileInformation" novalidate autocomplete="off">
-            <x-input icon="o-user" :label="__('Full name')" wire:model="name" required/>
-            <x-input icon="o-at-symbol" :label="__('Email address')" wire:model="email" required/>
+            <x-input icon="o-user" :label="__('Full name')" wire:model="name" required />
+            <x-input icon="o-at-symbol" :label="__('Email address')" wire:model="email" required />
 
-            <x-auth-session-status :status="session('new_email')" class="text-yellow-600"/>
+            <x-auth-session-status :status="session('new_email')" class="text-yellow-600" />
 
             <x-slot:actions class="justify-start">
                 <x-button
@@ -37,7 +41,7 @@
         :subtitle="__('Ensure your account is using a long, random password to stay secure')"
     >
         <x-form wire:submit="updatePassword" novalidate autocomplete="off">
-            @if(Auth::user()->password !== null)
+            @if (Auth::user()->password !== null)
                 <x-password
                     :label="__('Current password')"
                     clearable
@@ -51,11 +55,7 @@
                 />
             @endif
 
-            <x-password
-                :label="__('New password')"
-                clearable
-                wire:model="password"
-            />
+            <x-password :label="__('New password')" clearable wire:model="password" />
             <x-password
                 :label="__('Confirm password')"
                 clearable
@@ -73,19 +73,18 @@
         </x-form>
     </x-card>
 
-    @if(auth()->user()->password !== null)
+    @if (auth()->user()->password !== null)
         <x-card
             :title="__('Two factor authentication')"
             :subtitle="__('Add additional security to your account using two factor authentication.')"
         >
-            @if(auth()->user()->two_factor_enabled_at)
+            @if (auth()->user()->two_factor_enabled_at)
                 <x-alert
                     icon="o-check-circle"
                     :title="__('You have enabled two factor authentication.')"
                     class="alert-success"
                 />
-
-                @if($showingRecoveryCodes)
+                @if ($showingRecoveryCodes)
                     <div x-data="{ copied: false }" class="mt-6 space-y-4">
                         <x-alert
                             icon="o-key"
@@ -94,7 +93,9 @@
                             class="alert-warning"
                         />
 
-                        <ul class="list-disc list-inside text-center grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-sm bg-base-200 p-4 rounded-lg">
+                        <ul
+                            class="bg-base-200 grid list-inside list-disc grid-cols-1 gap-2 rounded-lg p-4 text-center font-mono text-sm sm:grid-cols-2"
+                        >
                             @foreach ($recovery_codes as $code)
                                 <li class="tracking-wider">{{ $code }}</li>
                             @endforeach
@@ -116,7 +117,6 @@
                         </p>
                     </div>
                 @endif
-
                 <div class="mt-6 flex gap-4">
                     @if (!$showingRecoveryCodes)
                         <x-button
@@ -132,7 +132,6 @@
                         class="btn-error"
                     />
                 </div>
-
                 <x-modal
                     wire:model="confirmRegenerateRecoveryCodesModal"
                     :title="__('Regenerate Recovery Codes')"
@@ -162,7 +161,6 @@
                         </x-slot:actions>
                     </x-form>
                 </x-modal>
-
                 <x-modal
                     wire:model="confirmDisableTwoFactorAuthenticationModal"
                     :title="__('Disable Two Factor Authentication')"
@@ -198,7 +196,6 @@
                     :title="__('You have not enabled two factor authentication.')"
                     :description="__('When two factor authentication is enabled, you will be prompted for a secure, random token during authentication. You may retrieve this token from your phone\'s authenticator application.')"
                 />
-
                 @if ($showingTwoFactorQrCode)
                     <div class="mt-6 space-y-6">
                         <x-alert
@@ -208,8 +205,8 @@
                             class="alert-info"
                         />
 
-                        <div class="flex flex-col md:flex-row gap-8 items-center md:items-start">
-                            <div class="bg-white p-2 rounded-lg">
+                        <div class="flex flex-col items-center gap-8 md:flex-row md:items-start">
+                            <div class="rounded-lg bg-white p-2">
                                 {!! $this->twoFactorQrCodeSvg !!}
                             </div>
 
@@ -248,7 +245,6 @@
                             class="btn-primary"
                         />
                     </x-slot:menu>
-
                     <x-modal
                         wire:model="confirmTwoFactorAuthenticationModal"
                         :title="__('Enable Two Factor Authentication')"
@@ -256,7 +252,10 @@
                         class="backdrop-blur"
                     >
                         <x-form wire:submit="enableTwoFactorAuthentication" novalidate>
-                            <x-password :label="__('Current password')" wire:model="confirm_2fa_password"/>
+                            <x-password
+                                :label="__('Current password')"
+                                wire:model="confirm_2fa_password"
+                            />
 
                             <x-slot:actions class="justify-start">
                                 <x-button
@@ -281,18 +280,18 @@
 
     @if (!empty($this->oidcProviders))
         <x-card :title="__('Connected Accounts')">
-            <x-auth-session-status :status="session('oidc_error')" class="text-red-600"/>
+            <x-auth-session-status :status="session('oidc_error')" class="text-red-600" />
 
             <div class="divide-y divide-gray-200 dark:divide-white/5">
                 @foreach ($this->oidcProviders as $slug => $provider)
                     <div class="flex items-center justify-between py-4">
                         <div class="flex items-center gap-4">
-                            <div class="flex items-center justify-center w-8 h-8">
-                                <x-icon :name="$provider['icon']" class="w-full h-full"/>
+                            <div class="flex h-8 w-8 items-center justify-center">
+                                <x-icon :name="$provider['icon']" class="h-full w-full" />
                             </div>
 
                             <div>
-                                <div class="font-medium text-sm">{{ $provider['label'] }}</div>
+                                <div class="text-sm font-medium">{{ $provider['label'] }}</div>
                                 <div class="text-xs text-gray-500">
                                     {{ $provider['is_connected'] ? __('Connected') : __('Not connected') }}
                                 </div>
@@ -353,44 +352,52 @@
         <div class="divide-y divide-gray-200 dark:divide-white/5">
             @foreach ($this->sessions as $session)
                 <div class="flex items-center gap-4 py-6">
-                    <div class="flex items-center justify-center p-2 rounded-lg bg-gray-100 dark:bg-white/5">
+                    <div
+                        class="flex items-center justify-center rounded-lg bg-gray-100 p-2 dark:bg-white/5"
+                    >
                         @if ($session['device']['is_desktop'])
                             <x-icon
                                 name="o-computer-desktop"
-                                class="w-8 h-8 text-gray-500 dark:text-gray-400"
+                                class="h-8 w-8 text-gray-500 dark:text-gray-400"
                             />
                         @else
                             <x-icon
                                 name="o-device-phone-mobile"
-                                class="w-8 h-8 text-gray-500 dark:text-gray-400"
+                                class="h-8 w-8 text-gray-500 dark:text-gray-400"
                             />
                         @endif
                     </div>
 
                     <div class="flex-1">
                         <div class="text-sm font-medium">
-                            {{ $session['device']['platform'] ?: __('Unknown platform') }}
-                            - {{ $session['device']['browser'] ?: __('Unknown browser') }}
+                            {{ $session['device']['platform'] ?: __('Unknown platform') }} - {{ $session['device']['browser'] ?: __('Unknown browser') }}
                         </div>
 
                         <div class="flex items-center gap-2 text-xs text-gray-500">
                             {{ $session['ip_address'] }}
 
-                            @if($session['is_current_device'])
-                                <div class="flex items-center gap-2 ml-1">
+                            @if ($session['is_current_device'])
+                                <div class="ml-1 flex items-center gap-2">
                                     <span class="relative flex h-2 w-2">
                                         <span
-                                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75">
+                                            class="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"
+                                        >
                                         </span>
                                         <span
-                                            class="relative inline-flex rounded-full h-2 w-2 bg-green-500">
+                                            class="relative inline-flex h-2 w-2 rounded-full bg-green-500"
+                                        >
                                         </span>
                                     </span>
-                                    <span class="font-semibold text-green-500">{{ __('This device') }}</span>
+                                    <span
+                                        class="font-semibold text-green-500"
+                                        >{{ __('This device') }}</span
+                                    >
                                 </div>
                             @else
                                 <span class="text-gray-300 dark:text-gray-600">•</span>
-                                <span>{{ __('Last active') }} {{ Carbon::createFromTimestamp($session['last_active'])->diffForHumans() }}</span>
+                                <span
+                                    >{{ __('Last active') }} {{ Carbon::createFromTimestamp($session['last_active'])->diffForHumans() }}</span
+                                >
                             @endif
                         </div>
                     </div>
@@ -411,8 +418,8 @@
             class="backdrop-blur"
         >
             <x-form wire:submit="logoutOtherBrowserSessions" novalidate>
-                @if(auth()->user()->password !== null)
-                    <x-password :label="__('Password')" wire:model="confirm_logout_password"/>
+                @if (auth()->user()->password !== null)
+                    <x-password :label="__('Password')" wire:model="confirm_logout_password" />
                 @endif
 
                 <x-slot:actions class="justify-start">
@@ -434,7 +441,10 @@
         </x-modal>
     </x-card>
 
-    <x-card :title="__('Delete account')" :subtitle="__('Delete your account and all of its resources')">
+    <x-card
+        :title="__('Delete account')"
+        :subtitle="__('Delete your account and all of its resources')"
+    >
         <x-modal
             :title="__('Are you sure you want to delete your account?')"
             :subtitle="auth()->user()->password !== null ? __('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm.') : __('Once your account is deleted, all of its resources and data will be permanently deleted.')"
@@ -442,8 +452,12 @@
             class="backdrop-blur"
         >
             <x-form wire:submit="deleteUser" novalidate autocomplete="off">
-                @if(auth()->user()->password !== null)
-                    <x-password :label="__('Password')" wire:model="confirm_delete_password" required/>
+                @if (auth()->user()->password !== null)
+                    <x-password
+                        :label="__('Password')"
+                        wire:model="confirm_delete_password"
+                        required
+                    />
                 @endif
 
                 <x-slot:actions class="justify-start">

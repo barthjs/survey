@@ -18,5 +18,5 @@
         </x-slot:actions>
     </x-header>
 
-    <x-manage-survey-form :questions="$questions"/>
+    <x-manage-survey-form :questions="$questions" />
 </div>

@@ -3,22 +3,26 @@
 @import './fonts.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source "../../vendor/robsontenorio/mary/src/View/Components/**/*.php";
+@source '../../vendor/robsontenorio/mary/src/View/Components/**/*.php';
 @source '../views';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-    --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans:
+        'Poppins', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
 /** daisyUI */
-@plugin "daisyui" {
-    themes: fantasy --default, night --prefersdark;
+@plugin 'daisyui' {
+    themes:
+        fantasy --default,
+        night --prefersdark;
 }
 
-@plugin "daisyui/theme" {
-    name: "fantasy";
+@plugin 'daisyui/theme' {
+    name: 'fantasy';
     --radius-selector: 0.5rem;
     --radius-field: 0.25rem;
     --radius-box: 0.5rem;
@@ -26,8 +30,8 @@
     --depth: 1;
 }
 
-@plugin "daisyui/theme" {
-    name: "night";
+@plugin 'daisyui/theme' {
+    name: 'night';
     --radius-selector: 0.5rem;
     --radius-field: 0.25rem;
     --radius-box: 0.5rem;
@@ -37,10 +41,10 @@
 
 /* Table pagination: General button */
 .mary-table-pagination button {
-    @apply cursor-pointer
+    @apply cursor-pointer;
 }
 
 /* Table pagination: Active button */
-.mary-table-pagination span[aria-current="page"] > span {
-    @apply bg-primary text-base-100
+.mary-table-pagination span[aria-current='page'] > span {
+    @apply bg-primary text-base-100;
 }

@@ -1,40 +1,47 @@
 @php use App\Enums\QuestionType; @endphp
-@props(['questions' => []])
+@props (['questions' => []])
 <div x-data="surveyBuilder()" x-init="init()" x-on:save-survey.window="submitSurvey()">
     <x-form novalidate autocomplete="off">
         <x-card>
-            <x-input :label="__('Title')" wire:model="title" required/>
-            <x-textarea :label="__('Description')" :hint="__('Max 1000 chars')" wire:model="description" rows="5"/>
+            <x-input :label="__('Title')" wire:model="title" required />
+            <x-textarea
+                :label="__('Description')"
+                :hint="__('Max 1000 chars')"
+                wire:model="description"
+                rows="5"
+            />
             <div class="flex">
-                <x-datetime :label="__('End date')" wire:model="end_date" type="datetime-local"/>
+                <x-datetime :label="__('End date')" wire:model="end_date" type="datetime-local" />
             </div>
             <div class="mt-4">
-                <x-checkbox :label="__('Public')" wire:model="is_public"/>
-                <x-checkbox :label="__('Active')" wire:model="is_active"/>
+                <x-checkbox :label="__('Public')" wire:model="is_public" />
+                <x-checkbox :label="__('Active')" wire:model="is_active" />
             </div>
         </x-card>
 
-        <div x-show="!questions.some(q => q.is_required)" class="text-error">
+        <div x-show="!questions.some((q) => q.is_required)" class="text-error">
             {{ __('At least one question must be marked as required.') }}
         </div>
 
         <template x-for="(question, questionIndex) in questions">
             <x-card>
                 <div class="flex items-center">
-                    <x-badge x-text="'{{ __('Question') }} ' + (questionIndex + 1)" class="badge-primary mr-4"/>
+                    <x-badge
+                        x-text="'{{ __('Question') }} ' + (questionIndex + 1)"
+                        class="badge-primary mr-4"
+                    />
                     <x-checkbox
                         :label="__('Required')"
                         x-model="question.is_required"
-                        x-on:click="if (questions.length === 1) $event.preventDefault()"
+                        x-on:click="if (questions.length === 1) $event.preventDefault();"
                     />
                 </div>
 
-                <x-input :label="__('Question text')" x-model="question.question_text" required/>
+                <x-input :label="__('Question text')" x-model="question.question_text" required />
                 <div
-                    class="text-sm text-error"
+                    class="text-error text-sm"
                     x-text="getError(`questions.${questionIndex}.question_text`)"
-                >
-                </div>
+                ></div>
 
                 <x-select
                     :label="__('Type')"
@@ -51,7 +58,10 @@
                             <div class="space-y-1">
                                 <div class="flex gap-2">
                                     <div class="flex-1">
-                                        <x-input x-model="question.options[optionIndex].option_text" class="w-full"/>
+                                        <x-input
+                                            x-model="question.options[optionIndex].option_text"
+                                            class="w-full"
+                                        />
                                     </div>
                                     <x-button
                                         icon="o-x-mark"
@@ -62,8 +72,12 @@
                                 </div>
                                 <div
                                     class="text-error"
-                                    x-text="getError(`questions.${questionIndex}.options.${optionIndex}.option_text`)">
-                                </div>
+                                    x-text="
+                                        getError(
+                                            `questions.${questionIndex}.options.${optionIndex}.option_text`,
+                                        )
+                                    "
+                                ></div>
                             </div>
                         </template>
 
@@ -110,7 +124,7 @@
                 questionTemplate() {
                     return {
                         question_text: '',
-                        type:  @json(QuestionType::TEXT->value),
+                        type: @json (QuestionType::TEXT->value),
                         is_required: true,
                         options: [],
                     };
@@ -145,7 +159,7 @@
                         return;
                     }
 
-                    this.questions[questionIndex].options.push({option_text: ''});
+                    this.questions[questionIndex].options.push({ option_text: '' });
                 },
                 removeOption(questionIndex, optionIndex) {
                     if (this.questions[questionIndex].options.length <= 2) return;
@@ -159,31 +173,29 @@
                         question.options = [];
                     } else if (!question.options.length) {
                         this.questions[questionIndex].options.push(
-                            ...[
-                                {option_text: ''},
-                                {option_text: ''}
-                            ]
+                            ...[{ option_text: '' }, { option_text: '' }],
                         );
-
                     }
                 },
 
                 submitSurvey() {
                     this.errors = {};
 
-                    if (!this.questions.some(q => q.is_required)) {
+                    if (!this.questions.some((q) => q.is_required)) {
                         return;
                     }
 
-                    const component = Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'));
+                    const component = Livewire.find(
+                        document.querySelector('[wire\\:id]').getAttribute('wire:id'),
+                    );
                     component.set('questions', this.questions);
                     component.call('save');
                 },
 
                 getError(path) {
                     return this.errors[path]?.[0] ?? '';
-                }
-            }
+                },
+            };
         }
     </script>
 </div>

@@ -1,7 +1,4 @@
-import.meta.glob([
-    '../images/**',
-    '../fonts/**'
-]);
+import.meta.glob(['../images/**', '../fonts/**']);
 
 import Chart from 'chart.js/auto';
 

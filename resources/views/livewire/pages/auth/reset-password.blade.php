@@ -3,9 +3,9 @@
     :subtitle="__('Please enter your new password below')"
     separator
     shadow
-    class="w-full max-w-lg mx-auto"
+    class="mx-auto w-full max-w-lg"
 >
-    <x-auth-session-status :status="session('status')"/>
+    <x-auth-session-status :status="session('status')" />
 
     <x-form wire:submit="resetPassword" novalidate>
         <x-input
@@ -32,7 +32,7 @@
             required
         />
 
-        <hr class="mt-3"/>
+        <hr class="mt-3" />
 
         <x-button
             :label="__('Reset password')"

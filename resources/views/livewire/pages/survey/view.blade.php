@@ -18,7 +18,12 @@
                 @if ($survey->is_active)
                     <x-dropdown :right="true">
                         <x-slot:trigger>
-                            <x-button icon="o-share" :label="__('Share')" responsive class="btn-info"/>
+                            <x-button
+                                icon="o-share"
+                                :label="__('Share')"
+                                responsive
+                                class="btn-info"
+                            />
                         </x-slot:trigger>
 
                         <div class="flex flex-col">
@@ -39,9 +44,9 @@
                                 icon="o-paper-airplane"
                                 :label="__('Send email')"
                                 wire:click="openSendEmailModal"
-                                class="btn-ghost  justify-start"
+                                class="btn-ghost justify-start"
                             />
-                            @if($this->survey->is_public)
+                            @if ($this->survey->is_public)
                                 <x-button
                                     icon="o-chart-bar"
                                     :label="__('Share results')"
@@ -52,13 +57,17 @@
                             @endif
                         </div>
                     </x-dropdown>
-
                     <x-modal
                         :title="__('Send a link to this survey via email')"
                         wire:model="sendEmailModal"
                     >
                         <x-form wire:submit="sendEmail" novalidate autocomplete="off">
-                            <x-input icon="o-envelope" :placeholder="__('Email address')" wire:model="email" required/>
+                            <x-input
+                                icon="o-envelope"
+                                :placeholder="__('Email address')"
+                                wire:model="email"
+                                required
+                            />
 
                             <x-slot:actions>
                                 <x-button
@@ -84,7 +93,7 @@
 
     <div class="space-y-3">
         <x-card :title="__('Details')">
-            @if(auth()->check())
+            @if (auth()->check())
                 <div class="flex items-center space-x-4">
                     <x-badge
                         :value="__('Created at') . ': '.  $this->survey->created_at->format('Y-m-d H:i:s')"
@@ -94,14 +103,14 @@
                         :value="$this->survey->is_active ? __('Open') : __('Closed')"
                         class="{{ $this->survey->is_active ? 'badge-success' : 'badge-error' }}"
                     />
-                    <x-badge :value="$this->survey->is_public ? __('Public') : __('Private')" class="badge-primary"/>
+                    <x-badge
+                        :value="$this->survey->is_public ? __('Public') : __('Private')"
+                        class="badge-primary"
+                    />
                 </div>
             @endif
             <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-                <x-stat
-                    :title="__('Responses')"
-                    :value="$survey->responses->count()"
-                />
+                <x-stat :title="__('Responses')" :value="$survey->responses->count()" />
                 <x-stat
                     :title="__('End date')"
                     :value="$survey->end_date?->format('Y-m-d H:i:s') ?? __('No end date')"
@@ -109,21 +118,27 @@
             </div>
         </x-card>
 
-        @foreach($questions as $questionIndex => $question)
+        @foreach ($questions as $questionIndex => $question)
             <x-card wire:key="question-{{ $questionIndex }}">
                 <div class="flex items-center space-x-4">
-                    <x-badge :value="__('Question') . ' ' . $questionIndex + 1" class="badge-primary"/>
-                    <x-badge :value="$question['type']->label()" class="badge-info"/>
-                    <x-badge :value="__('Answers') . ': '. count($question['answers'])" class="badge-secondary"/>
+                    <x-badge
+                        :value="__('Question') . ' ' . $questionIndex + 1"
+                        class="badge-primary"
+                    />
+                    <x-badge :value="$question['type']->label()" class="badge-info" />
+                    <x-badge
+                        :value="__('Answers') . ': '. count($question['answers'])"
+                        class="badge-secondary"
+                    />
                 </div>
 
                 <div class="divider"></div>
 
-                <h3 class="text-lg mb-4">{{ $question['question_text'] }}</h3>
+                <h3 class="mb-4 text-lg">{{ $question['question_text'] }}</h3>
 
-                @if($question['type'] === QuestionType::TEXT)
+                @if ($question['type'] === QuestionType::TEXT)
                     <div class="space-y-4">
-                        @foreach($question['answers'] as $answerIndex => $answer)
+                        @foreach ($question['answers'] as $answerIndex => $answer)
                             <x-collapse separator>
                                 <x-slot:heading>
                                     {{ $answer['response']['submitted_at']->format('Y-m-d H:i:s') }}
@@ -139,14 +154,14 @@
                             </x-collapse>
                         @endforeach
                     </div>
-                @elseif($question['type'] === QuestionType::MULTIPLE_CHOICE)
-                    @if(count($question['answers']) > 0)
+                @elseif ($question['type'] === QuestionType::MULTIPLE_CHOICE)
+                    @if (count($question['answers']) > 0)
                         <div class="canvas-container" style="height: 20rem">
                             <canvas id="chart-{{ $question['id'] }}"></canvas>
                             <script>
                                 document.addEventListener('livewire:initialized', () => {
                                     const ctx = document.getElementById('chart-{{ $question['id'] }}').getContext('2d');
-                                    const chartData = @json($this->getChartData($question['id']));
+                                    const chartData = @json ($this->getChartData($question['id']));
                                     if (!chartData) {
                                         return;
                                     }
@@ -157,27 +172,30 @@
                                         options: {
                                             plugins: {
                                                 legend: {
-                                                    position: 'bottom'
-                                                }
-                                            }
-                                        }
+                                                    position: 'bottom',
+                                                },
+                                            },
+                                        },
                                     });
                                 });
                             </script>
                         </div>
                     @endif
-                @elseif($question['type'] === QuestionType::FILE)
+                @elseif ($question['type'] === QuestionType::FILE)
                     <ul class="space-y-4">
-                        @foreach($question['answers'] as $answerIndex => $answer)
-                            <li class="flex items-center justify-between p-2 border rounded">
+                        @foreach ($question['answers'] as $answerIndex => $answer)
+                            <li class="flex items-center justify-between rounded border p-2">
                                 <a
                                     href="{{ route('surveys.response', ['id' => $answer['response']['id']]) }}"
                                     wire:navigate.hover
                                 >
                                     <div class="flex items-center space-x-4">
-                                        <span>{{ $answer['response']['submitted_at']->format('Y-m-d H:i:s')  }}</span>
+                                        <span
+                                            >{{ $answer['response']['submitted_at']->format('Y-m-d H:i:s')  }}</span
+                                        >
                                         <x-icon
-                                            :name="QuestionType::getIconFromFilename($answer['original_file_name'])"/>
+                                            :name="QuestionType::getIconFromFilename($answer['original_file_name'])"
+                                        />
                                         <span>{{ $answer['original_file_name'] }}</span>
                                     </div>
                                 </a>

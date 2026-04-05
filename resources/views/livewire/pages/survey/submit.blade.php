@@ -1,6 +1,6 @@
 @php use App\Enums\QuestionType; @endphp
 <div class="w-full max-w-4xl">
-    <x-header :title="$title" :subtitle="$description" separator/>
+    <x-header :title="$title" :subtitle="$description" separator />
 
     <x-form wire:submit="submitSurvey" novalidate autocomplete="off">
         @foreach ($questions as $question)
@@ -23,13 +23,16 @@
                         />
                     @endforeach
                 @elseif ($question['type'] === QuestionType::FILE->name)
-                    <x-file wire:model="response.{{ $question['id'] }}" :required="$question['is_required']"/>
+                    <x-file
+                        wire:model="response.{{ $question['id'] }}"
+                        :required="$question['is_required']"
+                    />
                 @endif
             </x-card>
         @endforeach
 
-        @if($survey->end_date && !$this->survey->end_date->isPast())
-            <h2 class="text-lg text-info"> {{ __('Open until') . ': ' .   $survey->end_date }}</h2>
+        @if ($survey->end_date && !$this->survey->end_date->isPast())
+            <h2 class="text-info text-lg">{{ __('Open until') . ': ' .   $survey->end_date }}</h2>
         @endif
 
         <x-slot:actions class="justify-start">

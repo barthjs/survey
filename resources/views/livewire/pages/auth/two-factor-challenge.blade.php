@@ -2,8 +2,8 @@
     :title="__('Two Factor Authentication')"
     separator
     shadow
-    class="w-full max-w-lg mx-auto"
-    x-data="{ code: ''}"
+    class="mx-auto w-full max-w-lg"
+    x-data="{ code: '' }"
 >
     <div class="mb-4 text-sm">
         @if (!$recovery)
@@ -17,7 +17,10 @@
         @if (!$recovery)
             <x-input
                 x-model="code"
-                @input="$wire.set('code', code); if(code.length === 6) $wire.login()"
+                @input="
+                    $wire.set('code', code);
+                    if (code.length === 6) $wire.login();
+                "
                 autofocus
                 autocomplete="one-time-code"
             />
@@ -30,19 +33,14 @@
             />
         @endif
 
-        <div class="flex items-center justify-end mt-4">
+        <div class="mt-4 flex items-center justify-end">
             <x-button
                 :label="$recovery ? __('Use an authentication code') : __('Use a recovery code')"
                 wire:click="toggleRecovery"
                 class="btn-ghost"
             />
 
-            <x-button
-                :label="__('Log in')"
-                type="submit"
-                class="btn-primary"
-                spinner="login"
-            />
+            <x-button :label="__('Log in')" type="submit" class="btn-primary" spinner="login" />
         </div>
     </x-form>
 </x-card>

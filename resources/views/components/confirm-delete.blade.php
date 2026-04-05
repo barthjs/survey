@@ -1,4 +1,4 @@
-@props([
+@props ([
     'title' => null,
     'subtitle' => null,
     'deleteAction' => 'delete',

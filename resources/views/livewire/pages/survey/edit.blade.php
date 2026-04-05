@@ -22,9 +22,9 @@
                 x-on:click="$dispatch('save-survey')"
                 class="btn-success"
             />
-            <x-confirm-delete :title="__('Delete survey')" deleteAction="deleteSurvey"/>
+            <x-confirm-delete :title="__('Delete survey')" deleteAction="deleteSurvey" />
         </x-slot:actions>
     </x-header>
 
-    <x-manage-survey-form :questions="$questions"/>
+    <x-manage-survey-form :questions="$questions" />
 </div>

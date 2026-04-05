@@ -3,14 +3,22 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite --host"
+        "dev": "vite --host",
+        "lint": "prettier --write resources/",
+        "test:lint": "prettier --check resources/"
+    },
+    "dependencies": {
+        "@tailwindcss/vite": "^4.2.2",
+        "chart.js": "^4.5.1",
+        "daisyui": "^5.5.19",
+        "laravel-vite-plugin": "^3.0.1",
+        "tailwindcss": "^4.2.2",
+        "vite": "^8.0.3"
     },
     "devDependencies": {
-        "@tailwindcss/vite": "^4.1.18",
-        "daisyui": "^5.5.14",
-        "laravel-vite-plugin": "^2.1.0",
-        "tailwindcss": "^4.1.18",
-        "vite": "^7.3.1",
-        "chart.js": "^4.5.1"
+        "npm-check-updates": "^20.0.0",
+        "prettier": "^3.8.1",
+        "prettier-plugin-blade": "^3.1.4",
+        "prettier-plugin-tailwindcss": "^0.7.2"
     }
 }
