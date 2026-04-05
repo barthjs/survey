@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Console\Commands\ResetPasswordCommand;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
@@ -15,7 +16,7 @@ beforeEach(function () {
 it('resets the password via email', function () {
     $newPassword = 'newpassword123';
 
-    $this->artisan('app:reset-password', ['email' => $this->user->email])
+    $this->artisan(ResetPasswordCommand::class, ['email' => $this->user->email])
         ->expectsConfirmation(__('Resetting password for user: ').$this->user->name, 'yes')
         ->expectsQuestion(__('Enter new password for user: ').$this->user->name, $newPassword)
         ->expectsQuestion(__('Confirm password'), $newPassword)
@@ -26,7 +27,7 @@ it('resets the password via email', function () {
 });
 
 it('fails when user is not found', function () {
-    $this->artisan('app:reset-password', ['email' => 'nonexistent@example.com'])
+    $this->artisan(ResetPasswordCommand::class, ['email' => 'nonexistent@example.com'])
         ->expectsOutput(__('User not found'))
         ->assertExitCode(1);
 });

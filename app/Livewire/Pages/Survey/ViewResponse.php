@@ -24,6 +24,8 @@ final class ViewResponse extends Component
 
     public Response $response;
 
+    public bool $confirmResponseDeletionModal = false;
+
     /**
      * @var array<int, array{
      *     id: string,
@@ -65,6 +67,11 @@ final class ViewResponse extends Component
         ])->toArray();
     }
 
+    public function confirmResponseDeletion(): void
+    {
+        $this->confirmResponseDeletionModal = true;
+    }
+
     public function deleteResponse(): void
     {
         if (auth()->user()->cannot('delete', $this->response)) {
@@ -73,7 +80,7 @@ final class ViewResponse extends Component
 
         $this->response->delete();
 
-        $this->closeConfirmDeletionModal();
+        $this->confirmResponseDeletionModal = false;
         $this->warning(__('Deleted response'));
 
         $this->redirect(route('surveys.view', ['id' => $this->response->survey_id]), navigate: true);

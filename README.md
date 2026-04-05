@@ -88,43 +88,44 @@
     docker compose up -d
     ```
 
-5. Log in at  [http://localhost](http://localhost) using the default credentials:
+5. Log in at [http://localhost:8080](http://localhost:8080) using the default credentials:
 
-    - **Username**: `admin`
+    - **Username**: `admin@example.com`
     - **Password**: `admin`
 
 ## Configuration
 
 Use the `.env` file to adjust configuration settings:
 
-| Environment variable            | Default     | Description                                                                                       |
-|---------------------------------|-------------|---------------------------------------------------------------------------------------------------|
-| `APP_KEY`                       | (required)  | Key used to encrypt and decrypt data. Generate with: `echo -n 'base64:'; openssl rand -base64 32` |
-| `APP_URL`                       | (required)  | Application URL for notifications                                                                 |
-| `APP_LOCALE`                    | `en`        | Default locale. Supported languages: `en`, `de`                                                   |
-| `APP_ALLOW_REGISTRATION`        | `true`      | Enable/disable user self-registration                                                             |
-| `APP_ENABLE_EMAIL_VERIFICATION` | `false`     | Enable/disable user email verification                                                            |
-| `APP_ENABLE_PASSWORD_RESET`     | `false`     | Enable/disable user email password reset                                                          |
-| `LOG_CHANNEL`                   | `stdout`    | `stdout` logs to Docker, whereas `file` writes to `/app/storage/logs/survey.log`                  |
-| `LOG_LEVEL`                     | `warning`   | Log level: `debug`, `info`, `warning`, `error`                                                    |
-| `DB_CONNECTION`                 | `pgsql`     | Database driver: `pgsql`, `mariadb` or `sqlite`,                                                  |
-| `DB_HOST`                       | `survey-db` | Database host name                                                                                |
-| `DB_PORT`                       | `5432`      | Database port (`5432` for pgsql, `3306` for mariadb).                                             |
-| `DB_DATABASE`                   | `survey`    | Database name (for `sqlite`, the path to the database file).                                      |
-| `DB_USERNAME`                   | `survey`    | Database username                                                                                 |
-| `DB_PASSWORD`                   | (required)  | Database password                                                                                 |
-| `MAIL_MAILER`                   | `smtp`      | Mail driver                                                                                       |
-| `MAIL_SCHEME`                   | `smtps`     | Mail scheme (e.g. `smtp`, `smtps`)                                                                |
-| `MAIL_HOST`                     | (required)  | Mail server host                                                                                  |
-| `MAIL_PORT`                     | `465`       | Mail server port                                                                                  |
-| `MAIL_USERNAME`                 | (required)  | Mail server username                                                                              |
-| `MAIL_PASSWORD`                 | (required)  | Mail server password                                                                              |
-| `MAIL_FROM_ADDRESS`             | (required)  | Sender email address                                                                              |
-| `MAIL_FROM_NAME`                | (required)  | Sender name                                                                                       |
+| Environment variable            | Default                 | Description                                                                                       |
+|---------------------------------|-------------------------|---------------------------------------------------------------------------------------------------|
+| `APP_KEY`                       | (required)              | Key used to encrypt and decrypt data. Generate with: `echo -n 'base64:'; openssl rand -base64 32` |
+| `APP_URL`                       | `http://localhost:8080` | Application URL for notifications                                                                 |
+| `APP_LOCALE`                    | `en`                    | Default locale. Supported languages: `en`, `de`                                                   |
+| `APP_ALLOW_REGISTRATION`        | `true`                  | Enable/disable user self-registration                                                             |
+| `APP_ENABLE_EMAIL_VERIFICATION` | `false`                 | Enable/disable user email verification                                                            |
+| `APP_ENABLE_PASSWORD_RESET`     | `false`                 | Enable/disable user email password reset                                                          |
+| `LOG_CHANNEL`                   | `stdout`                | `stdout` logs to Docker, whereas `file` writes to `/app/storage/logs/survey.log`                  |
+| `LOG_LEVEL`                     | `warning`               | Log level: `debug`, `info`, `warning`, `error`                                                    |
+| `DB_CONNECTION`                 | `pgsql`                 | Database driver: `pgsql`, `mariadb`, `mysql`, `sqlite`                                            |
+| `DB_HOST`                       | `survey-db`             | Database host name (service or container name in Docker Compose)                                  |
+| `DB_PORT`                       | `5432`                  | Database port (`5432` for pgsql, `3306` for mariadb)                                              |
+| `DB_DATABASE`                   | `survey`                | Database name (for `sqlite`, the absolute path to the database file)                              |
+| `DB_USERNAME`                   | `survey`                | Database username                                                                                 |
+| `DB_PASSWORD`                   | (required)              | Database password                                                                                 |
+| `MAIL_SCHEME`                   | `smpts`                 | Mail scheme: `smtps`, `smtp`                                                                      |
+| `MAIL_HOST`                     | (required)              | Mail server host                                                                                  |
+| `MAIL_PORT`                     | `465`                   | Mail server port                                                                                  |
+| `MAIL_USERNAME`                 | (required)              | Mail server username                                                                              |
+| `MAIL_PASSWORD`                 | (required)              | Mail server password                                                                              |
+| `MAIL_FROM_ADDRESS`             | (required)              | Sender email address                                                                              |
+| `MAIL_FROM_NAME`                | `Survey`                | Sender name                                                                                       |
+| `PUID`                          | `1000`                  | User id of the user running the app                                                               |
+| `PGID`                          | `1000`                  | Group id of the user running the app                                                              |
 
 ## OpenID Connect (SSO)
 
-Fin-Tracker supports authentication via OpenID Connect (OIDC). You can configure a generic provider or use
+Survey supports authentication via OpenID Connect (OIDC). You can configure a generic provider or use
 pre-configured integrations for common identity providers.
 
 ### Generic Provider
@@ -141,7 +142,7 @@ OIDC_CLIENT_SECRET=your-client-secret
 
 ### Specialized Providers
 
-Fin-Tracker includes built-in support for the following identity providers. These follow a consistent environment
+Survey includes built-in support for the following identity providers. These follow a consistent environment
 variable pattern:
 
 ```dotenv
@@ -188,7 +189,7 @@ If you lose access to your account, you can reset your password or disable 2FA v
 To reset a user's password:
 
 ```shell
-docker compose exec survey php artisan app:reset-password
+docker compose exec survey php artisan reset-password
 ```
 
 ### Disable 2FA
@@ -196,7 +197,7 @@ docker compose exec survey php artisan app:reset-password
 To disable two-factor authentication for a user:
 
 ```shell
-docker compose exec survey php artisan app:disable-2fa
+docker compose exec survey php artisan disable-2fa
 ```
 
 ## Screenshots
@@ -225,7 +226,7 @@ Please read the [contributing guidelines](CONTRIBUTING.md) for more details.
 
 ## Development
 
-See the [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to setup a development environment.
+See the [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to set up a development environment.
 
 ### Built With
 
@@ -233,10 +234,10 @@ See the [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to setup a develop
     <img src="https://img.shields.io/badge/PHP-8.5-777BB4?style=flat-square&logo=php" alt="PHP 8.5">
   </a>
 - <a href="https://laravel.com" target="_blank">
-    <img src="https://img.shields.io/badge/Laravel-12-FF2D20?style=flat-square&logo=laravel" alt="Laravel 12">
+    <img src="https://img.shields.io/badge/Laravel-13-FF2D20?style=flat-square&logo=laravel" alt="Laravel 13">
   </a>
 - <a href="https://livewire.laravel.com/" target="_blank">
-    <img src="https://img.shields.io/badge/Livewire-3-FB70A9?style=flat-square&logo=livewire" alt="Livewire 3">
+    <img src="https://img.shields.io/badge/Livewire-3-FB70A9?style=flat-square&logo=livewire" alt="Livewire 4">
   </a>
 - <a href="https://alpinejs.dev/" target="_blank">
     <img src="https://img.shields.io/badge/Alpine.js-3-77C1D2?style=flat-square&logo=alpinedotjs" alt="Alpine.js 3">

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Console\Commands;
 
+use App\Console\Commands\Disable2FACommand;
 use App\Models\User;
 use Illuminate\Support\Str;
 
@@ -19,7 +20,7 @@ beforeEach(function () {
 });
 
 it('disables 2fa successfully for an existing user', function () {
-    artisan('app:disable-2fa', ['email' => 'test@example.com'])
+    artisan(Disable2FACommand::class, ['email' => 'test@example.com'])
         ->expectsConfirmation(__('Disabling 2FA for user: ').$this->user->email, 'yes')
         ->expectsOutput(__('Two factor authentication disabled.'))
         ->assertExitCode(0);
@@ -31,7 +32,7 @@ it('disables 2fa successfully for an existing user', function () {
 });
 
 it('fails when user is not found', function () {
-    artisan('app:disable-2fa', ['email' => 'nonexistent@example.com'])
+    artisan(Disable2FACommand::class, ['email' => 'nonexistent@example.com'])
         ->expectsOutput(__('User not found'))
         ->assertExitCode(1);
 });

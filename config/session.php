@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 return [
 
-    'driver' => 'database',
+    'driver' => env('SESSION_DRIVER', 'database'),
 
-    'table' => 'sys_sessions',
+    'table' => env('SESSION_TABLE', 'sys_sessions'),
 
     'cookie' => 'survey_session',
 
