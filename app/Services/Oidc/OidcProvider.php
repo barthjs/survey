@@ -95,9 +95,7 @@ final class OidcProvider extends AbstractProvider implements ProviderInterface
     private function getDiscoveryEndpoint(string $key): string
     {
         $config = $this->getDiscoveryConfig();
-        if (! array_key_exists($key, $config)) {
-            throw new RuntimeException("OIDC discovery config is missing the required key: $key");
-        }
+        throw_unless(array_key_exists($key, $config), RuntimeException::class, "OIDC discovery config is missing the required key: $key");
 
         $value = $config[$key];
         if (! is_string($value)) {
@@ -117,9 +115,7 @@ final class OidcProvider extends AbstractProvider implements ProviderInterface
         }
 
         $baseUrl = $this->getConfig('base_url');
-        if (! is_string($baseUrl) || empty($baseUrl)) {
-            throw new InvalidArgumentException('Missing or invalid base_url');
-        }
+        throw_if(! is_string($baseUrl) || empty($baseUrl), InvalidArgumentException::class, 'Missing or invalid base_url');
 
         $baseUrl = mb_rtrim($baseUrl, '/');
 
@@ -138,9 +134,7 @@ final class OidcProvider extends AbstractProvider implements ProviderInterface
             }
         );
 
-        if (! is_array($cachedConfig)) {
-            throw new RuntimeException("Could not load valid OIDC discovery configuration from $baseUrl");
-        }
+        throw_unless(is_array($cachedConfig), RuntimeException::class, "Could not load valid OIDC discovery configuration from $baseUrl");
 
         /** @var array<string, mixed> $cachedConfig */
         return $this->discoveryConfig = $cachedConfig;

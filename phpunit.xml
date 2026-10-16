@@ -19,19 +19,31 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
+        <env name="APP_FAKER_LOCALE" value="en_US"/>
         <env name="APP_LOCALE" value="en"/>
         <env name="APP_ALLOW_REGISTRATION" value="true"/>
         <env name="APP_ENABLE_EMAIL_VERIFICATION" value="true"/>
         <env name="APP_ENABLE_PASSWORD_RESET" value="true"/>
-        <env name="CACHE_STORE" value="array"/>
-        <env name="DB_CONNECTION" value="sqlite"/>
-        <env name="DB_DATABASE" value=":memory:"/>
-        <env name="LOG_CHANNEL" value="file"/>
+        <env name="LOG_CHANNEL" value="stdout"/>
+        <env name="DB_CONNECTION" value="pgsql"/>
+        <env name="DB_HOST" value="localhost"/>
+        <env name="DB_PORT" value="5432"/>
+        <env name="DB_DATABASE" value="survey_test"/>
+        <env name="DB_USERNAME" value="postgres"/>
+        <env name="DB_PASSWORD" value="postgres"/>
         <env name="MAIL_MAILER" value="array"/>
+        <env name="MAIL_FROM_ADDRESS" value="noreply@example.com"/>
+        <env name="CACHE_STORE" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
+        <env name="GOOGLE_OIDC_ENABLED" value="false"/>
+        <env name="GITHUB_OIDC_ENABLED" value="false"/>
+        <env name="AUTHELIA_OIDC_ENABLED" value="false"/>
+        <env name="AUTHENTIK_OIDC_ENABLED" value="false"/>
+        <env name="GITEA_OIDC_ENABLED" value="false"/>
+        <env name="KEYCLOAK_OIDC_ENABLED" value="false"/>
         <env name="OIDC_ENABLED" value="true"/>
-        <env name="OIDC_BASE_URL" value="https://auth.example.com"/>
+        <env name="OIDC_URL" value="https://auth.example.com"/>
         <env name="OIDC_CLIENT_ID" value="test-id"/>
         <env name="OIDC_CLIENT_SECRET" value="test-secret"/>
     </php>

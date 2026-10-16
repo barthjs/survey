@@ -6,7 +6,7 @@ namespace Database\Factories;
 
 use App\Models\Response;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 
 /**
  * @extends Factory<Response>
@@ -23,9 +23,9 @@ final class ResponseFactory extends Factory
     public function definition(): array
     {
         return [
-            'ip_address' => $this->faker->ipv4(),
-            'user_agent' => $this->faker->userAgent(),
-            'submitted_at' => Carbon::now(),
+            'ip_address' => fake()->ipv4(),
+            'user_agent' => fake()->userAgent(),
+            'submitted_at' => Date::now(),
         ];
     }
 }

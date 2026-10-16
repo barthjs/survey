@@ -1,17 +1,23 @@
 <x-card shadow class="mx-auto w-full max-w-lg">
     @if (session('status') === 'verification-link-sent')
         <x-auth-session-status
-            :status="__('A new verification link has been sent to the email address you provided during registration.')"
+            :status="
+                __(
+        'A new verification link has been sent to the email address you provided during registration.',
+    )
+            "
         />
     @else
         <x-auth-session-status :status="session('status')" class="text-red-600" />
     @endif
 
     <p class="py-4">
-        {{ __('Please verify your email address by clicking on the link we just emailed to you.') }}
-
+        {{
+            __(
+                'Please verify your email address by clicking on the link we just emailed to you.',
+            )
+        }}
     <p>
-
     <hr class="my-6" />
 
     <div class="flex flex-col justify-end gap-3 sm:flex-row">

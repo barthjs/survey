@@ -20,7 +20,8 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 #[Layout('components.layouts.app')]
 final class ViewResponse extends Component
 {
-    use ConfirmDeletionModal, Toast;
+    use ConfirmDeletionModal;
+    use Toast;
 
     public Response $response;
 
@@ -48,12 +49,10 @@ final class ViewResponse extends Component
             'answers.question.options',
         ])->findOrFail($id);
 
-        if (auth()->user()->cannot('view', $this->response)) {
-            abort(403);
-        }
+        abort_if(auth()->user()->cannot('view', $this->response), 403);
 
         /** @phpstan-ignore-next-line */
-        $this->answers = $this->response->answers->map(fn (Answer $answer) => [
+        $this->answers = $this->response->answers->map(fn (Answer $answer): array => [
             'id' => $answer->id,
             'question_id' => $answer->question_id,
             'question_type' => $answer->question->type,
@@ -61,10 +60,10 @@ final class ViewResponse extends Component
             'question_order_index' => $answer->question->order_index,
             'answer_text' => $answer->answer_text,
             'original_file_name' => $answer->original_file_name,
-            'options' => $answer->question->options->map(fn (QuestionOption $option) => [
+            'options' => $answer->question->options->map(fn (QuestionOption $option): array => [
                 'option_text' => $option->option_text,
-            ])->toArray(),
-        ])->toArray();
+            ])->all(),
+        ])->all();
     }
 
     public function confirmResponseDeletion(): void
@@ -74,9 +73,7 @@ final class ViewResponse extends Component
 
     public function deleteResponse(): void
     {
-        if (auth()->user()->cannot('delete', $this->response)) {
-            abort(403);
-        }
+        abort_if(auth()->user()->cannot('delete', $this->response), 403);
 
         $this->response->delete();
 
@@ -89,9 +86,7 @@ final class ViewResponse extends Component
     public function deleteAnswer(): void
     {
         $answer = $this->response->answers->firstWhere('id', $this->deletionId);
-        if (! $answer) {
-            abort(404);
-        }
+        abort_unless($answer instanceof Answer, 404);
 
         $answer->delete();
 
@@ -110,13 +105,9 @@ final class ViewResponse extends Component
     public function download(string $id): ?BinaryFileResponse
     {
         $answer = $this->response->answers->firstWhere('id', $id);
-        if (! $answer) {
-            abort(404);
-        }
+        abort_unless($answer instanceof Answer, 404);
 
-        if (! $answer->file_path) {
-            abort(404);
-        }
+        abort_if($answer->file_path === null || $answer->file_path === '', 404);
 
         if (! Storage::disk('local')->exists($answer->file_path)) {
             $this->error(__('File has been deleted'));

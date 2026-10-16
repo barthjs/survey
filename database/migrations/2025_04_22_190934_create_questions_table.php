@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('questions', function (Blueprint $table) {
+        Schema::create('questions', function (Blueprint $table): void {
             $table->ulid('id')->primary();
 
             $table->foreignUlid('survey_id')

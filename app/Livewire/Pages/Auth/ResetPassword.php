@@ -30,9 +30,7 @@ final class ResetPassword extends Component
 
     public function mount(string $token): void
     {
-        if (! config()->boolean('app.enable_password_reset')) {
-            abort(404);
-        }
+        abort_unless(config()->boolean('app.enable_password_reset'), 404);
 
         $this->token = $token;
 

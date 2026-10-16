@@ -64,7 +64,11 @@
                     </x-slot:trigger>
 
                     <x-slot:content>
-                        {{ $user->is_active ? __('Active') : __('Inactive') }}
+                        {{
+                            $user->is_active
+                                ? __('Active')
+                                : __('Inactive')
+                        }}
                     </x-slot:content>
                 </x-popover>
             @endscope

@@ -13,8 +13,9 @@ return [
     'channels' => [
 
         'file' => [
-            'driver' => 'single',
-            'path' => storage_path('logs/survey.log'),
+            'driver' => 'daily',
+            'path' => storage_path('app/logs/survey.log'),
+            'days' => 14,
             'level' => env('LOG_LEVEL', 'warning'),
             'replace_placeholders' => true,
         ],

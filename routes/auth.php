@@ -15,7 +15,7 @@ use App\Livewire\Pages\Auth\TwoFactorChallenge;
 use App\Livewire\Pages\Auth\VerifyEmail;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('guest')->group(function () {
+Route::middleware('guest')->group(function (): void {
     Route::get('/register', Register::class)
         ->name('register');
 
@@ -32,7 +32,7 @@ Route::middleware('guest')->group(function () {
         ->name('password.reset');
 });
 
-Route::middleware(['auth', EnsureUserIsActive::class])->group(function () {
+Route::middleware(['auth', EnsureUserIsActive::class])->group(function (): void {
     Route::get('/verify-email', VerifyEmail::class)
         ->name('verification.notice');
 
@@ -44,11 +44,9 @@ Route::middleware(['auth', EnsureUserIsActive::class])->group(function () {
         ->middleware(['signed', 'throttle:6,1'])
         ->name('verification.verify-new-email');
 
-    Route::get('/user/verified', function () {
-        return response()->json([
-            'verified' => auth()->user()->hasVerifiedEmail(),
-        ]);
-    })->name('verification.verified');
+    Route::get('/user/verified', fn () => response()->json([
+        'verified' => auth()->user()->hasVerifiedEmail(),
+    ]))->name('verification.verified');
 });
 
 Route::prefix('auth')->group(function (): void {

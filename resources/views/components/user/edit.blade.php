@@ -17,7 +17,7 @@
 
             <x-password :label="__('Password')" clearable wire:model="password" />
             <x-password
-                :label=" __('Confirm password')"
+                :label="__('Confirm password')"
                 clearable
                 wire:model="password_confirmation"
                 required

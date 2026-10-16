@@ -1,5 +1,5 @@
-name: 🐞 Bug report
-description: File a bug report.
+name: Bug report
+description: File a bug report
 title: "[Bug] "
 labels: [ bug ]
 assignees: [ ]
@@ -12,10 +12,41 @@ body:
       options:
         - label: I searched existing issues and discussions and didn’t find a match
           required: true
-        - label: I read CONTRIBUTING.md and can reproduce this with a clean setup
-          required: true
-        - label: I agree to have read this project [Security Policy](https://github.com/barthjs/survey/security/policy)
-          required: true
+
+  - type: input
+    id: app_version
+    attributes:
+      label: Survey version
+      placeholder: e.g., v1.2.3
+    validations:
+      required: true
+
+  - type: input
+    id: database_version
+    attributes:
+      label: Database
+      placeholder: e.g., PostgreSQL 18
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browsers
+    attributes:
+      label: What browsers are you seeing the problem on?
+      multiple: true
+      options:
+        - Brave
+        - Chrome
+        - Chromium
+        - Firefox
+        - Microsoft Edge
+        - Safari
+
+  - type: input
+    id: browser_version
+    attributes:
+      label: Browser version
+      placeholder: e.g., Chrome 123
 
   - type: textarea
     id: summary
@@ -31,12 +62,6 @@ body:
     attributes:
       label: Steps to reproduce
       description: Provide exact steps to reproduce from a fresh environment
-      placeholder: |
-        1. Fresh install using compose.yaml
-        2. Log in as admin
-        3. Go to …
-        4. Click …
-        5. See error …
     validations:
       required: true
 
@@ -55,34 +80,6 @@ body:
       placeholder: What actually happened? Include any error messages.
     validations:
       required: true
-
-  - type: input
-    id: app_version
-    attributes:
-      label: Fin‑Tracker version or commit
-      placeholder: e.g., v1.2.3
-    validations:
-      required: true
-
-  - type: input
-    id: database_version
-    attributes:
-      label: Database
-      placeholder: e.g., PostgreSQL 18, MariaDB 11
-    validations:
-      required: true
-
-  - type: dropdown
-    id: browsers
-    attributes:
-      label: What browsers are you seeing the problem on?
-      multiple: true
-      options:
-        - Brave
-        - Chrome
-        - Firefox
-        - Microsoft Edge
-        - Safari
 
   - type: textarea
     id: logs

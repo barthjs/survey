@@ -7,6 +7,8 @@ namespace App\Models;
 use App\Jobs\UploadsCleanupJob;
 use Carbon\CarbonInterface;
 use Database\Factories\ResponseFactory;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -23,14 +25,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read Survey $survey
  * @property-read Collection<int, Answer> $answers
  */
+#[Table(name: 'responses')]
+#[WithoutTimestamps]
 final class Response extends Model
 {
     /** @use HasFactory<ResponseFactory> */
-    use HasFactory, HasUlids;
+    use HasFactory;
 
-    public $timestamps = false;
-
-    protected $table = 'responses';
+    use HasUlids;
 
     /**
      * The model's default values for attributes.
@@ -80,8 +82,8 @@ final class Response extends Model
                 }
             });
 
-            if (! empty($filesToDelete)) {
-                UploadsCleanupJob::dispatch($filesToDelete);
+            if ($filesToDelete !== []) {
+                dispatch(new UploadsCleanupJob($filesToDelete));
             }
         });
     }

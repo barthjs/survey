@@ -24,7 +24,8 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 final class ViewSurvey extends Component
 {
-    use Toast, WithPagination;
+    use Toast;
+    use WithPagination;
 
     public Survey $survey;
 
@@ -55,11 +56,9 @@ final class ViewSurvey extends Component
 
     public function mount(string $id): void
     {
-        $this->survey = Survey::findOrFail($id);
+        $this->survey = Survey::query()->findOrFail($id);
         if (! $this->survey->is_public) {
-            if (! auth()->check() || auth()->user()->cannot('view', $this->survey)) {
-                abort(403);
-            }
+            abort_if(! auth()->check() || auth()->user()->cannot('view', $this->survey), 403);
         }
 
         /** @phpstan-ignore-next-line */
@@ -68,14 +67,14 @@ final class ViewSurvey extends Component
             ->where('survey_id', $this->survey->id)
             ->orderBy('order_index')
             ->get()
-            ->map(fn (Question $question) => [
+            ->map(fn (Question $question): array => [
                 'id' => $question->id,
                 'question_text' => $question->question_text,
                 'type' => $question->type,
                 'is_required' => $question->is_required,
                 'answers' => $question->answers
                     ->sortByDesc(fn (Answer $answer) => $answer->response->submitted_at)
-                    ->map(fn (Answer $answer) => [
+                    ->map(fn (Answer $answer): array => [
                         'id' => $answer->id,
                         'answer_text' => $answer->answer_text,
                         'file_path' => $answer->file_path,
@@ -84,8 +83,8 @@ final class ViewSurvey extends Component
                             'id' => $answer->response->id,
                             'submitted_at' => $answer->response->submitted_at,
                         ],
-                    ])->toArray(),
-            ])->toArray();
+                    ])->all(),
+            ])->all();
     }
 
     /**
@@ -99,11 +98,9 @@ final class ViewSurvey extends Component
      */
     public function getChartData(string $id): array
     {
-        $question = Question::findOrFail($id);
+        $question = Question::query()->findOrFail($id);
         if (! $question->survey->is_public) {
-            if (! auth()->check() || auth()->user()->cannot('view', $question->survey)) {
-                abort(403);
-            }
+            abort_if(! auth()->check() || auth()->user()->cannot('view', $question->survey), 403);
         }
 
         $options = $question->options;
@@ -156,16 +153,12 @@ final class ViewSurvey extends Component
 
     public function download(string $id): ?BinaryFileResponse
     {
-        $answer = Answer::findOrFail($id);
+        $answer = Answer::query()->findOrFail($id);
         if (! $answer->question->survey->is_public) {
-            if (! auth()->check() || auth()->user()->cannot('view', $answer->question->survey)) {
-                abort(403);
-            }
+            abort_if(! auth()->check() || auth()->user()->cannot('view', $answer->question->survey), 403);
         }
 
-        if (! $answer->file_path) {
-            abort(404);
-        }
+        abort_if($answer->file_path === null || $answer->file_path === '', 404);
 
         if (! Storage::disk('local')->exists($answer->file_path)) {
             $this->error(__('File has been deleted'));

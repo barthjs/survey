@@ -20,7 +20,11 @@
         </x-card>
 
         <div x-show="!questions.some((q) => q.is_required)" class="text-error">
-            {{ __('At least one question must be marked as required.') }}
+            {{
+                __(
+                    'At least one question must be marked as required.',
+                )
+            }}
         </div>
 
         <template x-for="(question, questionIndex) in questions">

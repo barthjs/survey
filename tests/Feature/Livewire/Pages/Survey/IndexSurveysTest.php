@@ -7,7 +7,7 @@ use App\Models\Survey;
 use App\Models\User;
 use Livewire\Livewire;
 
-it('renders successfully', function () {
+it('renders successfully', function (): void {
     $user = User::factory()->create();
     Survey::factory()->count(5)->create(['user_id' => $user->id]);
 

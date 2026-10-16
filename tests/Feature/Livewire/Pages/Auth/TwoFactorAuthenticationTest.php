@@ -14,7 +14,7 @@ use PragmaRX\Google2FA\Google2FA;
 
 use function Pest\Laravel\assertAuthenticatedAs;
 
-test('two factor authentication can be enabled', function () {
+test('two factor authentication can be enabled', function (): void {
     $user = User::factory()->create(['password' => Hash::make('password')]);
 
     Livewire::actingAs($user)
@@ -33,7 +33,7 @@ test('two factor authentication can be enabled', function () {
         ->and($user->two_factor_enabled_at)->toBeNull();
 });
 
-test('two factor authentication can be confirmed', function () {
+test('two factor authentication can be confirmed', function (): void {
     $google2fa = new Google2FA();
     $secret = $google2fa->generateSecretKey();
 
@@ -58,7 +58,7 @@ test('two factor authentication can be confirmed', function () {
         ->and($user->two_factor_recovery_codes)->toHaveCount(10);
 });
 
-test('user with two factor enabled is redirected to challenge', function () {
+test('user with two factor enabled is redirected to challenge', function (): void {
     $user = User::factory()->create([
         'two_factor_enabled_at' => now(),
     ]);
@@ -72,7 +72,7 @@ test('user with two factor enabled is redirected to challenge', function () {
     $this->assertGuest();
 });
 
-test('user can authenticate with two factor code', function () {
+test('user can authenticate with two factor code', function (): void {
     $google2fa = new Google2FA();
     $secret = $google2fa->generateSecretKey();
 
@@ -94,7 +94,7 @@ test('user can authenticate with two factor code', function () {
     assertAuthenticatedAs($user);
 });
 
-test('user can authenticate with recovery code', function () {
+test('user can authenticate with recovery code', function (): void {
     $user = User::factory()->create([
         'two_factor_enabled_at' => now(),
         'two_factor_recovery_codes' => [Hash::make('recovery-code')],
@@ -114,7 +114,7 @@ test('user can authenticate with recovery code', function () {
     expect($user->two_factor_recovery_codes)->toBeEmpty();
 });
 
-test('two factor authentication can be disabled', function () {
+test('two factor authentication can be disabled', function (): void {
     $user = User::factory()->create([
         'password' => Hash::make('password'),
         'two_factor_secret' => 'secret',
@@ -139,7 +139,7 @@ test('two factor authentication can be disabled', function () {
         ->and($user->two_factor_recovery_codes)->toBeNull();
 });
 
-test('recovery codes can be regenerated', function () {
+test('recovery codes can be regenerated', function (): void {
     $user = User::factory()->create([
         'password' => Hash::make('password'),
         'two_factor_enabled_at' => now(),

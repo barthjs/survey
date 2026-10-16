@@ -25,7 +25,7 @@
         />
 
         <x-password :label="__('Password')" wire:model="password" required />
-        <x-password :label=" __('Confirm password')" wire:model="password_confirmation" required />
+        <x-password :label="__('Confirm password')" wire:model="password_confirmation" required />
 
         <hr class="mt-3" />
 

@@ -8,7 +8,7 @@ use App\Models\Survey;
 use App\Models\User;
 use Livewire\Livewire;
 
-it('renders successfully', function () {
+it('renders successfully', function (): void {
     $user = User::factory()->create();
     $survey = Survey::factory()->create(['user_id' => $user->id]);
 
@@ -17,7 +17,7 @@ it('renders successfully', function () {
         ->assertStatus(200);
 });
 
-it('denies guests from accessing the edit survey page', function () {
+it('denies guests from accessing the edit survey page', function (): void {
     $user = User::factory()->create();
     $guest = User::factory()->create();
     $survey = Survey::factory()->create(['user_id' => $user->id]);
@@ -27,7 +27,7 @@ it('denies guests from accessing the edit survey page', function () {
         ->assertForbidden();
 });
 
-it('can update a survey with valid data', function () {
+it('can update a survey with valid data', function (): void {
     $user = User::factory()->create();
     $survey = Survey::factory()
         ->for($user)

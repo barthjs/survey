@@ -6,7 +6,7 @@ namespace Database\Factories;
 
 use App\Models\Survey;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 
 /**
  * @extends Factory<Survey>
@@ -23,12 +23,12 @@ final class SurveyFactory extends Factory
     public function definition(): array
     {
         return [
-            'title' => $this->faker->text(50),
-            'description' => $this->faker->realText(),
+            'title' => fake()->text(50),
+            'description' => fake()->realText(),
             'is_public' => false,
             'is_active' => true,
-            'end_date' => Carbon::now()->addMonths(3),
-            'auto_closed_at' => Carbon::now()->addMonths(3),
+            'end_date' => Date::now()->addMonths(3),
+            'auto_closed_at' => Date::now()->addMonths(3),
         ];
     }
 

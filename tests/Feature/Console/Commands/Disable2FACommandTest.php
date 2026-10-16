@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
 
 use function Pest\Laravel\artisan;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->user = User::factory()->create([
         'email' => 'test@example.com',
         'two_factor_secret' => Str::random(10),
@@ -19,7 +19,7 @@ beforeEach(function () {
     ]);
 });
 
-it('disables 2fa successfully for an existing user', function () {
+it('disables 2fa successfully for an existing user', function (): void {
     artisan(Disable2FACommand::class, ['email' => 'test@example.com'])
         ->expectsConfirmation(__('Disabling 2FA for user: ').$this->user->email, 'yes')
         ->expectsOutput(__('Two factor authentication disabled.'))
@@ -31,7 +31,7 @@ it('disables 2fa successfully for an existing user', function () {
         ->and($this->user->two_factor_enabled_at)->toBeNull();
 });
 
-it('fails when user is not found', function () {
+it('fails when user is not found', function (): void {
     artisan(Disable2FACommand::class, ['email' => 'nonexistent@example.com'])
         ->expectsOutput(__('User not found'))
         ->assertExitCode(1);

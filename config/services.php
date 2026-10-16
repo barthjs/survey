@@ -5,7 +5,6 @@ declare(strict_types=1);
 return [
 
     'google' => [
-        'icon' => 'c.google',
         'label' => 'Google',
         'oidc_enabled' => (bool) env('GOOGLE_OIDC_ENABLED', false),
         'client_id' => env('GOOGLE_OIDC_CLIENT_ID'),
@@ -14,7 +13,6 @@ return [
     ],
 
     'github' => [
-        'icon' => 'c.github',
         'label' => 'GitHub',
         'oidc_enabled' => (bool) env('GITHUB_OIDC_ENABLED', false),
         'client_id' => env('GITHUB_OIDC_CLIENT_ID'),
@@ -23,7 +21,6 @@ return [
     ],
 
     'authelia' => [
-        'icon' => 'c.authelia',
         'label' => 'Authelia',
         'oidc_enabled' => (bool) env('AUTHELIA_OIDC_ENABLED', false),
         'base_url' => env('AUTHELIA_OIDC_URL'),
@@ -33,7 +30,6 @@ return [
     ],
 
     'authentik' => [
-        'icon' => 'c.authentik',
         'label' => 'Authentik',
         'oidc_enabled' => (bool) env('AUTHENTIK_OIDC_ENABLED', false),
         'base_url' => env('AUTHENTIK_OIDC_URL'),
@@ -43,7 +39,6 @@ return [
     ],
 
     'gitea' => [
-        'icon' => 'c.gitea',
         'label' => 'Gitea',
         'oidc_enabled' => (bool) env('GITEA_OIDC_ENABLED', false),
         'instance_uri' => mb_rtrim(env('GITEA_OIDC_URL').'/'),
@@ -53,7 +48,6 @@ return [
     ],
 
     'keycloak' => [
-        'icon' => 'c.keycloak',
         'label' => 'Keycloak',
         'oidc_enabled' => (bool) env('KEYCLOAK_OIDC_ENABLED', false),
         'base_url' => env('KEYCLOAK_OIDC_URL'),
@@ -64,7 +58,6 @@ return [
     ],
 
     'oidc' => [
-        'icon' => 'o-key',
         'label' => 'OIDC',
         'oidc_enabled' => (bool) env('OIDC_ENABLED', false),
         'base_url' => env('OIDC_URL'),

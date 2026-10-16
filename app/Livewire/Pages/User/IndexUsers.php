@@ -6,10 +6,10 @@ namespace App\Livewire\Pages\User;
 
 use App\Models\User;
 use App\Traits\ConfirmDeletionModal;
-use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
@@ -24,7 +24,9 @@ use Mary\Traits\Toast;
 #[Layout('components.layouts.app')]
 final class IndexUsers extends Component
 {
-    use ConfirmDeletionModal, Toast, WithPagination;
+    use ConfirmDeletionModal;
+    use Toast;
+    use WithPagination;
 
     /** @var array<string, string> */
     #[Url]
@@ -68,7 +70,7 @@ final class IndexUsers extends Component
             ->when($this->search, fn (Builder $query) => $query->where('name', 'like', "%$this->search%")
                 ->orWhere('email', 'like', "%$this->search%"))
             ->orderBy(...array_values($this->sortBy))
-            ->paginate(in_array($this->perPage, $allowedPerPage) ? $this->perPage : $allowedPerPage[0]);
+            ->paginate(in_array($this->perPage, $allowedPerPage, true) ? $this->perPage : $allowedPerPage[0]);
     }
 
     public function openCreateUserModal(): void
@@ -101,9 +103,9 @@ final class IndexUsers extends Component
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
-        $validated['email_verified_at'] = Carbon::now();
+        $validated['email_verified_at'] = Date::now();
 
-        User::create($validated);
+        User::query()->create($validated);
 
         $this->createUserModal = false;
         $this->success(__('User created successfully'));
@@ -111,7 +113,7 @@ final class IndexUsers extends Component
 
     public function openEditUserModal(string $id): void
     {
-        $user = User::findOrFail($id);
+        $user = User::query()->findOrFail($id);
 
         $this->editUserId = $id;
         $this->name = $user->name;
@@ -129,7 +131,7 @@ final class IndexUsers extends Component
 
     public function updateUser(): void
     {
-        $user = User::findOrFail($this->editUserId);
+        $user = User::query()->findOrFail($this->editUserId);
         if (auth()->user()->cannot('update', $user)) {
             return;
         }
@@ -189,7 +191,7 @@ final class IndexUsers extends Component
 
     public function delete(): void
     {
-        $user = User::findOrFail($this->deletionId);
+        $user = User::query()->findOrFail($this->deletionId);
         if (auth()->user()->cannot('delete', $user)) {
             return;
         }

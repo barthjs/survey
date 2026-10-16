@@ -96,7 +96,7 @@
             @if (auth()->check())
                 <div class="flex items-center space-x-4">
                     <x-badge
-                        :value="__('Created at') . ': '.  $this->survey->created_at->format('Y-m-d H:i:s')"
+                        :value="__('Created at') . ': ' . $this->survey->created_at->format('Y-m-d H:i:s')"
                         class="badge-primary"
                     />
                     <x-badge
@@ -127,7 +127,7 @@
                     />
                     <x-badge :value="$question['type']->label()" class="badge-info" />
                     <x-badge
-                        :value="__('Answers') . ': '. count($question['answers'])"
+                        :value="__('Answers') . ': ' . count($question['answers'])"
                         class="badge-secondary"
                     />
                 </div>
@@ -141,7 +141,11 @@
                         @foreach ($question['answers'] as $answerIndex => $answer)
                             <x-collapse separator>
                                 <x-slot:heading>
-                                    {{ $answer['response']['submitted_at']->format('Y-m-d H:i:s') }}
+                                    {{
+                                        $answer['response']['submitted_at']->format(
+                                            'Y-m-d H:i:s',
+                                        )
+                                    }}
                                 </x-slot:heading>
                                 <x-slot:content>
                                     <a
@@ -190,9 +194,11 @@
                                     wire:navigate.hover
                                 >
                                     <div class="flex items-center space-x-4">
-                                        <span
-                                            >{{ $answer['response']['submitted_at']->format('Y-m-d H:i:s')  }}</span
-                                        >
+                                        <span>{{
+                                            $answer['response']['submitted_at']->format(
+                                                'Y-m-d H:i:s',
+                                            )
+                                        }}</span>
                                         <x-icon
                                             :name="QuestionType::getIconFromFilename($answer['original_file_name'])"
                                         />

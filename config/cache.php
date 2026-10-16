@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 return [
 
-    'default' => env('CACHE_STORE', 'database'),
-
     'stores' => [
 
         'database' => [
@@ -18,6 +16,6 @@ return [
 
     ],
 
-    'prefix' => 'survey_cache_',
+    'prefix' => 'survey-cache-',
 
 ];

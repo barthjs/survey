@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('answer_options', function (Blueprint $table) {
+        Schema::create('answer_options', function (Blueprint $table): void {
             $table->ulid('id')->primary();
 
             $table->foreignUlid('answer_id')

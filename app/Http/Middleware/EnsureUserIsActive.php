@@ -17,9 +17,7 @@ final class EnsureUserIsActive
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $request->user()->is_active) {
-            abort(403);
-        }
+        abort_unless($request->user()->is_active, 403);
 
         return $next($request);
     }

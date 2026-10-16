@@ -2,7 +2,7 @@
 <div>
     <x-header
         :title="$response->survey->title"
-        :subtitle="__('Response from').' '.$response->submitted_at->format('Y-m-d H:i:s')"
+        :subtitle="__('Response from') . ' ' . $response->submitted_at->format('Y-m-d H:i:s')"
         separator
     >
         <x-slot:actions>

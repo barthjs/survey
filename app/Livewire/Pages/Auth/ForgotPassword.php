@@ -22,9 +22,7 @@ final class ForgotPassword extends Component
 
     public function mount(): void
     {
-        if (! config()->boolean('app.enable_password_reset')) {
-            abort(404);
-        }
+        abort_unless(config()->boolean('app.enable_password_reset'), 404);
     }
 
     /**
@@ -47,7 +45,7 @@ final class ForgotPassword extends Component
 
         RateLimiter::hit($key, 3600);
 
-        SendPasswordResetLinkJob::dispatch(['email' => $this->email], app()->getLocale());
+        dispatch(new SendPasswordResetLinkJob(['email' => $this->email], app()->getLocale()));
 
         Session::flash('status', __('A reset link will be sent if the account exists.'));
     }

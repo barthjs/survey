@@ -7,9 +7,17 @@
 >
     <div class="mb-4 text-sm">
         @if (!$recovery)
-            {{ __('Please confirm access to your account by entering the authentication code provided by your authenticator application.') }}
+            {{
+                __(
+                    'Please confirm access to your account by entering the authentication code provided by your authenticator application.',
+                )
+            }}
         @else
-            {{ __('Please confirm access to your account by entering one of your emergency recovery codes.') }}
+            {{
+                __(
+                    'Please confirm access to your account by entering one of your emergency recovery codes.',
+                )
+            }}
         @endif
     </div>
 

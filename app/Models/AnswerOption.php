@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Database\Factories\AnswerOptionFactory;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,14 +19,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read Answer $answer
  * @property-read QuestionOption $option
  */
+#[Table(name: 'answer_options')]
+#[WithoutTimestamps]
 final class AnswerOption extends Model
 {
     /** @use HasFactory<AnswerOptionFactory> */
-    use HasFactory, HasUlids;
+    use HasFactory;
 
-    public $timestamps = false;
-
-    protected $table = 'answer_options';
+    use HasUlids;
 
     /**
      * @return BelongsTo<Answer, $this>

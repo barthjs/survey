@@ -60,6 +60,8 @@
 - [Docker](https://docs.docker.com/engine/install/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 
+Survey supports PostgreSQL only. The [compose.yaml](compose.yaml) includes a PostgreSQL container.
+
 ### Installation
 
 1. Create an app directory:
@@ -69,8 +71,7 @@
     cd /opt/survey
     ```
 
-2. Create a `.env` file using the values from the [.env.example](.env.example) and adjust it as needed. If
-   you plan to use a different database, ensure you set the correct `DB_CONNECTION` in the `.env` file.
+2. Create a `.env` file using the values from the [.env.example](.env.example) and adjust it as needed.
 
     ```shell
     curl https://raw.githubusercontent.com/barthjs/survey/main/.env.example -o .env
@@ -95,33 +96,38 @@
 
 ## Configuration
 
-Use the `.env` file to adjust configuration settings:
+The [.env.example](.env.example) contains all supported settings with their production defaults.
+Adjust them in the `.env` file:
 
-| Environment variable            | Default                 | Description                                                                                       |
-|---------------------------------|-------------------------|---------------------------------------------------------------------------------------------------|
-| `APP_KEY`                       | (required)              | Key used to encrypt and decrypt data. Generate with: `echo -n 'base64:'; openssl rand -base64 32` |
-| `APP_URL`                       | `http://localhost:8080` | Application URL for notifications                                                                 |
-| `APP_LOCALE`                    | `en`                    | Default locale. Supported languages: `en`, `de`                                                   |
-| `APP_ALLOW_REGISTRATION`        | `true`                  | Enable/disable user self-registration                                                             |
-| `APP_ENABLE_EMAIL_VERIFICATION` | `false`                 | Enable/disable user email verification                                                            |
-| `APP_ENABLE_PASSWORD_RESET`     | `false`                 | Enable/disable user email password reset                                                          |
-| `LOG_CHANNEL`                   | `stdout`                | `stdout` logs to Docker, whereas `file` writes to `/app/storage/logs/survey.log`                  |
-| `LOG_LEVEL`                     | `warning`               | Log level: `debug`, `info`, `warning`, `error`                                                    |
-| `DB_CONNECTION`                 | `pgsql`                 | Database driver: `pgsql`, `mariadb`, `mysql`, `sqlite`                                            |
-| `DB_HOST`                       | `survey-db`             | Database host name (service or container name in Docker Compose)                                  |
-| `DB_PORT`                       | `5432`                  | Database port (`5432` for pgsql, `3306` for mariadb)                                              |
-| `DB_DATABASE`                   | `survey`                | Database name (for `sqlite`, the absolute path to the database file)                              |
-| `DB_USERNAME`                   | `survey`                | Database username                                                                                 |
-| `DB_PASSWORD`                   | (required)              | Database password                                                                                 |
-| `MAIL_SCHEME`                   | `smpts`                 | Mail scheme: `smtps`, `smtp`                                                                      |
-| `MAIL_HOST`                     | (required)              | Mail server host                                                                                  |
-| `MAIL_PORT`                     | `465`                   | Mail server port                                                                                  |
-| `MAIL_USERNAME`                 | (required)              | Mail server username                                                                              |
-| `MAIL_PASSWORD`                 | (required)              | Mail server password                                                                              |
-| `MAIL_FROM_ADDRESS`             | (required)              | Sender email address                                                                              |
-| `MAIL_FROM_NAME`                | `Survey`                | Sender name                                                                                       |
-| `PUID`                          | `1000`                  | User id of the user running the app                                                               |
-| `PGID`                          | `1000`                  | Group id of the user running the app                                                              |
+| Environment variable            | Default                 | Description                                                                                          |
+|---------------------------------|-------------------------|------------------------------------------------------------------------------------------------------|
+| `APP_NAME`                      | `Survey`                | Application name shown in the interface and used as email sender name                                |
+| `APP_KEY`                       | (required)              | Key used to encrypt and decrypt data. Generate with: `echo -n 'base64:'; openssl rand -base64 32`    |
+| `APP_DEBUG`                     | `false`                 | Show detailed error pages. Enable only temporarily for troubleshooting.                              |
+| `APP_URL`                       | `http://localhost:8080` | Base URL of the application                                                                          |
+| `APP_LOCALE`                    | `en`                    | Default locale. Supported languages: `en`, `de`                                                      |
+| `APP_ALLOW_REGISTRATION`        | `true`                  | Enable/disable user self-registration                                                                |
+| `APP_ENABLE_EMAIL_VERIFICATION` | `false`                 | Enable/disable user email verification                                                               |
+| `APP_ENABLE_PASSWORD_RESET`     | `false`                 | Enable/disable user email password reset                                                             |
+| `LOG_CHANNEL`                   | `stdout`                | `stdout` logs to Docker, `file` writes one file per day to `/app/storage/app/logs` and keeps 14 days |
+| `LOG_LEVEL`                     | `warning`               | Log level: `debug`, `info`, `warning`, `error`                                                       |
+| `DB_CONNECTION`                 | `pgsql`                 | Database driver, only `pgsql` is supported                                                           |
+| `DB_HOST`                       | `database`              | Database host name (service or container name in Docker Compose)                                     |
+| `DB_PORT`                       | `5432`                  | Database port                                                                                        |
+| `DB_DATABASE`                   | `survey`                | Database name                                                                                        |
+| `DB_USERNAME`                   | `postgres`              | Database username                                                                                    |
+| `DB_PASSWORD`                   | (required)              | Database password                                                                                    |
+| `MAIL_MAILER`                   | `log`                   | Mail driver: `smtp` sends emails, `log` writes them to the log                                       |
+| `MAIL_SCHEME`                   | (empty)                 | `smtps` for TLS, `smtp` for STARTTLS. If empty, port `465` uses `smtps` and any other port `smtp`    |
+| `MAIL_HOST`                     | (empty)                 | Mail server host, required for `smtp`                                                                |
+| `MAIL_PORT`                     | (empty)                 | Mail server port, required for `smtp`                                                                |
+| `MAIL_USERNAME`                 | (empty)                 | Mail server username                                                                                 |
+| `MAIL_PASSWORD`                 | (empty)                 | Mail server password                                                                                 |
+| `MAIL_FROM_ADDRESS`             | (empty)                 | Sender email address, required for `smtp`                                                            |
+| `MAIL_FROM_NAME`                | `APP_NAME`              | Sender name                                                                                          |
+| `SESSION_LIFETIME`              | `43800`                 | Minutes of inactivity until a user is logged out                                                     |
+| `PUID`                          | `1000`                  | User id of the user running the app                                                                  |
+| `PGID`                          | `1000`                  | Group id of the user running the app                                                                 |
 
 ## OpenID Connect (SSO)
 
@@ -228,7 +234,7 @@ Please read the [contributing guidelines](CONTRIBUTING.md) for more details.
 
 See the [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to set up a development environment.
 
-### Built With
+## Built With
 
 - <a href="https://php.net" target="_blank">
     <img src="https://img.shields.io/badge/PHP-8.5-777BB4?style=flat-square&logo=php" alt="PHP 8.5">
@@ -237,7 +243,7 @@ See the [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to set up a develo
     <img src="https://img.shields.io/badge/Laravel-13-FF2D20?style=flat-square&logo=laravel" alt="Laravel 13">
   </a>
 - <a href="https://livewire.laravel.com/" target="_blank">
-    <img src="https://img.shields.io/badge/Livewire-3-FB70A9?style=flat-square&logo=livewire" alt="Livewire 4">
+    <img src="https://img.shields.io/badge/Livewire-4-FB70A9?style=flat-square&logo=livewire" alt="Livewire 4">
   </a>
 - <a href="https://alpinejs.dev/" target="_blank">
     <img src="https://img.shields.io/badge/Alpine.js-3-77C1D2?style=flat-square&logo=alpinedotjs" alt="Alpine.js 3">

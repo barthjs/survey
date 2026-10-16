@@ -7,10 +7,10 @@ namespace App\Livewire\Pages\Survey;
 use App\Enums\QuestionType;
 use App\Models\Question;
 use App\Models\Survey;
-use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -59,15 +59,15 @@ final class CreateSurvey extends Component
 
         try {
             Question::validateQuestions($this->questions);
-        } catch (ValidationException $e) {
-            $this->dispatch('validationErrors', $e->errors());
+        } catch (ValidationException $validationException) {
+            $this->dispatch('validationErrors', $validationException->errors());
 
             return;
         }
 
         $survey = DB::transaction(function () use ($validatedSurvey, &$survey): Survey {
             $validatedSurvey['user_id'] = auth()->id();
-            $survey = Survey::create($validatedSurvey);
+            $survey = Survey::query()->create($validatedSurvey);
             $this->createSurveyQuestions($survey);
 
             return $survey;
@@ -123,7 +123,7 @@ final class CreateSurvey extends Component
             'description' => $this->description,
             'is_public' => $this->is_public,
             'is_active' => $this->is_active,
-            'end_date' => $this->end_date ? Carbon::parse($this->end_date) : null,
+            'end_date' => $this->end_date ? Date::parse($this->end_date) : null,
         ];
     }
 }

@@ -11,13 +11,13 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 use Livewire\Livewire;
 
-test('reset password link screen can be rendered', function () {
+test('reset password link screen can be rendered', function (): void {
     $response = $this->get(route('password.request'));
 
     $response->assertStatus(200);
 });
 
-test('reset password link can be requested', function () {
+test('reset password link can be requested', function (): void {
     Notification::fake();
     Queue::fake();
 
@@ -27,10 +27,8 @@ test('reset password link can be requested', function () {
         ->set('email', $user->email)
         ->call('sendPasswordResetLink');
 
-    Queue::assertPushed(SendPasswordResetLinkJob::class, function ($job) use ($user) {
-        return $job instanceof SendPasswordResetLinkJob
-            && $job->uniqueId() === mb_strtolower($user->email);
-    });
+    Queue::assertPushed(SendPasswordResetLinkJob::class, fn ($job): bool => $job instanceof SendPasswordResetLinkJob
+        && $job->uniqueId() === mb_strtolower($user->email));
 
     $jobInstance = new SendPasswordResetLinkJob(['email' => $user->email], app()->getLocale());
     $jobInstance->handle();
@@ -38,7 +36,7 @@ test('reset password link can be requested', function () {
     Notification::assertSentTo($user, ResetPasswordNotification::class);
 });
 
-test('reset password screen can be rendered', function () {
+test('reset password screen can be rendered', function (): void {
     Notification::fake();
     Queue::fake();
 
@@ -48,15 +46,13 @@ test('reset password screen can be rendered', function () {
         ->set('email', $user->email)
         ->call('sendPasswordResetLink');
 
-    Queue::assertPushed(SendPasswordResetLinkJob::class, function ($job) use ($user) {
-        return $job instanceof SendPasswordResetLinkJob
-            && $job->uniqueId() === mb_strtolower($user->email);
-    });
+    Queue::assertPushed(SendPasswordResetLinkJob::class, fn ($job): bool => $job instanceof SendPasswordResetLinkJob
+        && $job->uniqueId() === mb_strtolower($user->email));
 
     $jobInstance = new SendPasswordResetLinkJob(['email' => $user->email], app()->getLocale());
     $jobInstance->handle();
 
-    Notification::assertSentTo($user, ResetPasswordNotification::class, function ($notification) {
+    Notification::assertSentTo($user, ResetPasswordNotification::class, function ($notification): true {
         $response = $this->get('/reset-password/'.$notification->token);
 
         $response->assertStatus(200);
@@ -65,7 +61,7 @@ test('reset password screen can be rendered', function () {
     });
 });
 
-test('password can be reset with valid token', function () {
+test('password can be reset with valid token', function (): void {
     Notification::fake();
     Queue::fake();
 
@@ -75,15 +71,13 @@ test('password can be reset with valid token', function () {
         ->set('email', $user->email)
         ->call('sendPasswordResetLink');
 
-    Queue::assertPushed(SendPasswordResetLinkJob::class, function ($job) use ($user) {
-        return $job instanceof SendPasswordResetLinkJob
-            && $job->uniqueId() === mb_strtolower($user->email);
-    });
+    Queue::assertPushed(SendPasswordResetLinkJob::class, fn ($job): bool => $job instanceof SendPasswordResetLinkJob
+        && $job->uniqueId() === mb_strtolower($user->email));
 
     $jobInstance = new SendPasswordResetLinkJob(['email' => $user->email], app()->getLocale());
     $jobInstance->handle();
 
-    Notification::assertSentTo($user, ResetPasswordNotification::class, function ($notification) use ($user) {
+    Notification::assertSentTo($user, ResetPasswordNotification::class, function ($notification) use ($user): true {
         $response = Livewire::test(ResetPassword::class, ['token' => $notification->token])
             ->set('email', $user->email)
             ->set('password', 'password')

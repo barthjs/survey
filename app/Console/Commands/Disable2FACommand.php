@@ -20,7 +20,7 @@ final class Disable2FACommand extends Command
             $email = $this->ask(__('Enter email to disable 2FA'));
         }
 
-        $user = User::where('email', '=', $email)->first();
+        $user = User::query()->where('email', '=', $email)->first();
         if ($user === null) {
             $this->error(__('User not found'));
 

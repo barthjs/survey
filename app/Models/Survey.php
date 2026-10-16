@@ -33,7 +33,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 final class Survey extends Model
 {
     /** @use HasFactory<SurveyFactory> */
-    use HasFactory, HasUlids;
+    use HasFactory;
+
+    use HasUlids;
 
     /**
      * The model's default values for attributes.
@@ -113,8 +115,8 @@ final class Survey extends Model
                 }
             });
 
-            if (! empty($filesToDelete)) {
-                UploadsCleanupJob::dispatch($filesToDelete);
+            if ($filesToDelete !== []) {
+                dispatch(new UploadsCleanupJob($filesToDelete));
             }
         });
     }

@@ -14,16 +14,12 @@ final class SurveyLinkNotification extends Notification implements ShouldBeUniqu
 {
     use Queueable;
 
-    private string $surveyId;
-
-    private string $email;
-
     private string $link;
 
-    public function __construct(string $surveyId, string $email)
-    {
-        $this->surveyId = $surveyId;
-        $this->email = $email;
+    public function __construct(
+        private string $surveyId,
+        private string $email
+    ) {
         $this->link = route('surveys.submit', ['id' => $this->surveyId]);
     }
 

@@ -1,9 +1,17 @@
 <x-card :title="__('Log in to your account')" separator class="mx-auto w-full max-w-lg">
     <x-slot:subtitle>
         @if ($wantsToVerifyEmail)
-            {{ __('Please log in again to activate your account. Use the credentials you provided during registration.') }}
+            {{
+                __(
+                    'Please log in again to activate your account. Use the credentials you provided during registration.',
+                )
+            }}
         @else
-            {{ __('Enter your email and password below to log in') }}
+            {{
+                __(
+                    'Enter your email and password below to log in',
+                )
+            }}
         @endif
     </x-slot:subtitle>
 

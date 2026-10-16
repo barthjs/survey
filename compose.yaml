@@ -4,11 +4,12 @@ services:
     container_name: survey
     restart: unless-stopped
     depends_on:
-      - database
+      database:
+        condition: service_healthy
     ports:
       - 8080:8080
     volumes:
-      - ./data:/app/storage/app
+      - ./app_data:/app/storage/app
     env_file: .env
 
   database:
@@ -22,7 +23,7 @@ services:
       start_period: 3s
       retries: 3
     volumes:
-      - ./db-data:/var/lib/postgresql
+      - ./db_data:/var/lib/postgresql
     environment:
       - POSTGRES_DB=${DB_DATABASE}
       - POSTGRES_USER=${DB_USERNAME}

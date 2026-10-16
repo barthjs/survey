@@ -8,7 +8,7 @@ use App\Models\User;
 use App\Notifications\SurveyLinkNotification;
 use Livewire\Livewire;
 
-it('renders successfully', function () {
+it('renders successfully', function (): void {
     $user = User::factory()->create();
     $survey = Survey::factory()->create(['user_id' => $user->id]);
 
@@ -17,7 +17,7 @@ it('renders successfully', function () {
         ->assertStatus(200);
 });
 
-it('can share a survey', function () {
+it('can share a survey', function (): void {
     Notification::fake();
 
     $user = User::factory()->create();
@@ -29,9 +29,7 @@ it('can share a survey', function () {
         ->set('email', $email)
         ->call('sendEmail');
 
-    Notification::assertSentOnDemand(SurveyLinkNotification::class, function ($notification, $channels, $notifiable) use ($survey, $email) {
-        return $notification->uniqueId() === 'link_sent_'.$survey->id.'_'.$email
-            && in_array('mail', $channels)
-            && $notifiable->routeNotificationFor('mail') === $email;
-    });
+    Notification::assertSentOnDemand(SurveyLinkNotification::class, fn ($notification, $channels, $notifiable): bool => $notification->uniqueId() === 'link_sent_'.$survey->id.'_'.$email
+        && in_array('mail', $channels)
+        && $notifiable->routeNotificationFor('mail') === $email);
 });

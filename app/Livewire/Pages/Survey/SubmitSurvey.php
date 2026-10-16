@@ -10,10 +10,10 @@ use App\Models\AnswerOption;
 use App\Models\Question;
 use App\Models\Response;
 use App\Models\Survey;
-use Carbon\Carbon;
 use Closure;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
@@ -29,7 +29,8 @@ use Throwable;
 #[Layout('components.layouts.public')]
 final class SubmitSurvey extends Component
 {
-    use Toast, WithFileUploads;
+    use Toast;
+    use WithFileUploads;
 
     public const array ALLOWED_MIME_TYPES = [
         'text/plain',
@@ -72,7 +73,7 @@ final class SubmitSurvey extends Component
 
     public function mount(string $id): void
     {
-        $this->survey = Survey::findOrFail($id);
+        $this->survey = Survey::query()->findOrFail($id);
         $this->title = $this->survey->title;
         $this->description = $this->survey->description ?? '';
 
@@ -88,15 +89,11 @@ final class SubmitSurvey extends Component
             abort(404);
         }
 
-        if (! $this->survey->is_active) {
-            abort(404);
-        }
+        abort_unless($this->survey->is_active, 404);
 
         $this->questions = $this->loadQuestions();
 
-        if (empty($this->questions)) {
-            abort(404);
-        }
+        abort_if($this->questions === [], 404);
 
         foreach ($this->questions as $question) {
             if ($question['type'] === QuestionType::FILE->name) {
@@ -118,7 +115,7 @@ final class SubmitSurvey extends Component
     public function loadQuestions(): array
     {
         /** @phpstan-ignore-next-line */
-        return Question::with(['options' => function (HasMany $query) {
+        return Question::with(['options' => function (HasMany $query): void {
             $query->orderBy('order_index');
         }])
             ->whereSurveyId($this->survey->id)
@@ -143,7 +140,7 @@ final class SubmitSurvey extends Component
 
                 QuestionType::MULTIPLE_CHOICE->value => [
                     'array',
-                    function (string $attribute, array $value, Closure $fail) use ($question) {
+                    function (string $attribute, array $value, Closure $fail) use ($question): void {
                         $validOptionIds = collect($question['options'])->pluck('id')->toArray();
                         foreach (array_keys($value) as $optionId) {
                             if (! in_array($optionId, $validOptionIds, true)) {
@@ -157,7 +154,7 @@ final class SubmitSurvey extends Component
                     'file',
                     'max:10240',
                     'mimetypes:'.implode(',', self::ALLOWED_MIME_TYPES),
-                    function (string $attribute, TemporaryUploadedFile $value, Closure $fail) {
+                    function (string $attribute, TemporaryUploadedFile $value, Closure $fail): void {
                         if (! $value->isValid()) {
                             $fail(__('Invalid file upload'));
 
@@ -182,8 +179,8 @@ final class SubmitSurvey extends Component
 
         try {
             $this->validate($rules);
-        } catch (ValidationException $e) {
-            $failedFields = array_keys($e->validator->failed());
+        } catch (ValidationException $validationException) {
+            $failedFields = array_keys($validationException->validator->failed());
 
             foreach ($failedFields as $field) {
                 $questionId = str_replace('response.', '', $field);
@@ -210,15 +207,15 @@ final class SubmitSurvey extends Component
                 $this->response[$questionId] = null;
             }
 
-            throw $e;
+            throw $validationException;
         }
 
-        DB::transaction(function () {
-            $response = Response::create([
+        DB::transaction(function (): void {
+            $response = Response::query()->create([
                 'survey_id' => $this->survey->id,
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),
-                'submitted_at' => Carbon::now(),
+                'submitted_at' => Date::now(),
             ]);
 
             foreach ($this->questions as $question) {
@@ -229,7 +226,7 @@ final class SubmitSurvey extends Component
                 /** @var TemporaryUploadedFile|array<string>|string|null $data */
                 $data = $this->response[$question['id']];
 
-                $answer = Answer::create([
+                $answer = Answer::query()->create([
                     'question_id' => $question['id'],
                     'response_id' => $response->id,
                     'answer_text' => $question['type'] === QuestionType::TEXT->value
@@ -245,7 +242,7 @@ final class SubmitSurvey extends Component
 
                 if (is_array($data) && $question['type'] === QuestionType::MULTIPLE_CHOICE->value) {
                     foreach (array_keys($data) as $optionId) {
-                        AnswerOption::create([
+                        AnswerOption::query()->create([
                             'answer_id' => $answer->id,
                             'question_option_id' => $optionId,
                         ]);

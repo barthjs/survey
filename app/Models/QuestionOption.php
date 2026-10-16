@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Database\Factories\QuestionOptionFactory;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,14 +22,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read Question $question
  * @property-read Collection<int, AnswerOption> $answerOptions
  */
+#[Table(name: 'question_options')]
+#[WithoutTimestamps]
 final class QuestionOption extends Model
 {
     /** @use HasFactory<QuestionOptionFactory> */
-    use HasFactory, HasUlids;
+    use HasFactory;
 
-    public $timestamps = false;
-
-    protected $table = 'question_options';
+    use HasUlids;
 
     /**
      * Get the attributes that should be cast.

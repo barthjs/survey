@@ -12,11 +12,14 @@ use App\Livewire\Pages\Survey\SubmitSurvey;
 use App\Livewire\Pages\Survey\ViewResponse;
 use App\Livewire\Pages\Survey\ViewSurvey;
 use App\Livewire\Pages\User\IndexUsers;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
+Route::get('/', function (): RedirectResponse|Factory|View {
     if (auth()->check()) {
-        return redirect()->route('surveys.index');
+        return to_route('surveys.index');
     }
 
     return view('pages.homepage');
@@ -26,7 +29,7 @@ Route::get('/language/{locale}', function (string $locale) {
     if (array_key_exists($locale, config()->array('app.locales'))) {
         session()->put('locale', $locale);
 
-        return redirect()->back();
+        return back();
     }
 
     abort(404);
@@ -38,11 +41,11 @@ if (config('app.enable_email_verification')) {
     $middlewares[] = 'verified';
 }
 
-Route::middleware($middlewares)->group(function () {
+Route::middleware($middlewares)->group(function (): void {
     Route::get('/profile', Profile::class)
         ->name('profile');
 
-    Route::middleware(EnsureUserIsAdmin::class)->group(function () {
+    Route::middleware(EnsureUserIsAdmin::class)->group(function (): void {
         Route::get('/users', IndexUsers::class)
             ->name('users.index');
     });
@@ -69,6 +72,4 @@ Route::get('/results/{id}', ViewSurvey::class)
 Route::get('/s/{id}', SubmitSurvey::class)
     ->name('surveys.submit');
 
-Route::get('/thank-you', function () {
-    return view('pages.thank-you');
-})->name('surveys.thank-you');
+Route::get('/thank-you', fn (): Factory|View => view('pages.thank-you'))->name('surveys.thank-you');

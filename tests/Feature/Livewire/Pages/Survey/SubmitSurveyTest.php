@@ -8,12 +8,13 @@ use App\Models\Answer;
 use App\Models\AnswerOption;
 use App\Models\Question;
 use App\Models\QuestionOption;
+use App\Models\Response;
 use App\Models\Survey;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Livewire\Livewire;
 
-it('renders successfully', function () {
+it('renders successfully', function (): void {
     $user = User::factory()->create();
     $survey = Survey::factory()
         ->for($user)
@@ -29,7 +30,7 @@ it('renders successfully', function () {
         ->assertStatus(200);
 });
 
-it('rejects text inputs longer than 255 characters', function () {
+it('rejects text inputs longer than 255 characters', function (): void {
     $user = User::factory()->create();
 
     $survey = Survey::factory()
@@ -50,7 +51,7 @@ it('rejects text inputs longer than 255 characters', function () {
         ->assertHasErrors(["response.$question->id" => 'max']);
 });
 
-it('rejects invalid multiple-choice option IDs', function () {
+it('rejects invalid multiple-choice option IDs', function (): void {
     $user = User::factory()->create();
 
     $survey = Survey::factory()
@@ -67,7 +68,7 @@ it('rejects invalid multiple-choice option IDs', function () {
 
     QuestionOption::factory(['question_id' => $question->id, 'order_index' => 0]);
 
-    $invalidOptionId = fake()->uuid;
+    $invalidOptionId = fake()->uuid();
 
     Livewire::test(SubmitSurvey::class, ['id' => $survey->id])
         ->set("response.$question->id", [$invalidOptionId => true])
@@ -75,7 +76,7 @@ it('rejects invalid multiple-choice option IDs', function () {
         ->assertHasErrors(["response.$question->id"]);
 });
 
-it('rejects invalid file uploads with disallowed MIME types', function () {
+it('rejects invalid file uploads with disallowed MIME types', function (): void {
     $user = User::factory()->create();
 
     $survey = Survey::factory()
@@ -96,7 +97,7 @@ it('rejects invalid file uploads with disallowed MIME types', function () {
         ->assertHasErrors(["response.$question->id"]);
 });
 
-it('submits a valid survey with text, multiple choice, and file', function () {
+it('submits a valid survey with text, multiple choice, and file', function (): void {
     Storage::fake();
 
     $user = User::factory()->create();
@@ -137,7 +138,7 @@ it('submits a valid survey with text, multiple choice, and file', function () {
         ->call('submitSurvey')
         ->assertRedirect(route('surveys.thank-you'));
 
-    expect(App\Models\Response::count())->toBe(1)
-        ->and(Answer::count())->toBe(3)
-        ->and(AnswerOption::count())->toBe(1);
+    expect(Response::query()->count())->toBe(1)
+        ->and(Answer::query()->count())->toBe(3)
+        ->and(AnswerOption::query()->count())->toBe(1);
 });

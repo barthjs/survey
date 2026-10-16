@@ -21,6 +21,7 @@ use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Jenssegers\Agent\Agent;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
@@ -187,9 +188,9 @@ final class Profile extends Component
         try {
             /** @var array{current_password?: string, password: string} $validated */
             $validated = $this->validate($rules);
-        } catch (ValidationException $e) {
+        } catch (ValidationException $validationException) {
             $this->reset('current_password', 'password', 'password_confirmation');
-            throw $e;
+            throw $validationException;
         }
 
         $user->update([
@@ -202,14 +203,15 @@ final class Profile extends Component
         $this->success(__('Password updated'));
     }
 
-    public function getTwoFactorQrCodeSvgProperty(TwoFactorAuthenticationService $service): string
+    #[Computed]
+    public function twoFactorQrCodeSvg(): string
     {
         $user = Auth::user();
         if (empty($user->two_factor_secret)) {
             return '';
         }
 
-        return $service->getQRCodeSvg(
+        return resolve(TwoFactorAuthenticationService::class)->getQRCodeSvg(
             config()->string('app.name'),
             $user->email,
             $user->two_factor_secret
@@ -418,7 +420,7 @@ final class Profile extends Component
 
     private function loadOidcProviders(): void
     {
-        $service = app(OidcService::class);
+        $service = resolve(OidcService::class);
         $enabled = $service->getEnabledProviders();
 
         $user = Auth::user();

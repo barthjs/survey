@@ -22,7 +22,7 @@
                     type="submit"
                     class="btn-primary"
                 />
-                @if (!empty($new_email) && ($new_email != $email))
+                @if (!empty($new_email) && $new_email != $email)
                     <x-button
                         icon="o-envelope"
                         :label="__('Resend verification email')"
@@ -50,7 +50,11 @@
             @else
                 <x-alert
                     icon="o-information-circle"
-                    :title="__('You currently do not have a password set. Create one to be able to log in without an external provider.')"
+                    :title="
+                        __(
+        'You currently do not have a password set. Create one to be able to log in without an external provider.',
+    )
+                    "
                     class="alert-info"
                 />
             @endif
@@ -89,7 +93,11 @@
                         <x-alert
                             icon="o-key"
                             :title="__('Recovery codes')"
-                            :description="__('Store these recovery codes in a secure password manager. They can be used to recover access to your account if your two factor authentication device is lost.')"
+                            :description="
+                                __(
+        'Store these recovery codes in a secure password manager. They can be used to recover access to your account if your two factor authentication device is lost.',
+    )
+                            "
                             class="alert-warning"
                         />
 
@@ -135,7 +143,11 @@
                 <x-modal
                     wire:model="confirmRegenerateRecoveryCodesModal"
                     :title="__('Regenerate Recovery Codes')"
-                    :subtitle="__('Are you sure you want to regenerate your recovery codes? Once you regenerate your recovery codes, the old ones will no longer work.')"
+                    :subtitle="
+                        __(
+        'Are you sure you want to regenerate your recovery codes? Once you regenerate your recovery codes, the old ones will no longer work.',
+    )
+                    "
                     class="backdrop-blur"
                 >
                     <x-form wire:submit="regenerateRecoveryCodes" novalidate>
@@ -194,14 +206,22 @@
                 <x-alert
                     icon="o-shield-check"
                     :title="__('You have not enabled two factor authentication.')"
-                    :description="__('When two factor authentication is enabled, you will be prompted for a secure, random token during authentication. You may retrieve this token from your phone\'s authenticator application.')"
+                    :description="
+                        __(
+        'When two factor authentication is enabled, you will be prompted for a secure, random token during authentication. You may retrieve this token from your phone\'s authenticator application.',
+    )
+                    "
                 />
                 @if ($showingTwoFactorQrCode)
                     <div class="mt-6 space-y-6">
                         <x-alert
                             icon="o-information-circle"
                             :title="__('Finalize enabling 2FA')"
-                            :description="__('Scan the following QR code using your phone\'s authenticator application to enable two factor authentication.') "
+                            :description="
+                                __(
+        'Scan the following QR code using your phone\'s authenticator application to enable two factor authentication.',
+    )
+                            "
                             class="alert-info"
                         />
 
@@ -293,7 +313,11 @@
                             <div>
                                 <div class="text-sm font-medium">{{ $provider['label'] }}</div>
                                 <div class="text-xs text-gray-500">
-                                    {{ $provider['is_connected'] ? __('Connected') : __('Not connected') }}
+                                    {{
+                                        $provider['is_connected']
+                                            ? __('Connected')
+                                            : __('Not connected')
+                                    }}
                                 </div>
                             </div>
                         </div>
@@ -370,7 +394,13 @@
 
                     <div class="flex-1">
                         <div class="text-sm font-medium">
-                            {{ $session['device']['platform'] ?: __('Unknown platform') }} - {{ $session['device']['browser'] ?: __('Unknown browser') }}
+                            {{
+                                $session['device']['platform'] ?:
+                                    __('Unknown platform')
+                            }} - {{
+                                $session['device']['browser'] ?:
+                                    __('Unknown browser')
+                            }}
                         </div>
 
                         <div class="flex items-center gap-2 text-xs text-gray-500">
@@ -396,7 +426,11 @@
                             @else
                                 <span class="text-gray-300 dark:text-gray-600">•</span>
                                 <span
-                                    >{{ __('Last active') }} {{ Carbon::createFromTimestamp($session['last_active'])->diffForHumans() }}</span
+                                    >{{ __('Last active') }} {{
+                                        Carbon::createFromTimestamp(
+                                            $session['last_active'],
+                                        )->diffForHumans()
+                                    }}</span
                                 >
                             @endif
                         </div>
@@ -413,7 +447,11 @@
 
         <x-modal
             :title="__('Log Out Other Sessions')"
-            :subtitle="auth()->user()->password !== null ? __('Please enter your password to log out your other sessions on all devices.') : __('Please confirm to log out your other sessions on all devices.')"
+            :subtitle="
+                auth()->user()->password !== null
+        ? __('Please enter your password to log out your other sessions on all devices.')
+        : __('Please confirm to log out your other sessions on all devices.')
+            "
             wire:model="confirmLogoutOtherBrowserSessionsModal"
             class="backdrop-blur"
         >
@@ -447,7 +485,15 @@
     >
         <x-modal
             :title="__('Are you sure you want to delete your account?')"
-            :subtitle="auth()->user()->password !== null ? __('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm.') : __('Once your account is deleted, all of its resources and data will be permanently deleted.')"
+            :subtitle="
+                auth()->user()->password !== null
+        ? __(
+            'Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm.',
+        )
+        : __(
+            'Once your account is deleted, all of its resources and data will be permanently deleted.',
+        )
+            "
             wire:model="confirmUserDeletionModal"
             class="backdrop-blur"
         >

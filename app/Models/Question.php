@@ -7,6 +7,8 @@ namespace App\Models;
 use App\Enums\QuestionType;
 use App\Jobs\UploadsCleanupJob;
 use Database\Factories\QuestionFactory;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -27,14 +29,14 @@ use Illuminate\Validation\Rule;
  * @property-read Collection<int, QuestionOption> $options
  * @property-read Collection<int, Answer> $answers
  */
+#[Table(name: 'questions')]
+#[WithoutTimestamps]
 final class Question extends Model
 {
     /** @use HasFactory<QuestionFactory> */
-    use HasFactory, HasUlids;
+    use HasFactory;
 
-    public $timestamps = false;
-
-    protected $table = 'questions';
+    use HasUlids;
 
     /**
      * The model's default values for attributes.
@@ -46,7 +48,7 @@ final class Question extends Model
     ];
 
     /** @var array<string> */
-    protected static array $responseIdsToCheck = [];
+    private static array $responseIdsToCheck = [];
 
     /**
      * @param array<int, array{
@@ -65,8 +67,8 @@ final class Question extends Model
             'questions.*.is_required' => ['required', 'boolean'],
             'questions.*.options' => ['nullable', 'array', 'max:10'],
             'questions.*.options.*.option_text' => ['required_with:questions.*.options', 'string', 'max:255'],
-        ])->after(function (\Illuminate\Validation\Validator $validator) use ($questions) {
-            $hasRequired = collect($questions)->contains(fn (array $q) => $q['is_required']);
+        ])->after(function (\Illuminate\Validation\Validator $validator) use ($questions): void {
+            $hasRequired = collect($questions)->contains(fn (array $q): bool => $q['is_required']);
             if (! $hasRequired) {
                 $validator->errors()->add('questions', __('At least one question must be marked as required.'));
             }
@@ -128,17 +130,17 @@ final class Question extends Model
                 $newType = $question->type;
 
                 if ($originalType === QuestionType::TEXT && $newType !== QuestionType::TEXT) {
-                    $question->answers()->each(function (Answer $answer) {
+                    $question->answers()->each(function (Answer $answer): void {
                         $answer->delete();
                     });
                 }
 
                 if ($originalType === QuestionType::MULTIPLE_CHOICE && $newType !== QuestionType::MULTIPLE_CHOICE) {
-                    $question->answers()->each(function (Answer $answer) {
+                    $question->answers()->each(function (Answer $answer): void {
                         $answer->delete();
                     });
 
-                    $question->options()->each(function (QuestionOption $option) {
+                    $question->options()->each(function (QuestionOption $option): void {
                         $option->delete();
                     });
                 }
@@ -146,13 +148,13 @@ final class Question extends Model
                 if ($originalType === QuestionType::FILE && $newType !== QuestionType::FILE) {
                     $filesToDelete = [];
 
-                    $question->answers()->each(function (Answer $answer) use (&$filesToDelete) {
+                    $question->answers()->each(function (Answer $answer) use (&$filesToDelete): void {
                         $filesToDelete[] = $answer->file_path;
                         $answer->delete();
                     });
 
                     /** @var string[] $filesToDelete */
-                    UploadsCleanupJob::dispatch($filesToDelete);
+                    dispatch(new UploadsCleanupJob($filesToDelete));
                 }
             }
         });
@@ -161,12 +163,12 @@ final class Question extends Model
             $filesToDelete = [];
 
             if ($question->type === QuestionType::FILE) {
-                $question->answers()->each(function (Answer $answer) use (&$filesToDelete) {
+                $question->answers()->each(function (Answer $answer) use (&$filesToDelete): void {
                     $filesToDelete[] = $answer->file_path;
                 });
 
                 /** @var string[] $filesToDelete */
-                UploadsCleanupJob::dispatch($filesToDelete);
+                dispatch(new UploadsCleanupJob($filesToDelete));
             }
 
             // Collect response IDs before answers get deleted
@@ -176,8 +178,8 @@ final class Question extends Model
 
         self::deleted(function (): void {
             foreach (self::$responseIdsToCheck as $responseId) {
-                if (Answer::where('response_id', '=', $responseId)->count() === 0) {
-                    Response::find($responseId)?->delete();
+                if (Answer::query()->where('response_id', '=', $responseId)->count() === 0) {
+                    Response::query()->find($responseId)?->delete();
                 }
             }
 

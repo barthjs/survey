@@ -40,7 +40,7 @@ final class TwoFactorChallenge extends Component
         }
 
         /** @var User $user */
-        $user = User::findOrFail($userId);
+        $user = User::query()->findOrFail($userId);
 
         if ($this->recovery) {
             $this->validate(['recovery_code' => ['required', 'string']]);

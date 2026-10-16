@@ -9,6 +9,8 @@ use App\Jobs\UploadsCleanupJob;
 use Carbon\CarbonInterface;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -36,12 +38,20 @@ use Illuminate\Support\Facades\Hash;
  * @property-read Collection<int, UserProvider> $providers
  * @property-read Collection<int, Survey> $surveys
  */
+#[Hidden([
+    'password',
+    'remember_token',
+    'two_factor_secret',
+    'two_factor_recovery_codes',
+])]
+#[Table(name: 'sys_users')]
 final class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasUlids, Notifiable;
+    use HasFactory;
 
-    protected $table = 'sys_users';
+    use HasUlids;
+    use Notifiable;
 
     /**
      * The model's default values for attributes.
@@ -51,18 +61,6 @@ final class User extends Authenticatable implements MustVerifyEmail
     protected $attributes = [
         'is_active' => true,
         'is_admin' => false,
-    ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-        'two_factor_secret',
-        'two_factor_recovery_codes',
     ];
 
     /**
@@ -157,8 +155,8 @@ final class User extends Authenticatable implements MustVerifyEmail
                 });
             });
 
-            if (! empty($filesToDelete)) {
-                UploadsCleanupJob::dispatch($filesToDelete);
+            if ($filesToDelete !== []) {
+                dispatch(new UploadsCleanupJob($filesToDelete));
             }
         });
     }

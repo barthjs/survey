@@ -67,9 +67,9 @@ final readonly class OidcController
             Auth::login($user, remember: true);
 
             return redirect()->intended(route('surveys.index'));
-        } catch (Throwable $e) {
+        } catch (Throwable $throwable) {
             Session::flash('oidc_error', __('Authentication via :Provider failed.', ['provider' => $provider]));
-            Log::error("OIDC Login failed for provider $provider: ".$e->getMessage());
+            Log::error("OIDC Login failed for provider $provider: ".$throwable->getMessage());
 
             return redirect($returnTo);
         }

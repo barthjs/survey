@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('sys_users', function (Blueprint $table) {
+        Schema::table('sys_users', function (Blueprint $table): void {
             $table->text('two_factor_secret')->nullable();
             $table->text('two_factor_recovery_codes')->nullable();
             $table->dateTime('two_factor_enabled_at')->nullable();

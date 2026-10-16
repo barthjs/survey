@@ -16,7 +16,7 @@ final class UploadsCleanupJob implements ShouldQueue
      * @param  array<string>  $filePaths
      */
     public function __construct(
-        private readonly array $filePaths = []
+        private readonly array $filePaths
     ) {}
 
     public function handle(): void
@@ -33,17 +33,5 @@ final class UploadsCleanupJob implements ShouldQueue
             }
         }
 
-        $storage = Storage::disk('local');
-
-        /** @var string $path */
-        foreach ($storage->files('livewire-tmp') as $path) {
-            if (! $storage->exists($path)) {
-                continue;
-            }
-
-            if (now()->subHours(24)->timestamp > $storage->lastModified($path)) {
-                $storage->delete($path);
-            }
-        }
     }
 }

@@ -7,12 +7,12 @@ use App\Models\Survey;
 use App\Models\User;
 use Livewire\Livewire;
 
-it('renders successfully', function () {
+it('renders successfully', function (): void {
     Livewire::test(CreateSurvey::class)
         ->assertStatus(200);
 });
 
-it('can create a survey with valid data', function () {
+it('can create a survey with valid data', function (): void {
     $user = User::factory()->create();
 
     $questions = [
@@ -49,7 +49,7 @@ it('can create a survey with valid data', function () {
         ->call('save')
         ->assertHasNoErrors();
 
-    expect(Survey::count())->toBe(1);
+    expect(Survey::query()->count())->toBe(1);
     $survey = Survey::with('questions.options')->first();
 
     expect($survey->questions)->toHaveCount(3)

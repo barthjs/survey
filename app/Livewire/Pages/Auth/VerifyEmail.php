@@ -20,9 +20,7 @@ final class VerifyEmail extends Component
 {
     public function mount(): void
     {
-        if (! config()->boolean('app.enable_email_verification')) {
-            abort(404);
-        }
+        abort_unless(config()->boolean('app.enable_email_verification'), 404);
 
         if (Auth::user()->hasVerifiedEmail()) {
             $this->redirectIntended(default: route('surveys.index', absolute: false), navigate: true);
@@ -46,7 +44,7 @@ final class VerifyEmail extends Component
 
         RateLimiter::hit($key, 3600);
 
-        SendEmailVerificationJob::dispatch($user, app()->getLocale());
+        dispatch(new SendEmailVerificationJob($user, app()->getLocale()));
 
         Session::flash('status', 'verification-link-sent');
     }

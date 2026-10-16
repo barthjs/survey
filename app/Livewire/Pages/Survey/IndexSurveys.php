@@ -20,7 +20,9 @@ use Mary\Traits\Toast;
 #[Layout('components.layouts.app')]
 final class IndexSurveys extends Component
 {
-    use ConfirmDeletionModal, Toast, WithPagination;
+    use ConfirmDeletionModal;
+    use Toast;
+    use WithPagination;
 
     /** @var array<string, string> */
     #[Url]
@@ -44,12 +46,12 @@ final class IndexSurveys extends Component
             ->where('user_id', auth()->id())
             ->when($this->search, fn (Builder $query) => $query->where('title', 'like', "%$this->search%"))
             ->orderBy(...array_values($this->sortBy))
-            ->paginate(in_array($this->perPage, $allowedPerPage) ? $this->perPage : $allowedPerPage[0]);
+            ->paginate(in_array($this->perPage, $allowedPerPage, true) ? $this->perPage : $allowedPerPage[0]);
     }
 
     public function delete(): void
     {
-        $survey = Survey::findOrFail($this->deletionId);
+        $survey = Survey::query()->findOrFail($this->deletionId);
         if (auth()->user()->cannot('delete', $survey)) {
             return;
         }

@@ -5,7 +5,7 @@
 
     @foreach (config()->array('app.locales') as $locale => $language)
         <x-menu-item
-            :icon="'c.language-' . $locale"
+            :icon="'language.' . $locale"
             :title="$language"
             :link="route('locale', ['locale' => $locale])"
             :active="app()->getLocale() === $locale"

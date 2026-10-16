@@ -9,7 +9,7 @@ use App\Models\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -28,9 +28,7 @@ final class Register extends Component
 
     public function mount(): void
     {
-        if (! config()->boolean('app.allow_registration')) {
-            abort(404);
-        }
+        abort_unless(config()->boolean('app.allow_registration'), 404);
     }
 
     /**
@@ -44,18 +42,18 @@ final class Register extends Component
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', 'string', 'confirmed', Password::defaults()],
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
 
-        if (User::where('is_admin')->count() === 0) {
+        if (User::query()->where('is_admin')->count() === 0) {
             $validated['is_admin'] = true;
         }
 
-        $user = User::create($validated);
+        $user = User::query()->create($validated);
         if (config()->boolean('app.enable_email_verification')) {
-            SendEmailVerificationJob::dispatch($user, app()->getLocale());
+            dispatch(new SendEmailVerificationJob($user, app()->getLocale()));
         }
 
         Auth::login($user);

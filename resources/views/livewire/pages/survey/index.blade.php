@@ -37,7 +37,7 @@
                 @if ($survey->end_date)
                     <x-badge
                         :value="$survey->end_date"
-                        :class="($survey->end_date->isPast() && $survey->is_active ? 'badge-warning' : '')"
+                        :class="$survey->end_date->isPast() && $survey->is_active ? 'badge-warning' : ''"
                     />
                 @else
                     <x-badge :value="__('No end date')" class="text-base-content/50" />
@@ -54,7 +54,11 @@
                     </x-slot:trigger>
 
                     <x-slot:content>
-                        {{ $survey->is_active ? __('Open') : __('Closed') }}
+                        {{
+                            $survey->is_active
+                                ? __('Open')
+                                : __('Closed')
+                        }}
                     </x-slot:content>
                 </x-popover>
             @endscope
@@ -69,19 +73,23 @@
                     </x-slot:trigger>
 
                     <x-slot:content>
-                        {{ $survey->is_public ? __('Public') : __('Private') }}
+                        {{
+                            $survey->is_public
+                                ? __('Public')
+                                : __('Private')
+                        }}
                     </x-slot:content>
                 </x-popover>
             @endscope
 
             @scope ('actions', $survey)
                 @if (
-                (! $survey->end_date || ! $survey->end_date->isPast()) &&
-                $survey->is_active
-            )
+                    (!$survey->end_date || !$survey->end_date->isPast()) &&
+                    $survey->is_active
+                )
                     <x-button
                         icon="o-arrow-top-right-on-square"
-                        :link="route('surveys.submit', ['id' => $survey->id ])"
+                        :link="route('surveys.submit', ['id' => $survey->id])"
                         external
                         class="btn-sm btn-ghost info"
                     />

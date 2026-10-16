@@ -9,6 +9,7 @@ use App\Services\Oidc\OidcService;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
@@ -21,11 +22,7 @@ final class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Laravel
-        Date::use(CarbonImmutable::class);
-        Model::shouldBeStrict();
-        Model::unguard();
-        Vite::useAggressivePrefetching();
+        $this->configureDefaults();
 
         Event::listen(function (SocialiteWasCalled $event): void {
             $oidcService = $this->app->make(OidcService::class);
@@ -49,5 +46,18 @@ final class AppServiceProvider extends ServiceProvider
                 }
             }
         });
+    }
+
+    private function configureDefaults(): void
+    {
+        DB::prohibitDestructiveCommands(app()->isProduction());
+
+        Date::use(CarbonImmutable::class);
+
+        Model::shouldBeStrict();
+
+        Model::unguard();
+
+        Vite::useAggressivePrefetching();
     }
 }

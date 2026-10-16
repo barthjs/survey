@@ -10,10 +10,10 @@ use App\Models\Question;
 use App\Models\QuestionOption;
 use App\Models\Survey;
 use App\Traits\ConfirmDeletionModal;
-use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -24,7 +24,8 @@ use Mary\Traits\Toast;
 #[Layout('components.layouts.app')]
 final class EditSurvey extends Component
 {
-    use ConfirmDeletionModal, Toast;
+    use ConfirmDeletionModal;
+    use Toast;
 
     public Survey $survey;
 
@@ -55,9 +56,7 @@ final class EditSurvey extends Component
     public function mount(string $id): void
     {
         $this->survey = Survey::with('questions.options')->findOrFail($id);
-        if (auth()->user()->cannot('update', $this->survey)) {
-            abort(403);
-        }
+        abort_if(auth()->user()->cannot('update', $this->survey), 403);
 
         $this->title = $this->survey->title;
         $this->description = $this->survey->description;
@@ -66,18 +65,18 @@ final class EditSurvey extends Component
         $this->end_date = $this->survey->end_date?->format('Y-m-d\TH:i');
 
         /** @phpstan-ignore-next-line */
-        $this->questions = $this->survey->questions->map(fn (Question $question) => [
+        $this->questions = $this->survey->questions->map(fn (Question $question): array => [
             'id' => $question->id,
             'question_text' => $question->question_text,
             'type' => $question->type,
             'is_required' => $question->is_required,
             'options' => $question->type === QuestionType::MULTIPLE_CHOICE
-                ? $question->options->map(fn (QuestionOption $option) => [
+                ? $question->options->map(fn (QuestionOption $option): array => [
                     'id' => $option->id,
                     'option_text' => $option->option_text,
-                ])->toArray()
+                ])->all()
                 : [],
-        ])->toArray();
+        ])->all();
     }
 
     public function save(): void
@@ -86,8 +85,8 @@ final class EditSurvey extends Component
 
         try {
             Question::validateQuestions($this->questions);
-        } catch (ValidationException $e) {
-            $this->dispatch('validationErrors', $e->errors());
+        } catch (ValidationException $validationException) {
+            $this->dispatch('validationErrors', $validationException->errors());
 
             return;
         }
@@ -174,7 +173,7 @@ final class EditSurvey extends Component
                     /** @var QuestionOption $option */
                     $option = $existingOptions->get($optionId);
 
-                    $option->answerOptions->each(function (AnswerOption $answerOption) {
+                    $option->answerOptions->each(function (AnswerOption $answerOption): void {
                         $answerOption->answer()->delete();
                     });
 
@@ -190,9 +189,7 @@ final class EditSurvey extends Component
 
     public function deleteSurvey(): void
     {
-        if (auth()->user()->cannot('delete', $this->survey)) {
-            abort(403);
-        }
+        abort_if(auth()->user()->cannot('delete', $this->survey), 403);
 
         $this->survey->delete();
 
@@ -226,7 +223,7 @@ final class EditSurvey extends Component
             'description' => $this->description,
             'is_public' => $this->is_public,
             'is_active' => $this->is_active,
-            'end_date' => $this->end_date ? Carbon::parse($this->end_date) : null,
+            'end_date' => $this->end_date ? Date::parse($this->end_date) : null,
         ];
     }
 }

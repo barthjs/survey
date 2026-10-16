@@ -33,7 +33,7 @@ final class ResetPasswordCommand extends Command
 
         try {
             /** @var string $email */
-            $user = User::where('email', $email)->firstOrFail();
+            $user = User::query()->where('email', $email)->firstOrFail();
         } catch (ModelNotFoundException) {
             $this->error(__('User not found'));
 
@@ -79,8 +79,8 @@ final class ResetPasswordCommand extends Command
                 ->delete();
 
             $this->info(__('Password reset successfully'));
-        } catch (Exception $e) {
-            Log::error(__('Password reset failed for user: ').$email, ['exception' => $e]);
+        } catch (Exception $exception) {
+            Log::error(__('Password reset failed for user: ').$email, ['exception' => $exception]);
             $this->error(__('An error occurred while resetting the password.'));
 
             return 1;

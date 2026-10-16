@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 return [
 
-    'name' => 'Survey',
+    'name' => env('APP_NAME', 'Survey'),
 
     'version' => env('APP_VERSION', 'dev'),
 

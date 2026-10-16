@@ -1,17 +1,17 @@
 # syntax=docker/dockerfile:1.7-labs
-FROM php:8.5-fpm-alpine as base
+FROM php:8.5-fpm-alpine AS base
 WORKDIR /app
 
-ENV PUID=1000
-ENV PGID=1000
-ARG S6_OVERLAY_VERSION=3.2.0.2
-ENV S6_VERBOSITY=1
-ENV USER=application
+ENV PUID=1000 \
+    PGID=1000 \
+    S6_OVERLAY_VERSION=3.2.3.0 \
+    S6_VERBOSITY=1 \
+    USER=application
 
 COPY --from=mlocati/php-extension-installer:latest /usr/bin/install-php-extensions /usr/local/bin/
 RUN set -eux \
-    && addgroup -g ${PUID} ${USER} \
-    && adduser -D -u ${PGID} -G ${USER} -h /home/${USER} -s /bin/zsh ${USER} \
+    && addgroup -g ${PGID} ${USER} \
+    && adduser -D -u ${PUID} -G ${USER} -h /home/${USER} -s /bin/sh ${USER} \
     && apk add --no-cache \
     nginx \
     shadow \
@@ -23,11 +23,14 @@ RUN set -eux \
     && install-php-extensions \
     intl \
     opcache \
-    pdo_mysql \
     pdo_pgsql \
     zip \
     && rm -f /usr/local/bin/install-php-extensions \
     && rm -rf /usr/local/etc/php-fpm.d/*.conf
+
+COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
+
+COPY docker/s6-overlay/base /etc/s6-overlay
 
 FROM base AS dev
 
@@ -36,6 +39,7 @@ ENV PHP_IDE_CONFIG="serverName=survey"
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 COPY --from=mlocati/php-extension-installer:latest /usr/bin/install-php-extensions /usr/local/bin/
 RUN set -eux \
+    && usermod -s /bin/zsh ${USER} \
     && apk add --no-cache \
     bash \
     curl \
@@ -46,17 +50,12 @@ RUN set -eux \
     zsh-vcs \
     && install-php-extensions \
     xdebug \
-    && rm -f /usr/local/bin/install-php-extensions \
     && mv $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini
 
 COPY docker/php/php.ini docker/php/php-dev.ini $PHP_INI_DIR/conf.d/
 COPY docker/php/application.conf /usr/local/etc/php-fpm.d/application.conf
 
-COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY docker/nginx/nginx-dev.conf /etc/nginx/conf.d/dev.conf
-
-COPY docker/s6-overlay/base /etc/s6-overlay
-COPY docker/s6-overlay/dev /etc/s6-overlay
 
 USER ${USER}
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
@@ -83,11 +82,12 @@ COPY --from=composer-builder /app/vendor ./vendor
 COPY --parents \
     public \
     resources \
-    vite.config.js \
+    tsconfig.json \
+    vite.config.ts \
     ./
 RUN npm run build
 
-FROM base as prod
+FROM base AS prod
 
 ARG VERSION=latest
 ENV APP_VERSION=${VERSION}
@@ -97,10 +97,8 @@ RUN mv $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini
 COPY docker/php/php.ini docker/php/php-prod.ini $PHP_INI_DIR/conf.d/
 COPY docker/php/application.conf /usr/local/etc/php-fpm.d/application.conf
 
-COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY docker/nginx/nginx-prod.conf /etc/nginx/conf.d/prod.conf
 
-COPY docker/s6-overlay/base /etc/s6-overlay
 COPY docker/s6-overlay/prod /etc/s6-overlay
 
 COPY --parents \

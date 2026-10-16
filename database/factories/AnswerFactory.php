@@ -22,7 +22,7 @@ final class AnswerFactory extends Factory
     public function definition(): array
     {
         return [
-            'answer_text' => $this->faker->text(),
+            'answer_text' => fake()->text(),
         ];
     }
 }

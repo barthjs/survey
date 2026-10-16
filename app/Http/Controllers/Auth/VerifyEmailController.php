@@ -14,9 +14,7 @@ final class VerifyEmailController
      */
     public function __invoke(EmailVerificationRequest $request): RedirectResponse
     {
-        if (! config('app.enable_email_verification')) {
-            abort(404);
-        }
+        abort_unless(config()->boolean('app.enable_email_verification'), 404);
 
         if ($request->user()->hasVerifiedEmail()) {
             return redirect()->intended(route('surveys.index', absolute: false));

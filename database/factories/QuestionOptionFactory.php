@@ -22,7 +22,7 @@ final class QuestionOptionFactory extends Factory
     public function definition(): array
     {
         return [
-            'option_text' => $this->faker->text(),
+            'option_text' => fake()->text(),
         ];
     }
 }

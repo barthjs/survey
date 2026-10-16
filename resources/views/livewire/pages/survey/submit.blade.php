@@ -11,7 +11,7 @@
                         wire:model="response.{{ $question['id'] }}"
                         :required="$question['is_required']"
                     />
-                @elseif ($question['type'] === QuestionType::MULTIPLE_CHOICE->name )
+                @elseif ($question['type'] === QuestionType::MULTIPLE_CHOICE->name)
                     @if ($question['is_required'])
                         <span class="text-error">*</span>
                     @endif
@@ -32,7 +32,13 @@
         @endforeach
 
         @if ($survey->end_date && !$this->survey->end_date->isPast())
-            <h2 class="text-info text-lg">{{ __('Open until') . ': ' .   $survey->end_date }}</h2>
+            <h2 class="text-info text-lg">
+                {{
+                    __('Open until') .
+                        ': ' .
+                        $survey->end_date
+                }}
+            </h2>
         @endif
 
         <x-slot:actions class="justify-start">

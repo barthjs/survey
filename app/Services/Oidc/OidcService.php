@@ -24,7 +24,7 @@ final readonly class OidcService
             /** @phpstan-ignore-next-line */
             if (isset($config['oidc_enabled']) && $config['oidc_enabled']) {
                 $enabledProviders[$provider] = [
-                    'icon' => config()->string("services.$provider.icon"),
+                    'icon' => 'brand.'.$provider,
                     'label' => config()->string("services.$provider.label"),
                 ];
             }
@@ -46,20 +46,16 @@ final readonly class OidcService
     public function handleCallback(string $provider, SocialiteUser $socialiteUser): User
     {
         $userProvider = UserProvider::findForProvider($provider, $socialiteUser);
-        if ($userProvider !== null) {
+        if ($userProvider instanceof UserProvider) {
             return $userProvider->user;
         }
 
-        if (! config()->boolean('app.allow_registration')) {
-            throw new RuntimeException('Registration is disabled');
-        }
+        throw_unless(config()->boolean('app.allow_registration'), RuntimeException::class, 'Registration is disabled');
 
         $email = $socialiteUser->getEmail();
-        if (empty($email)) {
-            throw new RuntimeException('Provider did not return an email address');
-        }
+        throw_if(empty($email), RuntimeException::class, 'Provider did not return an email address');
 
-        if (User::where('email', $email)->exists()) {
+        if (User::query()->where('email', $email)->exists()) {
             throw ValidationException::withMessages([
                 'email' => [
                     __('validation.unique', ['attribute' => 'email']),
@@ -94,7 +90,7 @@ final readonly class OidcService
             ?? $socialiteUser->getNickname()
             ?? $email;
 
-        return User::create([
+        return User::query()->create([
             'name' => $name,
             'email' => $email,
             'email_verified_at' => now(),

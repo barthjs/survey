@@ -11,7 +11,7 @@ use Illuminate\View\Component;
 final class Oidc extends Component
 {
     /** @var array<array{icon: string, label: string}> */
-    public array $availableProviders = [];
+    public array $availableProviders;
 
     public function __construct(OidcService $oidcService)
     {

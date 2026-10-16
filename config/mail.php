@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 return [
 
-    'default' => 'smtp',
-
     'mailers' => [
 
         'smtp' => [
             'transport' => 'smtp',
-            'scheme' => env('MAIL_SCHEME', 'smtps'),
+            'scheme' => env('MAIL_SCHEME'),
             'url' => env('MAIL_URL'),
             'host' => env('MAIL_HOST'),
-            'port' => env('MAIL_PORT', 465),
+            'port' => env('MAIL_PORT'),
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
             'timeout' => null,
@@ -24,7 +22,7 @@ return [
 
     'from' => [
         'address' => env('MAIL_FROM_ADDRESS'),
-        'name' => env('MAIL_FROM_NAME', 'Survey'),
+        'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Survey')),
     ],
 
 ];

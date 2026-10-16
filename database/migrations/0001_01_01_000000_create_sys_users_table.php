@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sys_users', function (Blueprint $table) {
+        Schema::create('sys_users', function (Blueprint $table): void {
             $table->ulid('id')->primary();
             $table->timestamps();
 
@@ -29,13 +29,13 @@ return new class extends Migration
             $table->boolean('is_admin')->default(false);
         });
 
-        Schema::create('sys_password_reset_tokens', function (Blueprint $table) {
+        Schema::create('sys_password_reset_tokens', function (Blueprint $table): void {
             $table->string('email')->primary();
             $table->string('token');
             $table->timestamp('created_at')->nullable();
         });
 
-        Schema::create('sys_sessions', function (Blueprint $table) {
+        Schema::create('sys_sessions', function (Blueprint $table): void {
             $table->string('id')->primary();
             $table->foreignUlid('user_id')->nullable()->index();
             $table->string('ip_address', 45)->nullable();

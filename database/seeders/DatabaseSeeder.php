@@ -30,17 +30,15 @@ final class DatabaseSeeder extends Seeder
         }
 
         $admin = null;
-        if (User::where('is_admin', '=', true)->count() === 0) {
-            $admin = User::create(
-                [
-                    'name' => 'Admin User',
-                    'email' => 'admin@example.com',
-                    'password' => Hash::make('admin'),
-                    'email_verified_at' => now(),
-                    'is_active' => true,
-                    'is_admin' => true,
-                ]
-            );
+        if (User::query()->where('is_admin', '=', true)->count() === 0) {
+            $admin = User::query()->create([
+                'name' => 'Admin User',
+                'email' => 'admin@example.com',
+                'password' => Hash::make('admin'),
+                'email_verified_at' => now(),
+                'is_active' => true,
+                'is_admin' => true,
+            ]);
         }
 
         if (! App::isLocal()) {
@@ -49,13 +47,11 @@ final class DatabaseSeeder extends Seeder
 
         $admin && $this->createDemoSurveys($admin);
 
-        User::firstOrCreate(['email' => 'user@example.com'],
-            [
-                'name' => 'Demo User',
-                'password' => Hash::make('user'),
-                'email_verified_at' => now(),
-            ]
-        ) |> $this->createDemoSurveys(...);
+        User::query()->firstOrCreate(['email' => 'user@example.com'], [
+            'name' => 'Demo User',
+            'password' => Hash::make('user'),
+            'email_verified_at' => now(),
+        ]) |> $this->createDemoSurveys(...);
 
         User::factory(10)->create(['password' => 'password']);
     }
@@ -83,7 +79,7 @@ final class DatabaseSeeder extends Seeder
                 ]);
 
                 foreach ($questions as $question) {
-                    $answer = Answer::create([
+                    $answer = Answer::query()->create([
                         'response_id' => $response->id,
                         'question_id' => $question->id,
                     ]);
@@ -99,11 +95,12 @@ final class DatabaseSeeder extends Seeder
                             $options = $question->options()->inRandomOrder()->take(random_int(1, 4))->get();
 
                             foreach ($options as $option) {
-                                AnswerOption::create([
+                                AnswerOption::query()->create([
                                     'answer_id' => $answer->id,
                                     'question_option_id' => $option->id,
                                 ]);
                             }
+
                             break;
 
                         case QuestionType::FILE:
@@ -128,7 +125,7 @@ final class DatabaseSeeder extends Seeder
     {
         $questions = [];
 
-        $questions[] = Question::create([
+        $questions[] = Question::query()->create([
             'survey_id' => $survey->id,
             'question_text' => 'Question 1',
             'type' => QuestionType::TEXT,
@@ -136,7 +133,7 @@ final class DatabaseSeeder extends Seeder
             'order_index' => 0,
         ]);
 
-        $questions[] = Question::create([
+        $questions[] = Question::query()->create([
             'survey_id' => $survey->id,
             'question_text' => 'Question 2',
             'type' => QuestionType::MULTIPLE_CHOICE,
@@ -145,14 +142,14 @@ final class DatabaseSeeder extends Seeder
         ]);
 
         for ($j = 0; $j < 3; $j++) {
-            QuestionOption::create([
+            QuestionOption::query()->create([
                 'question_id' => $questions[1]->id,
                 'option_text' => "Option $j",
                 'order_index' => $j,
             ]);
         }
 
-        $questions[] = Question::create([
+        $questions[] = Question::query()->create([
             'survey_id' => $survey->id,
             'question_text' => 'Question 3',
             'type' => QuestionType::FILE,

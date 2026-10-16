@@ -23,9 +23,9 @@ final class QuestionFactory extends Factory
     public function definition(): array
     {
         return [
-            'question_text' => $this->faker->text(),
-            'type' => $this->faker->randomElement(QuestionType::cases()),
-            'is_required' => $this->faker->boolean(),
+            'question_text' => fake()->text(),
+            'type' => fake()->randomElement(QuestionType::cases()),
+            'is_required' => fake()->boolean(),
         ];
     }
 }

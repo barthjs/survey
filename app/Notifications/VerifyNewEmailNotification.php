@@ -9,7 +9,7 @@ use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\URL;
 
@@ -44,7 +44,7 @@ final class VerifyNewEmailNotification extends Notification implements ShouldBeU
     {
         $url = URL::temporarySignedRoute(
             'verification.verify-new-email',
-            Carbon::now()->addMinutes(60),
+            Date::now()->addMinutes(60),
             [
                 'id' => $this->userId,
                 'hash' => sha1($this->newEmail.$this->userId.config()->string('app.key')),

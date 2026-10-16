@@ -12,12 +12,12 @@ use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Laravel\get;
 use function Pest\Livewire\livewire;
 
-it('renders the register page', function () {
+it('renders the register page', function (): void {
     livewire(Register::class)
         ->assertOk();
 });
 
-it('can register a new user', function () {
+it('can register a new user', function (): void {
     livewire(Register::class)
         ->set('name', 'Test User')
         ->set('email', 'test@example.com')
@@ -30,7 +30,7 @@ it('can register a new user', function () {
     assertAuthenticated();
 });
 
-it('validates unique email', function () {
+it('validates unique email', function (): void {
     User::factory()->create(['email' => 'user@example.com']);
 
     livewire(Register::class)
@@ -42,7 +42,7 @@ it('validates unique email', function () {
         ->assertHasErrors(['email']);
 });
 
-test('oidc callback creates new user and redirects to dashboard', function () {
+test('oidc callback creates new user and redirects to dashboard', function (): void {
     Socialite::fake('oidc', (new SocialiteUser)->map([
         'id' => 1,
         'name' => 'Test User',

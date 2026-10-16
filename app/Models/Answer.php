@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Database\Factories\AnswerFactory;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -23,14 +25,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read Response $response
  * @property-read Collection<int, AnswerOption> $selectedOptions
  */
+#[Table(name: 'answers')]
+#[WithoutTimestamps]
 final class Answer extends Model
 {
     /** @use HasFactory<AnswerFactory> */
-    use HasFactory, HasUlids;
+    use HasFactory;
 
-    public $timestamps = false;
-
-    protected $table = 'answers';
+    use HasUlids;
 
     /**
      * @return BelongsTo<Question, $this>
